@@ -1,16 +1,19 @@
 .inventario-container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 20px;
+  width: 100%;
   background: white;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-  border-radius: 10px;
+  border-radius: 8px;
+  overflow: hidden; /* Para que los bordes redondeados se vean bien */
+}
+
+.tabla-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch; /* Scroll suave en iPhone */
 }
 
 .tabla-inventario {
   width: 100%;
+  min-width: 500px; /* Obliga a la tabla a mantener forma para que sea legible */
   border-collapse: collapse;
-  margin-top: 20px;
 }
 
 .tabla-inventario th, .tabla-inventario td {

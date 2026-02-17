@@ -1,12 +1,23 @@
+import './styles/App.css'; // <--- Verifica que este archivo exista
 import FormularioProducto from './components/FormularioProducto';
 import ListaInventario from './components/ListaInventario';
+import SeccionVentas from './components/SeccionVentas';
 
 function App() {
   return (
-    <div style={{ backgroundColor: '#f0f2f5', minHeight: '100vh', padding: '20px' }}>
-      <h1 style={{ textAlign: 'center', color: '#2c3e50' }}>Dashboard Kids Fashion</h1>
-      <FormularioProducto />
-      <ListaInventario />
+    <div className="dashboard-main">
+      <h1>Mundo bebé 👕</h1>
+      
+      <div className="layout-grid">
+        <aside>
+          <SeccionVentas />
+          <FormularioProducto />
+        </aside>
+        
+        <main>
+          <ListaInventario />
+        </main>
+      </div>
     </div>
   );
 }
