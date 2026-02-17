@@ -1,0 +1,43 @@
+.inventario-container {
+  max-width: 800px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  border-radius: 10px;
+}
+
+.tabla-inventario {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.tabla-inventario th, .tabla-inventario td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.tabla-inventario th {
+  background-color: #f8f9fa;
+  color: #333;
+}
+
+.bajo-stock {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.btn-eliminar {
+  background-color: #ff4757;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.btn-eliminar:hover {
+  background-color: #ff6b81;
+}
