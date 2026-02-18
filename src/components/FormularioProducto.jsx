@@ -2,31 +2,83 @@ import { useState } from 'react';
 import { supabase } from '../supabaseClient';
 import '../styles/Formulario.css';
 
-export default function FormularioProducto() {
+export default function FormularioProducto({ alTerminar }) {
   const [nombre, setNombre] = useState('');
   const [precio, setPrecio] = useState('');
   const [stock, setStock] = useState('');
+  const [talle, setTalle] = useState('');
+
+  const tallesDisponibles = ['Recién Nacido', '1 a 3 meses', 'T4', 'T6', 'T8', 'T10', 'T12'];
 
   const guardarProducto = async (e) => {
     e.preventDefault();
-    const { data, error } = await supabase
-      .from('productos')
-      .insert([{ nombre, precio: parseFloat(precio), stock: parseInt(stock) }]);
 
-    if (error) console.log("Error:", error);
-    else {
-      alert("¡Producto cargado!");
-      setNombre(''); setPrecio(''); setStock('');
+    // 1. Primero buscamos si ya existe la combinación exacta de Nombre y Talle
+    const { data: existente, error: errorBusqueda } = await supabase
+      .from('productos')
+      .select('*')
+      .eq('nombre', nombre)
+      .eq('talle', talle)
+      .maybeSingle(); // Trae uno solo o null
+
+    if (errorBusqueda) {
+      console.error(errorBusqueda);
+      return;
+    }
+
+    if (existente) {
+      // 2. SI EXISTE: Actualizamos sumando el stock
+      const nuevoStock = existente.stock + parseInt(stock);
+      
+      const { error: errorUpdate } = await supabase
+        .from('productos')
+        .update({ stock: nuevoStock, precio: parseFloat(precio) }) // Actualizamos stock y precio por las dudas
+        .eq('id', existente.id);
+
+      if (errorUpdate) alert("Error al actualizar stock");
+      else alert(`¡Stock actualizado! Ahora hay ${nuevoStock} unidades.`);
+
+    } else {
+      // 3. NO EXISTE: Creamos el producto nuevo (tu código original)
+      const { error: errorInsert } = await supabase
+        .from('productos')
+        .insert([{ 
+          nombre, 
+          precio: parseFloat(precio), 
+          stock: parseInt(stock), 
+          talle 
+        }]);
+
+      if (errorInsert) alert("Error al crear producto");
+      else alert("¡Producto nuevo creado con éxito!");
+    }
+
+    // Limpiar formulario y refrescar (opcional)
+    setNombre(''); setPrecio(''); setStock(''); setTalle('');
+
+    if (!errorBusqueda && !errorInsert && !errorUpdate) {
+      alTerminar(); // <--- Aquí le avisamos a App.jsx que algo cambió
+      // limpiar campos...
     }
   };
+  
 
   return (
     <form className="form-container" onSubmit={guardarProducto}>
-      <h2>Cargar Nuevo Producto</h2>
-      <input type="text" placeholder="Nombre (ej: Remera Oso)" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
-      <input type="number" placeholder="Precio" value={precio} onChange={(e) => setPrecio(e.target.value)} required />
-      <input type="number" placeholder="Stock Inicial" value={stock} onChange={(e) => setStock(e.target.value)} required />
-      <button type="submit">Guardar en Inventario</button>
+      <h2>Cargar Mercadería</h2>
+      <input type="text" placeholder="Producto (ej: Body Algodón)" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+      
+      <div className="form-group-row">
+        <select value={talle} onChange={(e) => setTalle(e.target.value)} required style={{width: '100%'}}>
+          <option value="">Seleccionar Talle</option>
+          {tallesDisponibles.map(t => <option key={t} value={t}>{t}</option>)}
+        </select>
+      </div>
+
+      <input type="number" placeholder="Precio $" value={precio} onChange={(e) => setPrecio(e.target.value)} required />
+      <input type="number" placeholder="Stock" value={stock} onChange={(e) => setStock(e.target.value)} required />
+      
+      <button type="submit">Agregar al Inventario</button>
     </form>
   );
 }
