@@ -7,7 +7,6 @@ export default function HistorialVentas() {
   const [totalRecaudado, setTotalRecaudado] = useState(0);
 
   const obtenerVentas = async () => {
-    // Aquí pedimos la venta Y el nombre del producto relacionado
     const { data, error } = await supabase
       .from('ventas')
       .select(`

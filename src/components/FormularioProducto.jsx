@@ -12,8 +12,6 @@ export default function FormularioProducto({ alTerminar }) {
 
   const guardarProducto = async (e) => {
     e.preventDefault();
-
-    // 1. Primero buscamos si ya existe la combinación exacta de Nombre y Talle
     const { data: existente, error: errorBusqueda } = await supabase
       .from('productos')
       .select('*')
@@ -27,7 +25,6 @@ export default function FormularioProducto({ alTerminar }) {
     }
 
     if (existente) {
-      // 2. SI EXISTE: Actualizamos sumando el stock
       const nuevoStock = existente.stock + parseInt(stock);
       
       const { error: errorUpdate } = await supabase
@@ -39,7 +36,6 @@ export default function FormularioProducto({ alTerminar }) {
       else alert(`¡Stock actualizado! Ahora hay ${nuevoStock} unidades.`);
 
     } else {
-      // 3. NO EXISTE: Creamos el producto nuevo (tu código original)
       const { error: errorInsert } = await supabase
         .from('productos')
         .insert([{ 
@@ -53,12 +49,10 @@ export default function FormularioProducto({ alTerminar }) {
       else alert("¡Producto nuevo creado con éxito!");
     }
 
-    // Limpiar formulario y refrescar (opcional)
     setNombre(''); setPrecio(''); setStock(''); setTalle('');
 
     if (!errorBusqueda && !errorInsert && !errorUpdate) {
-      alTerminar(); // <--- Aquí le avisamos a App.jsx que algo cambió
-      // limpiar campos...
+      alTerminar(); 
     }
   };
   
