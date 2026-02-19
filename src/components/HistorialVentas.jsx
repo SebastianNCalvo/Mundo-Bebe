@@ -1,62 +1,112 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
-import '../styles/Inventario.css'; // Reutilizamos estilos de tabla
+import '../styles/Inventario.css';
 
 export default function HistorialVentas() {
   const [ventas, setVentas] = useState([]);
-  const [totalRecaudado, setTotalRecaudado] = useState(0);
+  const [mes, setMes] = useState(new Date().getMonth() + 1);
+  const [anio, setAnio] = useState(new Date().getFullYear());
 
-  const obtenerVentas = async () => {
-    const { data, error } = await supabase
-      .from('ventas')
-      .select(`
-        id,
-        cantidad,
-        total,
-        fecha,
-        productos ( nombre )
-      `)
-      .order('fecha', { ascending: false });
+const traerHistorial = async () => {
+  // 1. Calculamos el primer día del mes
+  const inicioMes = `${anio}-${String(mes).padStart(2, '0')}-01T00:00:00`;
+  
+  // 2. MAGIA DE JS: Pedir el día 0 del mes siguiente nos da el último día del mes actual
+  const ultimoDia = new Date(anio, mes, 0).getDate();
+  const finMes = `${anio}-${String(mes).padStart(2, '0')}-${ultimoDia}T23:59:59`;
 
-    if (error) console.log("Error:", error);
-    else {
-      setVentas(data);
-      const suma = data.reduce((acc, v) => acc + v.total, 0);
-      setTotalRecaudado(suma);
-    }
-  };
+  console.log(`Consultando rango real: ${inicioMes} al ${finMes}`);
+
+  const { data, error } = await supabase
+    .from('ventas')
+    .select('id, cantidad, total, fecha, productos(nombre, talle)')
+    .gte('fecha', inicioMes)
+    .lte('fecha', finMes)
+    .order('fecha', { ascending: false });
+
+  if (error) {
+    console.error("Error en Supabase:", error);
+  } else {
+    setVentas(data || []);
+  }
+};
 
   useEffect(() => {
-    obtenerVentas();
-  }, []);
+    traerHistorial();
+  }, [mes, anio]);
+
+  const totalMensual = ventas.reduce((acc, v) => acc + (v.total || 0), 0);
+
+  // Función para formatear fecha a Argentina
+  const formatearFechaArg = (fechaISO) => {
+    if (!fechaISO) return "S/F";
+    const fecha = new Date(fechaISO);
+    return fecha.toLocaleString('es-AR', {
+      timeZone: 'America/Argentina/Buenos_Aires',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
 
   return (
-    <div className="inventario-container">
-      <h3>Historial de Ventas 💰</h3>
-      <p><strong>Total Recaudado: ${totalRecaudado.toLocaleString()}</strong></p>
-      
-      <div className="tabla-wrapper">
-        <table className="tabla-inventario">
-          <thead>
-            <tr>
-              <th>Fecha</th>
-              <th>Producto</th>
-              <th>Cant.</th>
-              <th>Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {ventas.map((v) => (
-              <tr key={v.id}>
-                <td>{new Date(v.fecha).toLocaleDateString()}</td>
-                <td>{v.productos?.nombre || 'Producto eliminado'}</td>
-                <td>{v.cantidad}</td>
-                <td>${v.total}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <div className="historial-container">
+      <h3>Resumen de Ventas 💰</h3>
+
+      <div className="filtros-historial">
+        <select value={mes} onChange={(e) => setMes(parseInt(e.target.value))}>
+          <option value="1">Enero</option>
+          <option value="2">Febrero</option>
+          <option value="3">Marzo</option>
+          <option value="4">Abril</option>
+          <option value="5">Mayo</option>
+          <option value="6">Junio</option>
+          <option value="7">Julio</option>
+          <option value="8">Agosto</option>
+          <option value="9">Septiembre</option>
+          <option value="10">Octubre</option>
+          <option value="11">Noviembre</option>
+          <option value="12">Diciembre</option>
+        </select>
+
+        <select value={anio} onChange={(e) => setAnio(parseInt(e.target.value))}>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
       </div>
+
+      <div className="card-total-mes">
+        <h4>Total Mensual: <span>${totalMensual.toLocaleString('es-AR')}</span></h4>
+        <p>Operaciones: {ventas.length}</p>
+      </div>
+
+      <table className="tabla-inventario">
+        <thead>
+          <tr>
+            <th>Fecha/Hora (Arg)</th>
+            <th>Producto</th>
+            <th>Cant.</th>
+            <th>Subtotal</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ventas.map((v) => (
+            <tr key={v.id}>
+              <td>{formatearFechaArg(v.fecha)}</td> 
+              <td>{v.productos?.nombre} (T{v.productos?.talle})</td>
+              <td>{v.cantidad}</td>
+              <td>${v.total.toLocaleString('es-AR')}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {ventas.length === 0 && (
+        <p style={{ textAlign: 'center', padding: '20px' }}>No hay ventas en este período.</p>
+      )}
     </div>
   );
 }

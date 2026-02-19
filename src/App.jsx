@@ -10,7 +10,7 @@ import Login from './components/Login';
 
 function App() {
   const [sesion, setSesion] = useState(null);
-  const [pestana, setPestana] = useState('inventario');
+  const [pestana, setPestana] = useState('ventas');
   const [actualizador, setActualizador] = useState(0);
   
   const refrescarInventario = () => {
@@ -38,34 +38,44 @@ function App() {
   if (!sesion) {
     return <Login />;
   }
+  const ADMIN_UID= "5a06506a-48ad-41b7-ab29-24ba4bc29502"
+  const esAdmin = sesion?.user.id === ADMIN_UID;
 
   return (
     <div className="dashboard-main">
       <header className="header-admin">
-        <h1>Mundo Bebé 👶</h1>
-        <button className="btn-logout" onClick={cerrarSesion}>Cerrar Sesión</button>
+        <div>
+          <h1>Mundo Bebé 👶</h1>
+          <p>Usuario: <strong>{sesion?.user.email}</strong> ({esAdmin ? "Admin" : "Vendedor"})</p>
+        </div>
+        <button className="btn-logout" onClick={cerrarSesion}>Salir</button>
       </header>
 
       <nav className="tabs-nav">
-        <button onClick={() => setPestana('inventario')}>Inventario</button>
         <button onClick={() => setPestana('ventas')}>Ventas</button>
-        <button onClick={() => setPestana('historial')}>Historial</button>
+        <button onClick={() => setPestana('inventario')}>Inventario</button>
+        
+        {/* Solo el Admin ve el botón de Historial */}
+        {esAdmin && (
+          <button onClick={() => setPestana('historial')}>Historial 💰</button>
+        )}
       </nav>
 
       <div className="tab-content">
         {pestana === 'inventario' && (
           <div className="layout-grid">
-            {/* Le pasamos la función para que el formulario pueda "tocar el timbre" */}
-            <FormularioProducto alTerminar={refrescarInventario} />
+            {/* Solo el Admin ve el formulario de carga */}
+            {esAdmin && <FormularioProducto alTerminar={refrescarInventario} />}
             
-            {/* Le pasamos el estado para que la lista sepa cuándo reaccionar */}
-            <ListaInventario trigger={actualizador} />
+            {/* La lista siempre se ve, pero le pasamos el permiso para borrar */}
+            <ListaInventario trigger={actualizador} esAdmin={esAdmin} />
           </div>
         )}
 
-        {pestana === 'ventas' && <SeccionVentas />}
+        {pestana === 'ventas' && <SeccionVentas alTerminar={refrescarInventario} />}
         
-        {pestana === 'historial' && <HistorialVentas />}
+        {/* Protección extra por si alguien intenta entrar por código */}
+        {pestana === 'historial' && esAdmin && <HistorialVentas />}
       </div>
     </div>
   );

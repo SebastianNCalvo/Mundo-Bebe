@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '../supabaseClient';
 import '../styles/Inventario.css';
 
-export default function ListaInventario({ trigger }) {
+export default function ListaInventario({ trigger, esAdmin }) {
   const [productos, setProductos] = useState([]);
   // Dentro de ListaInventario.jsx
   const [busqueda, setBusqueda] = useState('');
@@ -81,12 +81,11 @@ export default function ListaInventario({ trigger }) {
                   {prod.stock}
                 </td>
                 <td>
-                  <button 
-                    className="btn-eliminar" 
-                    onClick={() => eliminarProducto(prod.id)}
-                  >
-                    ×
-                  </button>
+                  {esAdmin ? (
+                    <button className="btn-eliminar" onClick={() => eliminarProducto(prod.id)}>×</button>
+                  ) : (
+                    <span style={{color: '#ccc', fontSize: '0.8rem'}}>Lectura</span>
+                  )}
                 </td>
               </tr>
             ))}
