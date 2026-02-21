@@ -12,7 +12,6 @@ export default function ListaInventario({ trigger, esAdmin }) {
   const productosFiltrados = productos.filter(prod => 
     prod.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
-  // Función para obtener los productos de Supabase
   const obtenerProductos = async () => {
     const { data, error } = await supabase
       .from('productos')
@@ -28,7 +27,7 @@ export default function ListaInventario({ trigger, esAdmin }) {
     if (confirmacion) {
       const { error } = await supabase.from('productos').delete().eq('id', id);
       if (error) alert("Error al eliminar");
-      else obtenerProductos(); // Recargamos la lista
+      else obtenerProductos();
     }
   };
 
@@ -66,20 +65,33 @@ export default function ListaInventario({ trigger, esAdmin }) {
           <tbody>
             {productosFiltrados.map((prod) => (
               <tr key={prod.id}>
-                <td><strong>{prod.nombre}</strong></td>
-                <td>
+                {/* Agregamos data-label a cada celda */}
+                <td data-label="Producto">
+                  <strong>{prod.nombre}</strong>
+                </td>
+                
+                <td data-label="Talle">
                   <span className="badge-talle">{prod.talle}</span> 
                 </td>
-                <td>${prod.precio}</td>
-                <td className={prod.stock < 5 ? 'bajo-stock' : ''}>
+                
+                <td data-label="Precio">
+                  ${prod.precio}
+                </td>
+                
+                <td 
+                  data-label="Stock" 
+                  className={prod.stock < 5 ? 'bajo-stock' : ''}
+                >
                   {prod.stock}
                 </td>
-                <td>
-                  {esAdmin ? (
-                    <button className="btn-eliminar" onClick={() => eliminarProducto(prod.id)}>×</button>
-                  ) : (
-                    <span style={{color: '#ccc', fontSize: '0.8rem'}}>Lectura</span>
-                  )}
+                
+                <td data-label="Acciones">
+                  <button 
+                    className="btn-eliminar" 
+                    onClick={() => eliminarProducto(prod.id)}
+                  >
+                    ×
+                  </button>
                 </td>
               </tr>
             ))}

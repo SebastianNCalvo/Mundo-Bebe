@@ -12,6 +12,9 @@ export default function FormularioProducto({ alTerminar }) {
 
   const guardarProducto = async (e) => {
     e.preventDefault();
+    
+    let errorOperacion = null;
+
     const { data: existente, error: errorBusqueda } = await supabase
       .from('productos')
       .select('*')
@@ -26,17 +29,16 @@ export default function FormularioProducto({ alTerminar }) {
 
     if (existente) {
       const nuevoStock = existente.stock + parseInt(stock);
-      
-      const { error: errorUpdate } = await supabase
+      const { error } = await supabase
         .from('productos')
         .update({ stock: nuevoStock, precio: parseFloat(precio) })
         .eq('id', existente.id);
-
-      if (errorUpdate) alert("Error al actualizar stock");
-      else alert(`¡Stock actualizado! Ahora hay ${nuevoStock} unidades.`);
+      
+      errorOperacion = error; // Guardamos el resultado aquí
+      if (!error) alert(`¡Stock actualizado! Ahora hay ${nuevoStock} unidades.`);
 
     } else {
-      const { error: errorInsert } = await supabase
+      const { error } = await supabase
         .from('productos')
         .insert([{ 
           nombre, 
@@ -45,14 +47,19 @@ export default function FormularioProducto({ alTerminar }) {
           talle 
         }]);
 
-      if (errorInsert) alert("Error al crear producto");
-      else alert("¡Producto nuevo creado con éxito!");
+      errorOperacion = error; 
+      if (!error) alert("¡Producto nuevo creado con éxito!");
     }
 
-    setNombre(''); setPrecio(''); setStock(''); setTalle('');
-
-    if (!errorBusqueda && !errorInsert && !errorUpdate) {
-      alTerminar(); 
+    if (!errorBusqueda && !errorOperacion) {
+      setNombre(''); 
+      setPrecio(''); 
+      setStock(''); 
+      setTalle('');
+      
+      if (alTerminar) alTerminar(); 
+    } else {
+      alert("Hubo un error al procesar la solicitud");
     }
   };
   

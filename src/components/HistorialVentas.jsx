@@ -92,10 +92,10 @@ const traerHistorial = async () => {
         <tbody>
           {ventas.map((v) => (
             <tr key={v.id}>
-              <td>{formatearFechaArg(v.fecha)}</td> 
-              <td>{v.productos?.nombre} (T{v.productos?.talle})</td>
-              <td>{v.cantidad}</td>
-              <td>${v.total.toLocaleString('es-AR')}</td>
+              <td data-label="Fecha">{formatearFechaArg(v.fecha)}</td>
+              <td data-label="Producto">{v.productos?.nombre}</td>
+              <td data-label="Cantidad">{v.cantidad}</td>
+              <td data-label="Total">${v.total}</td>
             </tr>
           ))}
         </tbody>

@@ -1,109 +1,131 @@
-/* Estilos base para móviles */
+/* Variables de color para facilitar cambios */
+:root {
+  --color-primario: #a8dadc; /* Celeste pastel */
+  --color-secundario: #f1faee; /* Blanco crema/menta */
+  --color-acento: #457b9d; /* Azul profundo para botones */
+  --color-peligro: #e63946; /* Rojo para borrar */
+  --color-exito: #81c784; /* Verde pastel para ventas */
+  --color-texto: #2b2d42;
+}
+
+body {
+  background-color: #f8fbfb; /* Fondo general más suave */
+  margin: 0;
+}
+
 .dashboard-main {
-  padding: 10px;
+  padding: 15px;
   max-width: 1200px;
   margin: 0 auto;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: 'Quicksand', 'Segoe UI', sans-serif; /* Quicksand es muy infantil/amigable */
 }
 
-/* Títulos adaptables */
-h1 {
-  font-size: 1.5rem;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-/* Layout responsivo: Una columna en móvil, dos en PC */
-.layout-grid {
-  display: grid;
-  grid-template-columns: 1fr; /* Una sola columna por defecto */
-  gap: 20px;
-}
-
-.tabs-nav {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-}
-
-.tabs-nav button {
-  padding: 10px 20px;
-  border: none;
-  background: #ddd;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: 0.3s;
-}
-
-.tabs-nav button:hover {
-  background: #3498db;
-  color: white;
-}
-
-.login-container {
-  height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background-color: #f4f7f6;
-}
-
-.login-form {
-  background: white;
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  width: 300px;
-}
-
+/* Header más elegante */
 .header-admin {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 20px;
-  background: #fff;
-  border-bottom: 1px solid #ddd;
-}
-
-.btn-logout {
-  background: #ff4757;
-  color: white;
-  border: none;
-  padding: 5px 15px;
-  border-radius: 5px;
-  cursor: pointer;
-}
-.filtros-historial {
-  display: flex;
-  gap: 15px;
+  padding: 15px 25px;
+  background: white;
+  border-radius: 15px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
   margin-bottom: 20px;
+  border: none;
 }
 
-.card-total-mes {
-  background: #2ecc71;
+.header-admin h1 {
+  margin: 0;
+  color: var(--color-acento);
+  font-size: 1.4rem;
+}
+
+/* Navegación por pestañas */
+.tabs-nav {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 25px;
+  background: #edf6f9;
+  padding: 10px;
+  border-radius: 50px; /* Estilo píldora */
+}
+
+.tabs-nav button {
+  padding: 12px 24px;
+  border: none;
+  background: transparent;
+  color: var(--color-acento);
+  border-radius: 25px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+/* Botón activo (Podrías manejar una clase .active en React) */
+.tabs-nav button:hover {
+  background: var(--color-primario);
   color: white;
-  padding: 20px;
-  border-radius: 10px;
+}
+
+/* Estilos para el botón cuando está activo */
+.tabs-nav button.active {
+  background-color: var(--color-primario);
+  color: white;
+  box-shadow: 0 4px 10px rgba(168, 218, 220, 0.4);
+}
+
+/* Para que se note un cambio sutil al pasar el mouse por los NO activos */
+.tabs-nav button:not(.active):hover {
+  background-color: rgba(168, 218, 220, 0.2);
+  color: var(--color-acento);
+}
+
+/* Cards y Contenedores */
+.card-total-mes {
+  background: linear-gradient(135deg, var(--color-exito), #66bb6a);
+  color: white;
+  padding: 25px;
+  border-radius: 20px;
   margin-bottom: 25px;
   text-align: center;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 8px 16px rgba(129, 199, 132, 0.3);
 }
 
-.card-total-mes h4 { margin: 0; font-size: 1.2rem; }
-.card-total-mes span { font-size: 2rem; display: block; }
-/* Media Query: Cuando la pantalla mide más de 768px (Tablet/PC) */
+.card-total-mes span {
+  font-size: 2.5rem;
+  font-weight: 800;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+/* Botón Salir */
+.btn-logout {
+  background: #f1f1f1;
+  color: #888;
+  border: 1px solid #ddd;
+  padding: 8px 18px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+}
+
+.btn-logout:hover {
+  background: var(--color-peligro);
+  color: white;
+  border-color: var(--color-peligro);
+}
+
+/* Login */
+.login-container {
+  background: linear-gradient(180deg, #f1faee 0%, #a8dadc 100%);
+}
+
+.login-form {
+  border-radius: 20px;
+  border: none;
+}
+
 @media (min-width: 768px) {
   .layout-grid {
-    grid-template-columns: 1fr 2fr; /* Formulario pequeño, Tabla grande */
-  }
-  
-  h1 {
-    font-size: 2.5rem;
+    grid-template-columns: 350px 1fr;
+    gap: 30px;
   }
 }
-
