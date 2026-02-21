@@ -8,10 +8,8 @@ export default function HistorialVentas() {
   const [anio, setAnio] = useState(new Date().getFullYear());
 
 const traerHistorial = async () => {
-  // 1. Calculamos el primer día del mes
   const inicioMes = `${anio}-${String(mes).padStart(2, '0')}-01T00:00:00`;
   
-  // 2. MAGIA DE JS: Pedir el día 0 del mes siguiente nos da el último día del mes actual
   const ultimoDia = new Date(anio, mes, 0).getDate();
   const finMes = `${anio}-${String(mes).padStart(2, '0')}-${ultimoDia}T23:59:59`;
 
@@ -37,7 +35,6 @@ const traerHistorial = async () => {
 
   const totalMensual = ventas.reduce((acc, v) => acc + (v.total || 0), 0);
 
-  // Función para formatear fecha a Argentina
   const formatearFechaArg = (fechaISO) => {
     if (!fechaISO) return "S/F";
     const fecha = new Date(fechaISO);
