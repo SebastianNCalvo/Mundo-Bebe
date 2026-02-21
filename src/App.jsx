@@ -5,7 +5,6 @@ import SeccionVentas from './components/SeccionVentas';
 import HistorialVentas from './components/HistorialVentas';
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
-// ... tus otros imports de componentes ...
 import Login from './components/Login';
 
 function App() {
@@ -17,12 +16,10 @@ function App() {
     setActualizador(prev => prev + 1);
   };
   useEffect(() => {
-    // 1. Revisar si ya hay una sesión activa al cargar
     supabase.auth.getSession().then(({ data: { session } }) => {
       setSesion(session);
     });
 
-    // 2. Escuchar cambios en el estado de auth (login/logout)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setSesion(session);
     });
@@ -34,7 +31,6 @@ function App() {
     await supabase.auth.signOut();
   };
 
-  // SI NO HAY SESIÓN, MOSTRAR LOGIN
   if (!sesion) {
     return <Login />;
   }
@@ -55,7 +51,6 @@ function App() {
         <button onClick={() => setPestana('ventas')}>Ventas</button>
         <button onClick={() => setPestana('inventario')}>Inventario</button>
         
-        {/* Solo el Admin ve el botón de Historial */}
         {esAdmin && (
           <button onClick={() => setPestana('historial')}>Historial 💰</button>
         )}
@@ -64,17 +59,14 @@ function App() {
       <div className="tab-content">
         {pestana === 'inventario' && (
           <div className="layout-grid">
-            {/* Solo el Admin ve el formulario de carga */}
             {esAdmin && <FormularioProducto alTerminar={refrescarInventario} />}
             
-            {/* La lista siempre se ve, pero le pasamos el permiso para borrar */}
             <ListaInventario trigger={actualizador} esAdmin={esAdmin} />
           </div>
         )}
 
         {pestana === 'ventas' && <SeccionVentas alTerminar={refrescarInventario} />}
         
-        {/* Protección extra por si alguien intenta entrar por código */}
         {pestana === 'historial' && esAdmin && <HistorialVentas />}
       </div>
     </div>
