@@ -17,7 +17,7 @@ export default function FormularioProducto({ alTerminar }) {
       .select('*')
       .eq('nombre', nombre)
       .eq('talle', talle)
-      .maybeSingle(); // Trae uno solo o null
+      .maybeSingle();
 
     if (errorBusqueda) {
       console.error(errorBusqueda);
@@ -29,7 +29,7 @@ export default function FormularioProducto({ alTerminar }) {
       
       const { error: errorUpdate } = await supabase
         .from('productos')
-        .update({ stock: nuevoStock, precio: parseFloat(precio) }) // Actualizamos stock y precio por las dudas
+        .update({ stock: nuevoStock, precio: parseFloat(precio) })
         .eq('id', existente.id);
 
       if (errorUpdate) alert("Error al actualizar stock");
