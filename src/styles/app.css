@@ -1,131 +1,137 @@
-/* Variables de color para facilitar cambios */
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden; /* Evita el scroll horizontal fantasma */
+}
+
+#root {
+  width: 100%;
+}
 :root {
-  --color-primario: #a8dadc; /* Celeste pastel */
-  --color-secundario: #f1faee; /* Blanco crema/menta */
-  --color-acento: #457b9d; /* Azul profundo para botones */
-  --color-peligro: #e63946; /* Rojo para borrar */
-  --color-exito: #81c784; /* Verde pastel para ventas */
+  --color-primario: #a8dadc;
+  --color-secundario: #f1faee;
+  --color-acento: #457b9d;
+  --color-peligro: #e63946;
+  --color-exito: #81c784;
   --color-texto: #2b2d42;
 }
 
 body {
-  background-color: #f8fbfb; /* Fondo general más suave */
+  background-color: #f8fbfb;
   margin: 0;
+  -webkit-tap-highlight-color: transparent; /* Mejora tacto en móvil */
 }
 
 .dashboard-main {
-  padding: 15px;
+  padding: 10px; /* Menos padding en móvil */
   max-width: 1200px;
   margin: 0 auto;
-  font-family: 'Quicksand', 'Segoe UI', sans-serif; /* Quicksand es muy infantil/amigable */
+  font-family: 'Quicksand', sans-serif;
 }
 
-/* Header más elegante */
+/* --- Header Adaptable --- */
 .header-admin {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 25px;
+  flex-direction: column; /* Columna en móvil */
+  gap: 10px;
+  text-align: center;
+  padding: 15px;
   background: white;
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  margin-bottom: 20px;
-  border: none;
+  margin-bottom: 15px;
 }
 
 .header-admin h1 {
   margin: 0;
   color: var(--color-acento);
-  font-size: 1.4rem;
+  font-size: 1.2rem;
 }
 
-/* Navegación por pestañas */
+.header-admin p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+/* --- Nav Estilo Píldora (Scrollable si no cabe) --- */
 .tabs-nav {
   display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin-bottom: 25px;
+  justify-content: flex-start; /* Alineado a la izq para scroll */
+  overflow-x: auto; /* Scroll horizontal si hay muchos botones */
+  gap: 8px;
+  margin-bottom: 20px;
   background: #edf6f9;
-  padding: 10px;
-  border-radius: 50px; /* Estilo píldora */
+  padding: 8px;
+  border-radius: 50px;
+  scrollbar-width: none; /* Oculta scroll en Firefox */
 }
 
+.tabs-nav::-webkit-scrollbar { display: none; } /* Oculta scroll en Chrome/Safari */
+
 .tabs-nav button {
-  padding: 12px 24px;
+  padding: 10px 18px;
   border: none;
   background: transparent;
   color: var(--color-acento);
   border-radius: 25px;
   cursor: pointer;
   font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-/* Botón activo (Podrías manejar una clase .active en React) */
-.tabs-nav button:hover {
-  background: var(--color-primario);
-  color: white;
-}
-
-/* Estilos para el botón cuando está activo */
-.tabs-nav button.active {
-  background-color: var(--color-primario);
-  color: white;
-  box-shadow: 0 4px 10px rgba(168, 218, 220, 0.4);
-}
-
-/* Para que se note un cambio sutil al pasar el mouse por los NO activos */
-.tabs-nav button:not(.active):hover {
-  background-color: rgba(168, 218, 220, 0.2);
-  color: var(--color-acento);
-}
-
-/* Cards y Contenedores */
-.card-total-mes {
-  background: linear-gradient(135deg, var(--color-exito), #66bb6a);
-  color: white;
-  padding: 25px;
-  border-radius: 20px;
-  margin-bottom: 25px;
-  text-align: center;
-  box-shadow: 0 8px 16px rgba(129, 199, 132, 0.3);
-}
-
-.card-total-mes span {
-  font-size: 2.5rem;
-  font-weight: 800;
-  text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
-}
-
-/* Botón Salir */
-.btn-logout {
-  background: #f1f1f1;
-  color: #888;
-  border: 1px solid #ddd;
-  padding: 8px 18px;
-  border-radius: 10px;
+  white-space: nowrap; /* Evita que el texto se rompa en 2 líneas */
   font-size: 0.9rem;
 }
 
-.btn-logout:hover {
-  background: var(--color-peligro);
+.tabs-nav button.active {
+  background-color: var(--color-primario);
   color: white;
-  border-color: var(--color-peligro);
 }
 
-/* Login */
-.login-container {
-  background: linear-gradient(180deg, #f1faee 0%, #a8dadc 100%);
+/* --- Layout Grid Responsive --- */
+.layout-grid {
+  display: grid;
+  grid-template-columns: 1fr; /* Una columna por defecto */
+  gap: 20px;
 }
 
-.login-form {
+/* --- Card de Total --- */
+.card-total-mes {
+  background: linear-gradient(135deg, var(--color-exito), #66bb6a);
+  color: white;
+  padding: 20px;
   border-radius: 20px;
-  border: none;
+  margin-bottom: 20px;
 }
 
+.card-total-mes span {
+  font-size: 1.8rem; /* Más chico en móvil */
+  font-weight: 800;
+}
+
+/* --- MEDIA QUERIES (Ajustes para Tablet y PC) --- */
 @media (min-width: 768px) {
+  .dashboard-main { padding: 20px; }
+
+  .header-admin {
+    flex-direction: row; /* Fila en PC */
+    justify-content: space-between;
+    text-align: left;
+    padding: 15px 25px;
+  }
+
+  .header-admin h1 { font-size: 1.6rem; }
+
+  .tabs-nav {
+    justify-content: center; /* Centrado en PC */
+  }
+
   .layout-grid {
-    grid-template-columns: 350px 1fr;
+    grid-template-columns: 350px 1fr; /* Formulario al lado de tabla */
     gap: 30px;
   }
+
+  .card-total-mes span { font-size: 2.5rem; }
 }

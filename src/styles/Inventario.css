@@ -2,9 +2,10 @@
 .inventario-container {
   width: 100%;
   background: white;
-  border-radius: 20px; /* Consistencia con el resto */
-  padding: 20px;
+  border-radius: 20px;
+  padding: 15px; /* Reducido para móvil */
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  box-sizing: border-box;
 }
 
 .tabla-wrapper {
@@ -14,51 +15,39 @@
 
 .tabla-inventario {
   width: 100%;
-  border-collapse: separate; /* Permite bordes redondeados en filas */
+  border-collapse: separate;
   border-spacing: 0;
 }
 
-/* --- Encabezados --- */
+/* --- Encabezados (Solo se ven en PC) --- */
 .tabla-inventario th {
-  background-color: #f1fafa; /* Celeste muy suave */
+  background-color: #f1fafa;
   color: #457b9d;
   font-weight: 700;
   text-transform: uppercase;
-  font-size: 0.85rem;
-  letter-spacing: 0.5px;
+  font-size: 0.8rem;
   padding: 15px;
   border-bottom: 2px solid #a8dadc;
 }
 
-/* --- Celdas --- */
+/* --- Celdas (Estilo PC) --- */
 .tabla-inventario td {
   padding: 16px 15px;
-  text-align: left;
   border-bottom: 1px solid #f1f1f1;
   color: #555;
   font-size: 0.95rem;
 }
 
-.tabla-inventario tr:hover td {
-  background-color: #fdfdfd; /* Efecto sutil al pasar el mouse */
-}
-
-/* --- Buscador Estilo "Cloud" --- */
+/* --- Buscador Adaptable --- */
 .buscador-container {
   display: flex;
   align-items: center;
   background: #ffffff;
-  padding: 12px 20px;
+  padding: 10px 15px;
   border-radius: 50px;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
   border: 2px solid #f1f3f4;
-  transition: all 0.3s ease;
   box-shadow: 0 4px 6px rgba(0,0,0,0.02);
-}
-
-.buscador-container:focus-within {
-  border-color: #a8dadc;
-  box-shadow: 0 4px 12px rgba(168, 218, 220, 0.3);
 }
 
 .input-busqueda {
@@ -66,76 +55,70 @@
   background: transparent;
   width: 100%;
   outline: none;
-  font-size: 1rem;
+  font-size: 16px; /* Evita zoom en iOS */
   color: #2b2d42;
   margin-left: 10px;
 }
 
-/* --- Badges y Alertas --- */
-.badge-talle {
-  background: #f1faee;
-  padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 0.8rem;
-  font-weight: bold;
-  color: #1d3557;
-  border: 1px solid #a8dadc;
-}
-
-.bajo-stock {
-  color: #e63946;
-  background-color: #ffeef0;
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: bold;
-}
-
-/* --- Botones --- */
-.btn-eliminar {
-  background-color: #fde2e4;
-  color: #e63946;
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-  font-size: 1.2rem;
-}
-
-.btn-eliminar:hover {
-  background-color: #e63946;
-  color: white;
-  transform: scale(1.1);
-}
-
-/* --- Ajustes Responsive (Modo Tarjeta Infantil) --- */
+/* --- AJUSTES RESPONSIVE (Modo Tarjeta) --- */
 @media (max-width: 768px) {
+  .inventario-container {
+    background: transparent; /* Las tarjetas resaltan más sobre el fondo gris */
+    padding: 0;
+    box-shadow: none;
+  }
+
+  /* Ocultamos el encabezado por completo */
+  .tabla-inventario thead {
+    display: none;
+  }
+
+  /* Cada fila es una tarjeta blanca */
   .tabla-inventario tr {
     display: block;
-    border: none;
     background: #ffffff;
     border-radius: 18px;
-    margin-bottom: 20px;
+    margin-bottom: 15px;
     padding: 15px;
-    box-shadow: 0 6px 15px rgba(0,0,0,0.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    border: 1px solid #edf2f4;
   }
 
   .tabla-inventario td {
     display: flex;
-    justify-content: space-between;
+    justify-content: space-between; /* Etiqueta a la izq, Dato a la der */
     align-items: center;
-    border-bottom: 1px dashed #eee; /* Línea discontinua más suave */
-    padding: 12px 5px;
+    padding: 10px 5px;
+    border-bottom: 1px dashed #eee;
+    text-align: right; /* El contenido se alinea a la derecha */
   }
 
+  .tabla-inventario td:last-child {
+    border-bottom: none; /* La última celda (acciones) no lleva línea */
+    padding-top: 15px;
+  }
+
+  /* Usamos el data-label para dar contexto */
   .tabla-inventario td::before {
     content: attr(data-label);
+    font-weight: 700;
+    text-transform: uppercase;
     font-size: 0.7rem;
     color: #a8dadc;
-    letter-spacing: 1px;
+    text-align: left;
+    margin-right: 15px;
+  }
+
+  /* Ajuste para que el nombre del producto destaque */
+  .tabla-inventario td[data-label="Producto"] {
+    font-size: 1.1rem;
+    color: #457b9d;
+  }
+}
+
+/* Ajustes para PC */
+@media (min-width: 769px) {
+  .inventario-container {
+    padding: 25px;
   }
 }

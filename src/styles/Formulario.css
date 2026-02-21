@@ -2,13 +2,16 @@
   display: flex;
   flex-direction: column;
   gap: 18px;
+  /* CAMBIO: Usamos width 100% y max-width para que no se estire infinito en PC */
+  width: 100%; 
   max-width: 400px;
-  margin: 0 auto; /* Quitamos el margin top excesivo para el grid */
-  padding: 25px;
-  border: none; /* Eliminamos el borde duro */
+  margin: 0 auto;
+  /* CAMBIO: Padding más pequeño en móviles para no robar espacio */
+  padding: 20px; 
+  box-sizing: border-box; /* Fundamental para que el padding no rompa el ancho */
   border-radius: 20px;
   background-color: #ffffff;
-  box-shadow: 0 10px 25px rgba(168, 218, 220, 0.2); /* Sombra celeste suave */
+  box-shadow: 0 10px 25px rgba(168, 218, 220, 0.2);
 }
 
 .form-container h3 {
@@ -19,20 +22,21 @@
   margin-bottom: 5px;
 }
 
-/* Estilo para los Inputs y Selects */
+/* Inputs y Selects Adaptables */
 .form-container input, 
 .form-container select {
   padding: 12px 15px;
   border-radius: 12px;
   border: 2px solid #f1f3f4;
   background-color: #f8fbff;
-  font-size: 1rem;
+  font-size: 16px; /* CAMBIO: 16px evita que el iPhone haga zoom automático al clickear */
   color: #333;
   transition: all 0.3s ease;
   outline: none;
+  width: 100%; /* Asegura que ocupen todo el ancho disponible */
+  box-sizing: border-box;
 }
 
-/* Efecto al hacer clic en el input */
 .form-container input:focus, 
 .form-container select:focus {
   border-color: #a8dadc;
@@ -40,9 +44,9 @@
   box-shadow: 0 0 8px rgba(168, 218, 220, 0.4);
 }
 
-/* Botón Principal de Guardar */
+/* Botón Guardar - Optimizado para dedos */
 .form-container button {
-  padding: 14px;
+  padding: 16px; /* Un poco más alto para facilitar el touch */
   background: linear-gradient(135deg, #81c784, #66bb6a);
   color: white;
   border: none;
@@ -54,22 +58,27 @@
   letter-spacing: 1px;
   transition: transform 0.2s, box-shadow 0.2s;
   margin-top: 10px;
+  width: 100%;
 }
 
-.form-container button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 187, 106, 0.4);
-}
-
-.form-container button:active {
-  transform: translateY(0);
-}
-
-/* Estilo para etiquetas informativas */
+/* Etiquetas */
 .form-container label {
   font-size: 0.85rem;
   font-weight: 600;
   color: #777;
   margin-bottom: -12px;
   margin-left: 5px;
+  text-align: left;
+}
+
+/* Ajustes específicos para pantallas muy pequeñas */
+@media (max-width: 480px) {
+  .form-container {
+    padding: 15px;
+    gap: 15px;
+  }
+  
+  .form-container h3 {
+    font-size: 1.1rem;
+  }
 }
