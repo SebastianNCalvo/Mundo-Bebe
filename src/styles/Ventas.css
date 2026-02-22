@@ -1,111 +1,131 @@
+/* --- Contenedor Principal --- */
 .ventas-container {
   background: #ffffff;
-  padding: 15px; /* Reducido de 25px para ganar espacio en móvil */
+  padding: 15px;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(69, 123, 157, 0.1);
-  margin-top: 0;
 }
 
 .ventas-container h3 {
-  color: #457b9d;
+  color: var(--color-acento);
   margin-bottom: 15px;
   text-align: center;
   font-size: 1.2rem;
 }
-.ventas-container select, 
-.ventas-container input {
-  padding: 12px;
-  border: 2px solid #e1e8ed;
-  border-radius: 12px;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.3s;
-  
-  /* --- ESTO ARREGLA EL COLOR EN MÓVIL --- */
-  background-color: #ffffff !important; /* Forzamos fondo blanco */
-  color: #2b2d42 !important;            /* Forzamos texto oscuro (nuestro color-texto) */
-  appearance: none;                     /* Quita el estilo por defecto del sistema */
-  -webkit-appearance: none;
-}
 
-/* Estilo para las opciones dentro del select */
-.ventas-container select option {
-  background-color: #ffffff;
-  color: #2b2d42;
-}
-
-.ventas-container select:focus {
-  border-color: var(--color-primario);
-  background-color: #ffffff;
-}
-
-/* Un toque extra: que el formulario tenga un fondo sutil pero no blanco puro */
-.ventas-container form {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  background: #f0f7f8; /* Un celeste muy, muy suave */
-  padding: 20px;
-  border-radius: 15px;
-  border: 1px dashed var(--color-primario);
-}
-
+/* --- Formulario de Selección --- */
 .ventas-container form {
   display: flex;
   flex-direction: column;
   gap: 12px;
   background: #f8fbff;
-  padding: 15px; /* Más compacto */
+  padding: 15px;
   border-radius: 15px;
-  border: 1px dashed #a8dadc;
+  border: 1px dashed var(--color-primario);
 }
 
-/* --- Carrito Adaptable --- */
+.ventas-container select, 
+.ventas-container input {
+  padding: 12px;
+  border: 2px solid #e1e8ed;
+  border-radius: 12px;
+  font-size: 16px; /* Evita zoom en iOS */
+  outline: none;
+  background-color: #ffffff !important;
+  color: var(--color-texto) !important;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* --- Botón Añadir al Carrito --- */
+.ventas-container button[type="submit"] {
+  background: linear-gradient(135deg, var(--color-acento), #5b92b6) !important;
+  color: #ffffff !important;
+  border: none;
+  padding: 16px;
+  border-radius: 15px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  box-shadow: 0 4px 12px rgba(69, 123, 157, 0.2);
+}
+
+/* --- Carrito (Estilo Recibo) --- */
 .tabla-carrito {
   width: 100%;
   border-collapse: collapse;
   margin: 20px 0;
+  background: white;
+  table-layout: fixed; /* Ayuda a controlar anchos en móvil */
 }
 
-/* Ocultamos encabezados menos importantes en móvil */
-@media (max-width: 480px) {
-  .tabla-carrito th:nth-child(3) { display: none; } /* Ocultar columna 'Precio' unitario */
-  .tabla-carrito td:nth-child(3) { display: none; }
+.tabla-carrito th {
+  text-align: center;
+  color: #777;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  padding: 10px 2px;
+  border-bottom: 2px solid #f1f3f4;
 }
 
 .tabla-carrito td {
-  padding: 12px 0;
+  padding: 12px 2px;
   border-bottom: 1px solid #f9f9f9;
-  font-size: 0.9rem; /* Fuente levemente más pequeña para que quepa el nombre */
+  vertical-align: middle;
+  text-align: center;
+  color: var(--color-texto);
+  font-size: 0.85rem;
 }
 
-/* Controles de cantidad más táctiles */
+/* Ajuste específico para el nombre del producto */
+.tabla-carrito td:first-child {
+  text-align: left;
+  padding-left: 5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Pone "..." si el nombre es largo */
+}
+
+/* --- Controles de Cantidad --- */
 .controles-cantidad {
   display: flex;
   align-items: center;
-  gap: 8px; /* Reducido para pantallas angostas */
+  justify-content: center;
+  gap: 4px;
   background: #f1f3f4;
-  padding: 4px 8px;
+  padding: 4px;
   border-radius: 50px;
+  width: fit-content;
+  margin: 0 auto;
 }
 
 .btn-mini {
-  width: 28px; /* Un poco más grandes para que sean fáciles de tocar */
-  height: 28px;
-  font-size: 1.1rem;
+  background-color: white !important;
+  color: var(--color-acento) !important;
+  border: 1px solid #e1e8ed;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1rem;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  padding: 0;
 }
 
-/* --- Footer del Carrito (El Recibo) --- */
+/* --- Footer y Totales --- */
 .carrito-footer {
   background: #f8fbff;
   padding: 15px;
   border-radius: 15px;
   margin-top: 15px;
-  border-top: 4px double #a8dadc;
+  border-top: 4px double var(--color-primario);
 }
 
 .total-texto {
-  font-size: 1.5rem; /* Ajustado para móvil */
+  font-size: 1.5rem;
   font-weight: 800;
   color: #1d3557;
   display: flex;
@@ -113,28 +133,38 @@
   align-items: center;
 }
 
-/* --- Botones de Acción --- */
-.btn-finalizar {
-  padding: 16px;
-  font-size: 1.1rem;
-  border-radius: 12px;
+/* --- Acciones Finales --- */
+.acciones-finales {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 20px;
 }
 
-/* --- MEDIA QUERIES PARA PC --- */
+.btn-finalizar {
+  background: linear-gradient(135deg, var(--color-exito), #66bb6a) !important;
+  color: white !important;
+  padding: 18px;
+  border-radius: 15px;
+  border: none;
+  font-size: 1.1rem;
+  font-weight: 800;
+  box-shadow: 0 6px 15px rgba(102, 187, 106, 0.3);
+}
+
+.btn-vaciar {
+  background: transparent !important;
+  color: var(--color-peligro) !important;
+  border: 2px solid var(--color-peligro) !important;
+  padding: 12px;
+  border-radius: 15px;
+  font-weight: 700;
+}
+
+/* --- Media Queries PC --- */
 @media (min-width: 768px) {
-  .ventas-container {
-    padding: 30px;
-  }
-
-  .ventas-container h3 {
-    font-size: 1.5rem;
-  }
-
-  .total-texto {
-    font-size: 2rem;
-  }
-
-  .tabla-carrito td {
-    font-size: 1rem;
-  }
+  .ventas-container { padding: 30px; }
+  .tabla-carrito td { font-size: 1rem; padding: 15px 10px; }
+  .tabla-carrito td:first-child { white-space: normal; } /* En PC mostramos nombre completo */
+  .btn-mini { width: 30px; height: 30px; }
 }
