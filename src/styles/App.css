@@ -37,10 +37,10 @@ body {
 /* --- Header Adaptable --- */
 .header-admin {
   display: flex;
-  flex-direction: column; /* Columna en móvil */
+  flex-direction: column; 
   gap: 10px;
   text-align: center;
-  padding: 15px;
+  padding: 20px; /* Un poco más de aire */
   background: white;
   border-radius: 15px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.05);
@@ -50,12 +50,18 @@ body {
 .header-admin h1 {
   margin: 0;
   color: var(--color-acento);
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: 800;
 }
 
 .header-admin p {
   margin: 5px 0;
   font-size: 0.9rem;
+  color: #555; /* Gris intermedio para que sea legible */
+}
+
+.header-admin p strong {
+  color: var(--color-acento); /* Resaltamos el email con azul */
 }
 
 /* --- Nav Estilo Píldora (Scrollable si no cabe) --- */
@@ -111,12 +117,32 @@ body {
   font-weight: 800;
 }
 
+/* BOTÓN SALIR: Corrigiendo el fondo negro */
+.btn-logout {
+  background-color: #fff1f2; /* Fondo rosado muy suave */
+  color: var(--color-peligro); /* Texto rojo pastel */
+  border: 1px solid #fecdd3;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  width: fit-content; /* Para que no ocupe todo el ancho en móvil */
+  margin: 0 auto; /* Centrado en móvil */
+}
+
+.btn-logout:hover {
+  background-color: var(--color-peligro);
+  color: white;
+}
+
 /* --- MEDIA QUERIES (Ajustes para Tablet y PC) --- */
 @media (min-width: 768px) {
   .dashboard-main { padding: 20px; }
 
   .header-admin {
-    flex-direction: row; /* Fila en PC */
+    flex-direction: row; 
     justify-content: space-between;
     text-align: left;
     padding: 15px 25px;
@@ -126,6 +152,10 @@ body {
 
   .tabs-nav {
     justify-content: center; /* Centrado en PC */
+  }
+
+  .btn-logout {
+    margin: 0; /* Alineado a la derecha en PC */
   }
 
   .layout-grid {
