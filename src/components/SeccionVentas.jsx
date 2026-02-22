@@ -50,7 +50,6 @@ export default function SeccionVentas() {
       setCarrito([...carrito, { ...producto, cantidadEnCarrito: cantidadASumar }]);
     }
 
-    // Reset de campos
     setIdSeleccionado('');
     setCantidad(1);
   };
@@ -94,7 +93,6 @@ const aumentarCantidad = (id) => {
     if (carrito.length === 0) return;
 
     try {
-      // 1. Preparar datos para la tabla 'ventas'
       const registrosVenta = carrito.map(item => ({
         producto_id: item.id,
         cantidad: item.cantidadEnCarrito,
@@ -104,7 +102,6 @@ const aumentarCantidad = (id) => {
       const { error: errorVenta } = await supabase.from('ventas').insert(registrosVenta);
       if (errorVenta) throw errorVenta;
 
-      // 2. Actualizar stock de cada producto en paralelo
       const promesasStock = carrito.map(item => {
         return supabase
           .from('productos')

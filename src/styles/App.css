@@ -67,7 +67,7 @@ body {
 /* --- Nav Estilo Píldora (Scrollable si no cabe) --- */
 .tabs-nav {
   display: flex;
-  justify-content: flex-start; /* Alineado a la izq para scroll */
+  justify-content: center; /* Alineado a la izq para scroll */
   overflow-x: auto; /* Scroll horizontal si hay muchos botones */
   gap: 8px;
   margin-bottom: 20px;

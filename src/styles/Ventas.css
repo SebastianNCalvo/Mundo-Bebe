@@ -12,6 +12,43 @@
   text-align: center;
   font-size: 1.2rem;
 }
+.ventas-container select, 
+.ventas-container input {
+  padding: 12px;
+  border: 2px solid #e1e8ed;
+  border-radius: 12px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.3s;
+  
+  /* --- ESTO ARREGLA EL COLOR EN MÓVIL --- */
+  background-color: #ffffff !important; /* Forzamos fondo blanco */
+  color: #2b2d42 !important;            /* Forzamos texto oscuro (nuestro color-texto) */
+  appearance: none;                     /* Quita el estilo por defecto del sistema */
+  -webkit-appearance: none;
+}
+
+/* Estilo para las opciones dentro del select */
+.ventas-container select option {
+  background-color: #ffffff;
+  color: #2b2d42;
+}
+
+.ventas-container select:focus {
+  border-color: var(--color-primario);
+  background-color: #ffffff;
+}
+
+/* Un toque extra: que el formulario tenga un fondo sutil pero no blanco puro */
+.ventas-container form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  background: #f0f7f8; /* Un celeste muy, muy suave */
+  padding: 20px;
+  border-radius: 15px;
+  border: 1px dashed var(--color-primario);
+}
 
 .ventas-container form {
   display: flex;
