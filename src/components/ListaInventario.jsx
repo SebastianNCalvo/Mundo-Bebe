@@ -5,6 +5,7 @@ import '../styles/Inventario.css';
 export default function ListaInventario({ trigger, esAdmin }) {
   const [productos, setProductos] = useState([]);
   const [busqueda, setBusqueda] = useState('');
+
   useEffect(() => {
     obtenerProductos();
   }, [trigger]);
@@ -12,14 +13,15 @@ export default function ListaInventario({ trigger, esAdmin }) {
   const productosFiltrados = productos.filter(prod => 
     prod.nombre.toLowerCase().includes(busqueda.toLowerCase())
   );
+
   const obtenerProductos = async () => {
     const { data, error } = await supabase
       .from('productos')
       .select('*')
       .order('nombre', { ascending: true });
 
-      if (error) console.log("Error cargando:", error);
-      else setProductos(data);
+    if (error) console.log("Error cargando:", error);
+    else setProductos(data);
   };
 
   const eliminarProducto = async (id) => {
@@ -30,10 +32,6 @@ export default function ListaInventario({ trigger, esAdmin }) {
       else obtenerProductos();
     }
   };
-
-  useEffect(() => {
-    obtenerProductos();
-  }, []);
 
   return (
     <div className="inventario-container">
@@ -50,7 +48,6 @@ export default function ListaInventario({ trigger, esAdmin }) {
         />
       </div>
 
-
       <div className="tabla-wrapper">
         <table className="tabla-inventario">
           <thead>
@@ -59,13 +56,13 @@ export default function ListaInventario({ trigger, esAdmin }) {
               <th>Talle</th>
               <th>Precio</th>
               <th>Stock</th>
-              <th>Acciones</th>
+              {/* Solo mostramos el encabezado de acciones si es admin */}
+              {esAdmin && <th>Acciones</th>}
             </tr>
           </thead>
           <tbody>
             {productosFiltrados.map((prod) => (
               <tr key={prod.id}>
-                {/* Agregamos data-label a cada celda */}
                 <td data-label="Producto">
                   <strong>{prod.nombre}</strong>
                 </td>
@@ -85,14 +82,17 @@ export default function ListaInventario({ trigger, esAdmin }) {
                   {prod.stock}
                 </td>
                 
-                <td data-label="Acciones">
-                  <button 
-                    className="btn-eliminar" 
-                    onClick={() => eliminarProducto(prod.id)}
-                  >
-                    ×
-                  </button>
-                </td>
+                {/* LÓGICA DE PERMISOS: Solo el admin ve el botón eliminar */}
+                {esAdmin && (
+                  <td data-label="Acciones">
+                    <button 
+                      className="btn-eliminar" 
+                      onClick={() => eliminarProducto(prod.id)}
+                    >
+                      ×
+                    </button>
+                  </td>
+                )}
               </tr>
             ))}
           </tbody>

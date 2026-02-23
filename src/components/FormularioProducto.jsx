@@ -12,62 +12,87 @@ export default function FormularioProducto({ alTerminar }) {
 
   const guardarProducto = async (e) => {
     e.preventDefault();
-    
-    let errorOperacion = null;
 
-    const { data: existente, error: errorBusqueda } = await supabase
-      .from('productos')
-      .select('*')
-      .eq('nombre', nombre)
-      .eq('talle', talle)
-      .maybeSingle();
+    const stockACargar = parseInt(stock) || 0; // Si está vacío, es 0
+    const precioNumerico = parseFloat(precio);
 
-    if (errorBusqueda) {
-      console.error(errorBusqueda);
+    if (precioNumerico <= 0) {
+      alert("El precio debe ser mayor a 0.");
       return;
     }
 
+    // Buscamos si ya existe el producto
+    const { data: existente, error: errorBusqueda } = await supabase
+      .from('productos')
+      .select('*')
+      .eq('nombre', nombre.trim())
+      .eq('talle', talle)
+      .maybeSingle();
+
+    if (errorBusqueda) return console.error(errorBusqueda);
+
+    let errorOperacion = null;
+
     if (existente) {
-      const nuevoStock = existente.stock + parseInt(stock);
+      // CASO A: El producto existe. 
+      // Si stock es 0, solo actualizamos precio. Si es > 0, sumamos y actualizamos precio.
+      const nuevoStock = existente.stock + stockACargar;
+      
+      const mensaje = stockACargar > 0 
+        ? `¿Confirmas actualizar precio a $${precioNumerico} y sumar ${stockACargar} unidades?`
+        : `¿Confirmas actualizar el precio de "${nombre}" a $${precioNumerico}?`;
+
+      const confirmar = window.confirm(mensaje);
+      if (!confirmar) return;
+
       const { error } = await supabase
         .from('productos')
-        .update({ stock: nuevoStock, precio: parseFloat(precio) })
+        .update({ 
+          stock: nuevoStock, 
+          precio: precioNumerico 
+        })
         .eq('id', existente.id);
       
-      errorOperacion = error; // Guardamos el resultado aquí
-      if (!error) alert(`¡Stock actualizado! Ahora hay ${nuevoStock} unidades.`);
+      errorOperacion = error;
+      if (!error) alert(stockACargar > 0 ? "¡Stock y Precio actualizados!" : "¡Precio actualizado con éxito!");
 
     } else {
+      // CASO B: Producto nuevo. Aquí sí el stock es obligatorio.
+      if (stockACargar <= 0) {
+        alert("Para crear un producto nuevo debes ingresar un stock inicial.");
+        return;
+      }
+
       const { error } = await supabase
         .from('productos')
         .insert([{ 
-          nombre, 
-          precio: parseFloat(precio), 
-          stock: parseInt(stock), 
+          nombre: nombre.trim(), 
+          precio: precioNumerico, 
+          stock: stockACargar, 
           talle 
         }]);
 
-      errorOperacion = error; 
+      errorOperacion = error;
       if (!error) alert("¡Producto nuevo creado con éxito!");
     }
 
-    if (!errorBusqueda && !errorOperacion) {
-      setNombre(''); 
-      setPrecio(''); 
-      setStock(''); 
-      setTalle('');
-      
+    if (!errorOperacion) {
+      setNombre(''); setPrecio(''); setStock(''); setTalle('');
       if (alTerminar) alTerminar(); 
-    } else {
-      alert("Hubo un error al procesar la solicitud");
     }
   };
-  
 
   return (
     <form className="form-container" onSubmit={guardarProducto}>
-      <h2>Cargar Mercadería</h2>
-      <input type="text" placeholder="Producto (ej: Body Algodón)" value={nombre} onChange={(e) => setNombre(e.target.value)} required />
+      <h2>Gestión de Mercadería</h2>
+      
+      <input 
+        type="text" 
+        placeholder="Producto (ej: Body Algodón)" 
+        value={nombre} 
+        onChange={(e) => setNombre(e.target.value)} 
+        required 
+      />
       
       <div className="form-group-row">
         <select value={talle} onChange={(e) => setTalle(e.target.value)} required style={{width: '100%'}}>
@@ -76,10 +101,35 @@ export default function FormularioProducto({ alTerminar }) {
         </select>
       </div>
 
-      <input type="number" placeholder="Precio $" value={precio} onChange={(e) => setPrecio(e.target.value)} required />
-      <input type="number" placeholder="Stock" value={stock} onChange={(e) => setStock(e.target.value)} required />
+      <div className="form-inputs-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px' }}>
+        <div>
+          <label style={{ fontSize: '0.7rem', color: '#666', marginLeft: '5px' }}>Precio $</label>
+          <input 
+            type="number" 
+            step="0.01"
+            min="0.01"
+            placeholder="Precio" 
+            value={precio} 
+            onChange={(e) => setPrecio(e.target.value)} 
+            required 
+          />
+        </div>
+        <div>
+          <label style={{ fontSize: '0.7rem', color: '#666', marginLeft: '5px' }}>Stock (Opcional)</label>
+          <input 
+            type="number" 
+            min="0"
+            placeholder="Sumar" 
+            value={stock} 
+            onChange={(e) => setStock(e.target.value)} 
+          />
+        </div>
+      </div>
       
-      <button type="submit">Agregar al Inventario</button>
+      <button type="submit" style={{ marginTop: '10px' }}>Actualizar / Crear</button>
+      <p style={{ fontSize: '0.65rem', color: '#999', textAlign: 'center', marginTop: '5px' }}>
+        * Si el producto existe y dejas stock vacío, solo se actualizará el precio.
+      </p>
     </form>
   );
 }

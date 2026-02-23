@@ -79,7 +79,10 @@ function App() {
       <div className="tab-content">
         {pestana === 'inventario' && (
           <div className="layout-grid">
-            {esAdmin && <FormularioProducto alTerminar={refrescarInventario} />}
+            {/* Removemos el {esAdmin && ...} para que todos puedan ver el formulario */}
+            <FormularioProducto alTerminar={refrescarInventario} />
+            
+            {/* La lista sigue recibiendo esAdmin para controlar el botón de eliminar */}
             <ListaInventario trigger={actualizador} esAdmin={esAdmin} />
           </div>
         )}

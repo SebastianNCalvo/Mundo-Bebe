@@ -1,58 +1,54 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import '../styles/Inventario.css';
+import '../styles/HistorialVentas.css';
 
-export default function HistorialVentas() {
+const HistorialVentas = () => {
   const [ventas, setVentas] = useState([]);
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const [anio, setAnio] = useState(new Date().getFullYear());
-
-const traerHistorial = async () => {
-  const inicioMes = `${anio}-${String(mes).padStart(2, '0')}-01T00:00:00`;
-  
-  const ultimoDia = new Date(anio, mes, 0).getDate();
-  const finMes = `${anio}-${String(mes).padStart(2, '0')}-${ultimoDia}T23:59:59`;
-
-  console.log(`Consultando rango real: ${inicioMes} al ${finMes}`);
-
-  const { data, error } = await supabase
-    .from('ventas')
-    .select('id, cantidad, total, fecha, productos(nombre, talle)')
-    .gte('fecha', inicioMes)
-    .lte('fecha', finMes)
-    .order('fecha', { ascending: false });
-
-  if (error) {
-    console.error("Error en Supabase:", error);
-  } else {
-    setVentas(data || []);
-  }
-};
+  const [cargando, setCargando] = useState(false);
 
   useEffect(() => {
-    traerHistorial();
+    obtenerHistorial();
   }, [mes, anio]);
+
+  const obtenerHistorial = async () => {
+    setCargando(true);
+    const fechaInicio = `${anio}-${String(mes).padStart(2, '0')}-01`;
+    const proximoMes = mes === 12 ? 1 : mes + 1;
+    const proximoAnio = mes === 12 ? anio + 1 : anio;
+    const fechaFin = `${proximoAnio}-${String(proximoMes).padStart(2, '0')}-01`;
+
+    const { data, error } = await supabase
+      .from('ventas')
+      .select(`
+        *,
+        productos (
+          nombre
+        )
+      `)
+      .gte('fecha', fechaInicio)
+      .lt('fecha', fechaFin)
+      .order('fecha', { ascending: false });
+
+    if (error) {
+      console.error("Error:", error.message);
+    } else {
+      setVentas(data || []);
+    }
+    setCargando(false);
+  };
 
   const totalMensual = ventas.reduce((acc, v) => acc + (v.total || 0), 0);
 
-  const formatearFechaArg = (fechaISO) => {
-    if (!fechaISO) return "S/F";
-    const fecha = new Date(fechaISO);
-    return fecha.toLocaleString('es-AR', {
-      timeZone: 'America/Argentina/Buenos_Aires',
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
-
   return (
     <div className="historial-container">
-      <h3>Resumen de Ventas 💰</h3>
+      <div className="card-total-mes">
+        <h4>Total Mensual Facturado</h4>
+        <span>${totalMensual.toLocaleString('es-AR')}</span>
+      </div>
 
-      <div className="filtros-historial">
+      <div className="historial-filtros">
         <select value={mes} onChange={(e) => setMes(parseInt(e.target.value))}>
           <option value="1">Enero</option>
           <option value="2">Febrero</option>
@@ -75,35 +71,50 @@ const traerHistorial = async () => {
         </select>
       </div>
 
-      <div className="card-total-mes">
-        <h4>Total Mensual: <span>${totalMensual.toLocaleString('es-AR')}</span></h4>
-        <p>Operaciones: {ventas.length}</p>
+      <div className="tabla-historial-wrapper">
+        {cargando ? (
+          <p style={{ textAlign: 'center', padding: '20px' }}>Cargando registros...</p>
+        ) : (
+          <table className="tabla-inventario"> 
+            <thead>
+              <tr>
+                <th>Fecha y Hora</th>
+                <th>Producto</th>
+                <th>Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              {ventas.length > 0 ? (
+                ventas.map((venta) => (
+                  <tr key={venta.id}>
+                    <td data-label="Fecha/Hora">
+                      {new Date(venta.fecha).toLocaleString('es-AR', {
+                        day: '2-digit',
+                        month: '2-digit',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
+                    </td>
+                    <td data-label="Producto">
+                      {venta.productos?.nombre || "Producto no encontrado"}
+                    </td>
+                    <td data-label="Total" className="texto-total-venta">
+                      ${venta.total?.toLocaleString('es-AR')}
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="3" style={{ textAlign: 'center' }}>No hay ventas en este período.</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        )}
       </div>
-
-      <table className="tabla-inventario">
-        <thead>
-          <tr>
-            <th>Fecha/Hora (Arg)</th>
-            <th>Producto</th>
-            <th>Cant.</th>
-            <th>Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          {ventas.map((v) => (
-            <tr key={v.id}>
-              <td data-label="Fecha">{formatearFechaArg(v.fecha)}</td>
-              <td data-label="Producto">{v.productos?.nombre}</td>
-              <td data-label="Cantidad">{v.cantidad}</td>
-              <td data-label="Total">${v.total}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {ventas.length === 0 && (
-        <p style={{ textAlign: 'center', padding: '20px' }}>No hay ventas en este período.</p>
-      )}
     </div>
   );
-}
+};
+
+export default HistorialVentas;

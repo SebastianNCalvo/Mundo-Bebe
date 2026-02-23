@@ -1,0 +1,109 @@
+/* --- Contenedor de Filtros --- */
+.historial-filtros {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 25px;
+  background: #f0f7f8;
+  padding: 15px;
+  border-radius: 20px;
+}
+
+.historial-filtros select {
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: 2px solid var(--color-primario);
+  background-color: white !important;
+  color: var(--color-texto) !important;
+  font-size: 1rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  flex: 1;
+  max-width: 150px;
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: center;
+}
+
+/* --- Tarjeta de Total Mensual --- */
+.card-total-mes {
+  background: linear-gradient(135deg, var(--color-acento), #1d3557);
+  color: white;
+  padding: 20px;
+  border-radius: 20px;
+  margin: 0 auto 25px auto;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 8px 20px rgba(29, 53, 87, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Tabla y Centrado General --- */
+.tabla-historial-wrapper {
+  background: white;
+  border-radius: 20px;
+  padding: 10px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+}
+
+.tabla-inventario {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.tabla-inventario th, 
+.tabla-inventario td {
+  text-align: center !important; /* Centrado para PC */
+  padding: 15px;
+}
+
+/* --- CAMBIOS ESPECÍFICOS PARA MÓVIL (CENTRADO TOTAL) --- */
+@media (max-width: 768px) {
+  .tabla-inventario thead {
+    display: none; /* Ocultamos cabecera en móvil */
+  }
+
+  .tabla-inventario tr {
+    display: block;
+    background: #ffffff;
+    border-radius: 15px;
+    margin-bottom: 15px;
+    padding: 15px;
+    border: 1px solid #edf2f4;
+    text-align: center; /* Centra todo el contenido de la tarjeta */
+  }
+
+  .tabla-inventario td {
+    display: block; /* Cada dato en su propia línea */
+    width: 100%;
+    text-align: center !important; /* Forzamos el centrado del dato */
+    padding: 8px 0;
+    border-bottom: 1px dashed #eee;
+  }
+
+  .tabla-inventario td:last-child {
+    border-bottom: none;
+  }
+
+  /* Centramos también las etiquetas (data-label) */
+  .tabla-inventario td::before {
+    content: attr(data-label);
+    display: block; /* La etiqueta arriba del dato */
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    color: var(--color-primario);
+    margin-bottom: 4px;
+    text-align: center; /* Etiqueta centrada */
+  }
+
+  .card-total-mes {
+    width: 100%;
+    padding: 15px;
+  }
+}
