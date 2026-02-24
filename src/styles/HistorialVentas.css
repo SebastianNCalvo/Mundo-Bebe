@@ -1,67 +1,59 @@
-/* --- 1. Resumen y Totales --- */
-.card-total-mes {
-  background: linear-gradient(135deg, var(--color-acento), #1d3557);
-  color: white;
+/* --- 1. Dashboard de Balance Interactivo --- */
+.dashboard-balance {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.card-balance {
+  background: white;
   padding: 20px;
   border-radius: 20px;
-  margin: 0 auto 15px auto;
-  max-width: 400px;
   text-align: center;
-  box-shadow: 0 8px 20px rgba(29, 53, 87, 0.2);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  cursor: pointer; /* Lo hacemos clicable */
 }
 
-.card-total-mes h4 {
-  margin: 0;
-  font-size: 0.9rem;
-  opacity: 0.9;
+.card-balance:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
 }
 
-.card-total-mes span {
-  font-size: 1.8rem;
-  font-weight: 800;
-  margin-top: 5px;
+.card-balance.activa {
+  border-color: var(--color-acento);
+  background: #f0f7f8;
+  transform: scale(1.02);
 }
 
-/* NUEVO: Contenedor de mini tarjetas de métodos de pago */
-.resumen-metodos {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-bottom: 25px;
-}
-
-.mini-card-pago {
-  background: white;
-  padding: 10px 15px;
-  border-radius: 12px;
-  border: 1px solid #eef2f3;
-  text-align: center;
-  min-width: 100px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
-}
-
-.mini-card-pago small {
-  display: block;
-  font-size: 0.65rem;
-  text-transform: uppercase;
-  color: #777;
+.card-balance small {
+  font-size: 0.75rem;
   font-weight: 700;
-  margin-bottom: 3px;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+  color: #777;
 }
 
-.mini-card-pago p {
-  margin: 0;
+.card-balance span {
+  font-size: 1.4rem;
   font-weight: 800;
-  color: var(--color-acento);
-  font-size: 0.95rem;
 }
 
-/* --- 2. Filtros --- */
+/* Colores dinámicos */
+.ingresos span { color: var(--color-exito); }
+.egresos span { color: var(--color-peligro); }
+
+.resultado.positivo { background: #e8f5e9; }
+.resultado.negativo { background: #ffebee; }
+.resultado.positivo.activa { border-color: var(--color-exito); }
+.resultado.negativo.activa { border-color: var(--color-peligro); }
+
+/* --- 2. Filtros (Recuperados y Asegurados) --- */
 .historial-filtros {
   display: flex;
   justify-content: center;
@@ -85,18 +77,26 @@
   cursor: pointer;
   flex: 1;
   max-width: 200px;
-  appearance: none;
-  -webkit-appearance: none;
   text-align: center;
+  appearance: none;
 }
 
-/* --- 3. Estructura de Tabla --- */
+/* --- 3. Estructura de Tablas y Centrado --- */
 .tabla-historial-wrapper {
   background: white;
   border-radius: 20px;
-  padding: 10px;
+  padding: 20px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-  overflow-x: auto;
+  margin-bottom: 30px;
+}
+
+.tabla-historial-wrapper h3 {
+  color: var(--color-acento);
+  font-size: 1.1rem;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--color-acento);
+  padding-left: 10px;
+  text-align: left; /* Título a la izquierda */
 }
 
 .tabla-inventario {
@@ -104,55 +104,108 @@
   border-collapse: collapse;
 }
 
+/* CENTRADO DE CONTENIDO */
 .tabla-inventario th, 
 .tabla-inventario td {
-  text-align: center !important; 
   padding: 15px;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.9rem;
+  text-align: center !important; /* Forzamos el centrado */
   vertical-align: middle;
 }
 
-/* Columnas específicas en PC */
-.tabla-inventario th:nth-child(3), 
-.tabla-inventario td:nth-child(3) {
-  width: 35%; 
-  text-align: left !important;
+.tabla-inventario th {
+  color: #888;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 1px;
 }
 
-/* --- 4. Etiquetas y Elementos Internos --- */
-.tag-pago {
-  padding: 4px 10px;
+/* --- 4. Acciones y Modal --- */
+.acciones-gasto {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.btn-edit, .btn-delete {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 5px;
   border-radius: 8px;
-  font-size: 0.75rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(3px);
+}
+
+.modal-content {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+}
+
+.modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-botones {
+  display: flex;
+  gap: 10px;
+}
+
+/* --- 5. Etiquetas y Varios --- */
+.tag-pago {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
   font-weight: 700;
   text-transform: uppercase;
-  display: inline-block;
 }
 
-/* Colores por método */
 .tag-pago.efectivo { background: #e8f5e9; color: #2e7d32; }
 .tag-pago.transferencia { background: #e3f2fd; color: #1565c0; }
 .tag-pago.débito, .tag-pago.crédito { background: #f3e5f5; color: #7b1fa2; }
 
-.texto-total-venta {
-  font-weight: 800;
-  color: var(--color-acento);
+.tag-categoria {
+  background: #eee;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 600;
 }
 
-/* --- 5. Media Queries Móvil --- */
+.animar-entrada {
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- 6. Media Queries --- */
 @media (max-width: 768px) {
-  .historial-filtros {
-    flex-direction: column;
-  }
+  .dashboard-balance { grid-template-columns: 1fr; }
+  .historial-filtros { flex-direction: column; }
+  .historial-filtros select { max-width: 100%; width: 100%; }
   
-  .historial-filtros select {
-    max-width: 100%;
-    width: 100%;
-  }
-
-  .tabla-inventario thead {
-    display: none; 
-  }
-
+  .tabla-inventario thead { display: none; }
   .tabla-inventario tr {
     display: block;
     background: #ffffff;
@@ -160,39 +213,20 @@
     margin-bottom: 15px;
     padding: 15px;
     border: 1px solid #edf2f4;
-    text-align: center; 
   }
-
   .tabla-inventario td {
-    display: block; 
-    width: 100%;
-    text-align: center !important; 
-    padding: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     border-bottom: 1px dashed #eee;
+    text-align: right !important;
+    padding: 10px 0;
   }
-
-  .tabla-inventario td:last-child {
-    border-bottom: none;
-  }
-
-  /* Reset de anchos de columna en móvil */
-  .tabla-inventario th:nth-child(3), 
-  .tabla-inventario td:nth-child(3) {
-    width: 100%;
-    text-align: center !important;
-  }
-
   .tabla-inventario td::before {
     content: attr(data-label);
-    display: block; 
     font-weight: 700;
+    color: var(--color-primario);
     text-transform: uppercase;
     font-size: 0.7rem;
-    color: var(--color-primario);
-    margin-bottom: 4px;
-  }
-
-  .card-total-mes {
-    width: 100%;
   }
 }

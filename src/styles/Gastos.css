@@ -1,0 +1,63 @@
+.gastos-container {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.gastos-container h3 {
+  color: var(--color-peligro); /* Color rojizo para identificar gastos */
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.gastos-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.gastos-form .input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.gastos-form label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-texto);
+  text-transform: uppercase;
+}
+
+.gastos-form input, .gastos-form select {
+  padding: 12px;
+  border: 2px solid #edf2f4;
+  border-radius: 12px;
+  outline: none;
+  font-size: 1rem;
+}
+
+.gastos-form input:focus {
+  border-color: var(--color-peligro);
+}
+
+.btn-guardar-gasto {
+  background: linear-gradient(135deg, var(--color-peligro), #d62828) !important;
+  color: white !important;
+  padding: 15px;
+  border: none;
+  border-radius: 12px;
+  font-weight: 800;
+  font-size: 1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.2);
+  margin-top: 10px;
+}
+
+.btn-guardar-gasto:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

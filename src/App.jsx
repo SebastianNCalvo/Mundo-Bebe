@@ -3,13 +3,14 @@ import FormularioProducto from './components/FormularioProducto';
 import ListaInventario from './components/ListaInventario';
 import SeccionVentas from './components/SeccionVentas';
 import HistorialVentas from './components/HistorialVentas';
+import SeccionGastos from './components/SeccionGastos'; // 1. Importamos el nuevo componente
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import Login from './components/Login';
 
 function App() {
   const [sesion, setSesion] = useState(null);
-  const [pestana, setPestana] = useState('ventas'); // <--- Se llama "pestana"
+  const [pestana, setPestana] = useState('ventas');
   const [actualizador, setActualizador] = useState(0);
   
   const refrescarInventario = () => {
@@ -57,6 +58,14 @@ function App() {
           Ventas
         </button>
         
+        {/* 2. Botón de Gastos disponible para todos */}
+        <button 
+          className={pestana === 'gastos' ? 'active' : ''} 
+          onClick={() => setPestana('gastos')}
+        >
+          Gastos
+        </button>
+
         <button 
           className={pestana === 'inventario' ? 'active' : ''} 
           onClick={() => setPestana('inventario')}
@@ -85,12 +94,25 @@ function App() {
         {pestana === 'ventas' && (
           <SeccionVentas 
             alTerminar={refrescarInventario} 
-            sesion={sesion} // <--- Asegúrate de agregar esto
+            sesion={sesion} 
           />
-        )}        
+        )}
+
+        {/* 3. Renderizado de la Sección de Gastos */}
+        {pestana === 'gastos' && (
+          <SeccionGastos 
+            sesion={sesion} 
+            alTerminar={() => {
+              // Si quieres que pase algo al cargar un gasto, como volver a ventas:
+              // setPestana('ventas'); 
+            }}
+          />
+        )}
+        
         {pestana === 'historial' && esAdmin && <HistorialVentas />}
       </div>
     </div>
   );
 }
+
 export default App;
