@@ -29,7 +29,7 @@
   padding: 12px;
   border: 2px solid #e1e8ed;
   border-radius: 12px;
-  font-size: 16px; /* Evita zoom en iOS */
+  font-size: 16px; 
   outline: none;
   background-color: #ffffff !important;
   color: var(--color-texto) !important;
@@ -57,7 +57,7 @@
   border-collapse: collapse;
   margin: 20px 0;
   background: white;
-  table-layout: fixed; /* Ayuda a controlar anchos en móvil */
+  table-layout: fixed; 
 }
 
 .tabla-carrito th {
@@ -78,13 +78,12 @@
   font-size: 0.85rem;
 }
 
-/* Ajuste específico para el nombre del producto */
 .tabla-carrito td:first-child {
   text-align: left;
   padding-left: 5px;
   white-space: nowrap;
   overflow: hidden;
-  text-overflow: ellipsis; /* Pone "..." si el nombre es largo */
+  text-overflow: ellipsis; 
 }
 
 /* --- Controles de Cantidad --- */
@@ -131,6 +130,34 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 15px;
+}
+
+/* --- NUEVO: Selector de Método de Pago --- */
+.pago-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+  padding: 10px;
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e1e8ed;
+}
+
+.pago-selector label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--color-acento);
+  text-transform: uppercase;
+}
+
+.select-pago {
+  padding: 10px !important;
+  border: 2px solid var(--color-primario) !important;
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  cursor: pointer;
 }
 
 /* --- Acciones Finales --- */
@@ -138,7 +165,6 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  margin-top: 20px;
 }
 
 .btn-finalizar {
@@ -165,6 +191,14 @@
 @media (min-width: 768px) {
   .ventas-container { padding: 30px; }
   .tabla-carrito td { font-size: 1rem; padding: 15px 10px; }
-  .tabla-carrito td:first-child { white-space: normal; } /* En PC mostramos nombre completo */
+  .tabla-carrito td:first-child { white-space: normal; } 
   .btn-mini { width: 30px; height: 30px; }
+  
+  /* Ajuste horizontal para el selector en PC */
+  .pago-selector {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .select-pago { width: 200px; }
 }

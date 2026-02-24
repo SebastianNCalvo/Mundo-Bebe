@@ -2,12 +2,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import '../styles/Ventas.css';
 
-// 1. Agregamos 'sesion' a las props para saber quién vende
 export default function SeccionVentas({ alTerminar, sesion }) {
   const [productos, setProductos] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [carrito, setCarrito] = useState([]);
+  // NUEVO: Estado para el método de pago
+  const [metodoPago, setMetodoPago] = useState('Efectivo');
 
   const traerProductos = async () => {
     const { data } = await supabase
@@ -86,27 +87,25 @@ export default function SeccionVentas({ alTerminar, sesion }) {
 
   const totalVenta = carrito.reduce((acc, item) => acc + (item.precio * item.cantidadEnCarrito), 0);
 
-  // 2. REFACTORIZACIÓN DE finalizarCompra
   const finalizarCompra = async () => {
     if (carrito.length === 0) return;
 
     try {
-      // PASO A: Insertar en ventas_cabecera
+      // PASO A: Insertar en ventas_cabecera incluyendo el METODO DE PAGO
       const { data: cabecera, error: errorCabecera } = await supabase
         .from('ventas_cabecera')
         .insert([{ 
-          vendedor_email: sesion?.user?.email, // Registramos quién realiza la venta
+          vendedor_email: sesion?.user?.email,
           total_total: totalVenta,
-          metodo_pago: 'Efectivo' 
+          metodo_pago: metodoPago // <--- Usamos el estado dinámico
         }])
         .select()
         .single();
 
       if (errorCabecera) throw errorCabecera;
 
-      // PASO B: Preparar los detalles vinculados al ID de la cabecera
       const registrosDetalle = carrito.map(item => ({
-        venta_id: cabecera.id, // ID relacional
+        venta_id: cabecera.id,
         producto_id: item.id,
         cantidad: item.cantidadEnCarrito,
         precio_unitario: item.precio
@@ -118,11 +117,16 @@ export default function SeccionVentas({ alTerminar, sesion }) {
 
       if (errorDetalle) throw errorDetalle;
 
-      // PASO C: Actualizar stock de los productos
-      const promesasStock = carrito.map(item => {
+      const promesasStock = carrito.map(async (item) => {
+        const { data: prodActual } = await supabase
+          .from('productos')
+          .select('stock')
+          .eq('id', item.id)
+          .single();
+
         return supabase
           .from('productos')
-          .update({ stock: item.stock - item.cantidadEnCarrito })
+          .update({ stock: (prodActual?.stock || 0) - item.cantidadEnCarrito })
           .eq('id', item.id);
       });
 
@@ -130,6 +134,7 @@ export default function SeccionVentas({ alTerminar, sesion }) {
 
       alert("🎉 Venta realizada con éxito");
       setCarrito([]);
+      setMetodoPago('Efectivo'); // Resetear a efectivo para la próxima
       traerProductos();
       if (alTerminar) alTerminar();
     } catch (error) {
@@ -206,6 +211,22 @@ export default function SeccionVentas({ alTerminar, sesion }) {
 
           <div className="carrito-footer">
             <p className="total-texto">Total: <span>${totalVenta}</span></p>
+            
+            {/* NUEVO: Selector de Método de Pago */}
+            <div className="pago-selector">
+              <label>Método de Pago:</label>
+              <select 
+                value={metodoPago} 
+                onChange={(e) => setMetodoPago(e.target.value)}
+                className="select-pago"
+              >
+                <option value="Efectivo">💵 Efectivo</option>
+                <option value="Transferencia">📱 Transferencia</option>
+                <option value="Débito">💳 Débito</option>
+                <option value="Crédito">💳 Crédito</option>
+              </select>
+            </div>
+
             <div className="acciones-finales">
               <button onClick={() => setCarrito([])} className="btn-vaciar">Cancelar</button>
               <button onClick={finalizarCompra} className="btn-finalizar">Confirmar Compra</button>

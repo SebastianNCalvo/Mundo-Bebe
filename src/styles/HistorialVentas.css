@@ -1,39 +1,10 @@
-/* --- Contenedor de Filtros --- */
-.historial-filtros {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 25px;
-  background: #f0f7f8;
-  padding: 15px;
-  border-radius: 20px;
-}
-
-.historial-filtros select {
-  padding: 10px 15px;
-  border-radius: 12px;
-  border: 2px solid var(--color-primario);
-  background-color: white !important;
-  color: var(--color-texto) !important;
-  font-size: 1rem;
-  font-weight: 600;
-  outline: none;
-  cursor: pointer;
-  flex: 1;
-  max-width: 150px;
-  appearance: none;
-  -webkit-appearance: none;
-  text-align: center;
-}
-
-/* --- Tarjeta de Total Mensual --- */
+/* --- 1. Resumen y Totales --- */
 .card-total-mes {
   background: linear-gradient(135deg, var(--color-acento), #1d3557);
   color: white;
   padding: 20px;
   border-radius: 20px;
-  margin: 0 auto 25px auto;
+  margin: 0 auto 15px auto;
   max-width: 400px;
   text-align: center;
   box-shadow: 0 8px 20px rgba(29, 53, 87, 0.2);
@@ -55,13 +26,77 @@
   margin-top: 5px;
 }
 
-/* --- Tabla y Centrado General --- */
+/* NUEVO: Contenedor de mini tarjetas de métodos de pago */
+.resumen-metodos {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.mini-card-pago {
+  background: white;
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: 1px solid #eef2f3;
+  text-align: center;
+  min-width: 100px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+}
+
+.mini-card-pago small {
+  display: block;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  color: #777;
+  font-weight: 700;
+  margin-bottom: 3px;
+}
+
+.mini-card-pago p {
+  margin: 0;
+  font-weight: 800;
+  color: var(--color-acento);
+  font-size: 0.95rem;
+}
+
+/* --- 2. Filtros --- */
+.historial-filtros {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 25px;
+  background: #f0f7f8;
+  padding: 15px;
+  border-radius: 20px;
+}
+
+.historial-filtros select {
+  padding: 10px 15px;
+  border-radius: 12px;
+  border: 2px solid var(--color-primario);
+  background-color: white !important;
+  color: var(--color-texto) !important;
+  font-size: 0.9rem;
+  font-weight: 600;
+  outline: none;
+  cursor: pointer;
+  flex: 1;
+  max-width: 200px;
+  appearance: none;
+  -webkit-appearance: none;
+  text-align: center;
+}
+
+/* --- 3. Estructura de Tabla --- */
 .tabla-historial-wrapper {
   background: white;
   border-radius: 20px;
   padding: 10px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-  overflow-x: auto; /* Evita desbordes en tablets */
+  overflow-x: auto;
 }
 
 .tabla-inventario {
@@ -73,38 +108,47 @@
 .tabla-inventario td {
   text-align: center !important; 
   padding: 15px;
-  vertical-align: middle; /* Alineación vertical para celdas con mucho texto */
+  vertical-align: middle;
 }
 
-/* --- NUEVOS ESTILOS PARA PRODUCTOS AGRUPADOS --- */
-.celda-productos-lista {
-  text-align: left !important; /* En PC se lee mejor alineado a la izquierda */
-  font-size: 0.9rem;
-  color: var(--color-texto);
-  min-width: 200px;
+/* Columnas específicas en PC */
+.tabla-inventario th:nth-child(3), 
+.tabla-inventario td:nth-child(3) {
+  width: 35%; 
+  text-align: left !important;
 }
 
-.item-producto-historial {
-  padding: 4px 0;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.item-producto-historial:last-child {
-  border-bottom: none;
-}
-
-.vendedor-tag {
-  background: #eef2f3;
-  padding: 4px 8px;
+/* --- 4. Etiquetas y Elementos Internos --- */
+.tag-pago {
+  padding: 4px 10px;
   border-radius: 8px;
-  font-size: 0.8rem;
-  color: #555;
-  font-weight: 600;
-  text-transform: capitalize;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  display: inline-block;
 }
 
-/* --- CAMBIOS ESPECÍFICOS PARA MÓVIL (CENTRADO TOTAL) --- */
+/* Colores por método */
+.tag-pago.efectivo { background: #e8f5e9; color: #2e7d32; }
+.tag-pago.transferencia { background: #e3f2fd; color: #1565c0; }
+.tag-pago.débito, .tag-pago.crédito { background: #f3e5f5; color: #7b1fa2; }
+
+.texto-total-venta {
+  font-weight: 800;
+  color: var(--color-acento);
+}
+
+/* --- 5. Media Queries Móvil --- */
 @media (max-width: 768px) {
+  .historial-filtros {
+    flex-direction: column;
+  }
+  
+  .historial-filtros select {
+    max-width: 100%;
+    width: 100%;
+  }
+
   .tabla-inventario thead {
     display: none; 
   }
@@ -127,12 +171,15 @@
     border-bottom: 1px dashed #eee;
   }
 
-  .celda-productos-lista {
-    text-align: center !important; /* Forzamos centrado en móvil */
-  }
-
   .tabla-inventario td:last-child {
     border-bottom: none;
+  }
+
+  /* Reset de anchos de columna en móvil */
+  .tabla-inventario th:nth-child(3), 
+  .tabla-inventario td:nth-child(3) {
+    width: 100%;
+    text-align: center !important;
   }
 
   .tabla-inventario td::before {
@@ -143,11 +190,9 @@
     font-size: 0.7rem;
     color: var(--color-primario);
     margin-bottom: 4px;
-    text-align: center; 
   }
 
   .card-total-mes {
     width: 100%;
-    padding: 15px;
   }
 }

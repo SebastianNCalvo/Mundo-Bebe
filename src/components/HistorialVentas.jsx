@@ -6,6 +6,7 @@ const HistorialVentas = () => {
   const [ventas, setVentas] = useState([]);
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const [anio, setAnio] = useState(new Date().getFullYear());
+  const [vendedorFiltro, setVendedorFiltro] = useState('Todos'); // NUEVO ESTADO
   const [cargando, setCargando] = useState(false);
 
   useEffect(() => {
@@ -14,13 +15,11 @@ const HistorialVentas = () => {
 
   const obtenerHistorial = async () => {
     setCargando(true);
-    // Mantenemos tu lógica de fechas original
     const fechaInicio = `${anio}-${String(mes).padStart(2, '0')}-01`;
     const proximoMes = mes === 12 ? 1 : mes + 1;
     const proximoAnio = mes === 12 ? anio + 1 : anio;
     const fechaFin = `${proximoAnio}-${String(proximoMes).padStart(2, '0')}-01`;
 
-    // Cambiamos la consulta para apuntar a la nueva tabla cabecera y traer detalles
     const { data, error } = await supabase
       .from('ventas_cabecera')
       .select(`
@@ -28,6 +27,7 @@ const HistorialVentas = () => {
         fecha,
         vendedor_email,
         total_total,
+        metodo_pago,
         ventas_detalle (
           cantidad,
           productos (
@@ -48,18 +48,53 @@ const HistorialVentas = () => {
     setCargando(false);
   };
 
-  // El total mensual ahora sale de la columna total_total de la cabecera
-  const totalMensual = ventas.reduce((acc, v) => acc + (Number(v.total_total) || 0), 0);
+  // 1. Obtener lista única de vendedores para el select
+  const listaVendedores = ['Todos', ...new Set(ventas.map(v => v.vendedor_email || 'S/D'))];
+
+  // 2. Filtrar las ventas según el vendedor seleccionado
+  const ventasFiltradas = vendedorFiltro === 'Todos' 
+    ? ventas 
+    : ventas.filter(v => (v.vendedor_email || 'S/D') === vendedorFiltro);
+
+  // 3. Los totales ahora se calculan sobre las VENTAS FILTRADAS
+  const totalMensual = ventasFiltradas.reduce((acc, v) => acc + (Number(v.total_total) || 0), 0);
+  
+  const resumenPagos = ventasFiltradas.reduce((acc, v) => {
+    const metodo = v.metodo_pago || 'Efectivo';
+    acc[metodo] = (acc[metodo] || 0) + Number(v.total_total);
+    return acc;
+  }, {});
 
   return (
     <div className="historial-container">
       <div className="card-total-mes">
-        <h4>Total Mensual Facturado</h4>
+        <h4>Total {vendedorFiltro === 'Todos' ? 'Mensual' : `de ${vendedorFiltro.split('@')[0]}`}</h4>
         <span>${totalMensual.toLocaleString('es-AR')}</span>
       </div>
 
+      <div className="resumen-metodos">
+        {Object.entries(resumenPagos).map(([metodo, monto]) => (
+          <div key={metodo} className="mini-card-pago">
+            <small>{metodo}</small>
+            <p>${monto.toLocaleString('es-AR')}</p>
+          </div>
+        ))}
+      </div>
+
       <div className="historial-filtros">
-        <select value={mes} onChange={(e) => setMes(parseInt(e.target.value))}>
+        {/* NUEVO FILTRO DE VENDEDOR */}
+        <select value={vendedorFiltro} onChange={(e) => setVendedorFiltro(e.target.value)}>
+          {listaVendedores.map(vend => (
+            <option key={vend} value={vend}>
+              {vend === 'Todos' ? 'Todos los Vendedores' : vend.split('@')[0]}
+            </option>
+          ))}
+        </select>
+
+        <select value={mes} onChange={(e) => {
+          setMes(parseInt(e.target.value));
+          setVendedorFiltro('Todos'); // Opcional: resetear filtro al cambiar mes
+        }}>
           <option value="1">Enero</option>
           <option value="2">Febrero</option>
           <option value="3">Marzo</option>
@@ -89,23 +124,20 @@ const HistorialVentas = () => {
             <thead>
               <tr>
                 <th>Fecha y Hora</th>
-                <th>Vendedor</th> {/* Nueva Columna */}
-                <th>Productos</th> {/* Ahora es plural */}
+                <th>Vendedor</th>
+                <th>Productos</th>
+                <th>Pago</th>
                 <th>Total</th>
               </tr>
             </thead>
             <tbody>
-              {ventas.length > 0 ? (
-                ventas.map((venta) => (
+              {ventasFiltradas.length > 0 ? (
+                ventasFiltradas.map((venta) => (
                   <tr key={venta.id}>
                     <td data-label="Fecha/Hora">
-                      {/* Respetamos tu formato original de Argentina */}
                       {new Date(venta.fecha).toLocaleString('es-AR', {
-                        day: '2-digit',
-                        month: '2-digit',
-                        year: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit'
+                        day: '2-digit', month: '2-digit', year: 'numeric',
+                        hour: '2-digit', minute: '2-digit', hour12: false
                       })}
                     </td>
                     <td data-label="Vendedor" style={{ fontSize: '0.85rem' }}>
@@ -118,6 +150,11 @@ const HistorialVentas = () => {
                         </div>
                       ))}
                     </td>
+                    <td data-label="Pago">
+                      <span className={`tag-pago ${venta.metodo_pago?.toLowerCase()}`}>
+                        {venta.metodo_pago || 'Efectivo'}
+                      </span>
+                    </td>
                     <td data-label="Total" className="texto-total-venta">
                       ${Number(venta.total_total).toLocaleString('es-AR')}
                     </td>
@@ -125,7 +162,7 @@ const HistorialVentas = () => {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: 'center' }}>No hay ventas en este período.</td>
+                  <td colSpan="5" style={{ textAlign: 'center' }}>No hay ventas para este filtro.</td>
                 </tr>
               )}
             </tbody>
