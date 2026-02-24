@@ -2,13 +2,13 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
 import '../styles/Ventas.css';
 
-export default function SeccionVentas() {
+// 1. Agregamos 'sesion' a las props para saber quién vende
+export default function SeccionVentas({ alTerminar, sesion }) {
   const [productos, setProductos] = useState([]);
   const [idSeleccionado, setIdSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [carrito, setCarrito] = useState([]);
 
-  // Cargar productos disponibles
   const traerProductos = async () => {
     const { data } = await supabase
       .from('productos')
@@ -59,46 +59,66 @@ export default function SeccionVentas() {
   };
 
   const disminuirCantidad = (id) => {
-  const nuevoCarrito = carrito.map(item => {
-    if (item.id === id) {
-      if (item.cantidadEnCarrito > 1) {
-        return { ...item, cantidadEnCarrito: item.cantidadEnCarrito - 1 };
+    const nuevoCarrito = carrito.map(item => {
+      if (item.id === id) {
+        if (item.cantidadEnCarrito > 1) {
+          return { ...item, cantidadEnCarrito: item.cantidadEnCarrito - 1 };
+        }
       }
-    }
-    return item;
-  });
-  setCarrito(nuevoCarrito);
-};
+      return item;
+    });
+    setCarrito(nuevoCarrito);
+  };
 
-const aumentarCantidad = (id) => {
-  const nuevoCarrito = carrito.map(item => {
-    if (item.id === id) {
-      if (item.cantidadEnCarrito < item.stock) {
-        return { ...item, cantidadEnCarrito: item.cantidadEnCarrito + 1 };
-      } else {
-        alert("No hay más stock disponible");
+  const aumentarCantidad = (id) => {
+    const nuevoCarrito = carrito.map(item => {
+      if (item.id === id) {
+        if (item.cantidadEnCarrito < item.stock) {
+          return { ...item, cantidadEnCarrito: item.cantidadEnCarrito + 1 };
+        } else {
+          alert("No hay más stock disponible");
+        }
       }
-    }
-    return item;
-  });
-  setCarrito(nuevoCarrito);
-};
+      return item;
+    });
+    setCarrito(nuevoCarrito);
+  };
 
   const totalVenta = carrito.reduce((acc, item) => acc + (item.precio * item.cantidadEnCarrito), 0);
 
+  // 2. REFACTORIZACIÓN DE finalizarCompra
   const finalizarCompra = async () => {
     if (carrito.length === 0) return;
 
     try {
-      const registrosVenta = carrito.map(item => ({
+      // PASO A: Insertar en ventas_cabecera
+      const { data: cabecera, error: errorCabecera } = await supabase
+        .from('ventas_cabecera')
+        .insert([{ 
+          vendedor_email: sesion?.user?.email, // Registramos quién realiza la venta
+          total_total: totalVenta,
+          metodo_pago: 'Efectivo' 
+        }])
+        .select()
+        .single();
+
+      if (errorCabecera) throw errorCabecera;
+
+      // PASO B: Preparar los detalles vinculados al ID de la cabecera
+      const registrosDetalle = carrito.map(item => ({
+        venta_id: cabecera.id, // ID relacional
         producto_id: item.id,
         cantidad: item.cantidadEnCarrito,
-        total: item.precio * item.cantidadEnCarrito
+        precio_unitario: item.precio
       }));
 
-      const { error: errorVenta } = await supabase.from('ventas').insert(registrosVenta);
-      if (errorVenta) throw errorVenta;
+      const { error: errorDetalle } = await supabase
+        .from('ventas_detalle')
+        .insert(registrosDetalle);
 
+      if (errorDetalle) throw errorDetalle;
+
+      // PASO C: Actualizar stock de los productos
       const promesasStock = carrito.map(item => {
         return supabase
           .from('productos')
@@ -111,6 +131,7 @@ const aumentarCantidad = (id) => {
       alert("🎉 Venta realizada con éxito");
       setCarrito([]);
       traerProductos();
+      if (alTerminar) alTerminar();
     } catch (error) {
       console.error("Error al finalizar:", error);
       alert("Error al procesar la venta");
@@ -158,6 +179,7 @@ const aumentarCantidad = (id) => {
                 <th>Producto</th>
                 <th>Cant.</th>
                 <th>Subtotal</th>
+                <th></th>
                 <th></th>
               </tr>
             </thead>

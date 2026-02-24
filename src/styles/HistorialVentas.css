@@ -43,12 +43,25 @@
   justify-content: center;
 }
 
+.card-total-mes h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+.card-total-mes span {
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-top: 5px;
+}
+
 /* --- Tabla y Centrado General --- */
 .tabla-historial-wrapper {
   background: white;
   border-radius: 20px;
   padding: 10px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+  overflow-x: auto; /* Evita desbordes en tablets */
 }
 
 .tabla-inventario {
@@ -58,14 +71,42 @@
 
 .tabla-inventario th, 
 .tabla-inventario td {
-  text-align: center !important; /* Centrado para PC */
+  text-align: center !important; 
   padding: 15px;
+  vertical-align: middle; /* Alineación vertical para celdas con mucho texto */
+}
+
+/* --- NUEVOS ESTILOS PARA PRODUCTOS AGRUPADOS --- */
+.celda-productos-lista {
+  text-align: left !important; /* En PC se lee mejor alineado a la izquierda */
+  font-size: 0.9rem;
+  color: var(--color-texto);
+  min-width: 200px;
+}
+
+.item-producto-historial {
+  padding: 4px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.item-producto-historial:last-child {
+  border-bottom: none;
+}
+
+.vendedor-tag {
+  background: #eef2f3;
+  padding: 4px 8px;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  color: #555;
+  font-weight: 600;
+  text-transform: capitalize;
 }
 
 /* --- CAMBIOS ESPECÍFICOS PARA MÓVIL (CENTRADO TOTAL) --- */
 @media (max-width: 768px) {
   .tabla-inventario thead {
-    display: none; /* Ocultamos cabecera en móvil */
+    display: none; 
   }
 
   .tabla-inventario tr {
@@ -75,31 +116,34 @@
     margin-bottom: 15px;
     padding: 15px;
     border: 1px solid #edf2f4;
-    text-align: center; /* Centra todo el contenido de la tarjeta */
+    text-align: center; 
   }
 
   .tabla-inventario td {
-    display: block; /* Cada dato en su propia línea */
+    display: block; 
     width: 100%;
-    text-align: center !important; /* Forzamos el centrado del dato */
-    padding: 8px 0;
+    text-align: center !important; 
+    padding: 10px 0;
     border-bottom: 1px dashed #eee;
+  }
+
+  .celda-productos-lista {
+    text-align: center !important; /* Forzamos centrado en móvil */
   }
 
   .tabla-inventario td:last-child {
     border-bottom: none;
   }
 
-  /* Centramos también las etiquetas (data-label) */
   .tabla-inventario td::before {
     content: attr(data-label);
-    display: block; /* La etiqueta arriba del dato */
+    display: block; 
     font-weight: 700;
     text-transform: uppercase;
     font-size: 0.7rem;
     color: var(--color-primario);
     margin-bottom: 4px;
-    text-align: center; /* Etiqueta centrada */
+    text-align: center; 
   }
 
   .card-total-mes {

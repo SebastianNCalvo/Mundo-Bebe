@@ -82,8 +82,12 @@ function App() {
           </div>
         )}
 
-        {pestana === 'ventas' && <SeccionVentas alTerminar={refrescarInventario} />}
-        
+        {pestana === 'ventas' && (
+          <SeccionVentas 
+            alTerminar={refrescarInventario} 
+            sesion={sesion} // <--- Asegúrate de agregar esto
+          />
+        )}        
         {pestana === 'historial' && esAdmin && <HistorialVentas />}
       </div>
     </div>
