@@ -56,7 +56,6 @@ export default function ListaInventario({ trigger, esAdmin }) {
               <th>Talle</th>
               <th>Precio</th>
               <th>Stock</th>
-              {/* Solo mostramos el encabezado de acciones si es admin */}
               {esAdmin && <th>Acciones</th>}
             </tr>
           </thead>
@@ -82,7 +81,6 @@ export default function ListaInventario({ trigger, esAdmin }) {
                   {prod.stock}
                 </td>
                 
-                {/* LÓGICA DE PERMISOS: Solo el admin ve el botón eliminar */}
                 {esAdmin && (
                   <td data-label="Acciones">
                     <button 

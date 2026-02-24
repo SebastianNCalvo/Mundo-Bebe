@@ -61,7 +61,6 @@ export default function SeccionVentas() {
   const disminuirCantidad = (id) => {
   const nuevoCarrito = carrito.map(item => {
     if (item.id === id) {
-      // Si la cantidad es mayor a 1, restamos
       if (item.cantidadEnCarrito > 1) {
         return { ...item, cantidadEnCarrito: item.cantidadEnCarrito - 1 };
       }
@@ -71,11 +70,9 @@ export default function SeccionVentas() {
   setCarrito(nuevoCarrito);
 };
 
-// Opcional: También podrías crear una para aumentar rápido
 const aumentarCantidad = (id) => {
   const nuevoCarrito = carrito.map(item => {
     if (item.id === id) {
-      // Validamos contra el stock real del producto
       if (item.cantidadEnCarrito < item.stock) {
         return { ...item, cantidadEnCarrito: item.cantidadEnCarrito + 1 };
       } else {
@@ -112,8 +109,8 @@ const aumentarCantidad = (id) => {
       await Promise.all(promesasStock);
 
       alert("🎉 Venta realizada con éxito");
-      setCarrito([]); // Vaciar carrito
-      traerProductos(); // Refrescar stock en el selector
+      setCarrito([]);
+      traerProductos();
     } catch (error) {
       console.error("Error al finalizar:", error);
       alert("Error al procesar la venta");

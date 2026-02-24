@@ -13,7 +13,7 @@ export default function FormularioProducto({ alTerminar }) {
   const guardarProducto = async (e) => {
     e.preventDefault();
 
-    const stockACargar = parseInt(stock) || 0; // Si está vacío, es 0
+    const stockACargar = parseInt(stock) || 0;
     const precioNumerico = parseFloat(precio);
 
     if (precioNumerico <= 0) {
@@ -21,7 +21,6 @@ export default function FormularioProducto({ alTerminar }) {
       return;
     }
 
-    // Buscamos si ya existe el producto
     const { data: existente, error: errorBusqueda } = await supabase
       .from('productos')
       .select('*')
@@ -34,8 +33,6 @@ export default function FormularioProducto({ alTerminar }) {
     let errorOperacion = null;
 
     if (existente) {
-      // CASO A: El producto existe. 
-      // Si stock es 0, solo actualizamos precio. Si es > 0, sumamos y actualizamos precio.
       const nuevoStock = existente.stock + stockACargar;
       
       const mensaje = stockACargar > 0 
@@ -57,7 +54,6 @@ export default function FormularioProducto({ alTerminar }) {
       if (!error) alert(stockACargar > 0 ? "¡Stock y Precio actualizados!" : "¡Precio actualizado con éxito!");
 
     } else {
-      // CASO B: Producto nuevo. Aquí sí el stock es obligatorio.
       if (stockACargar <= 0) {
         alert("Para crear un producto nuevo debes ingresar un stock inicial.");
         return;

@@ -49,7 +49,6 @@ function App() {
         <button className="btn-logout" onClick={cerrarSesion}>Salir</button>
       </header>
 
-      {/* --- NAVEGACIÓN CORREGIDA --- */}
       <nav className="tabs-nav">
         <button 
           className={pestana === 'ventas' ? 'active' : ''} 
@@ -65,7 +64,6 @@ function App() {
           Inventario
         </button>
         
-        {/* Solo mostramos el botón de historial si es Admin */}
         {esAdmin && (
           <button 
             className={pestana === 'historial' ? 'active' : ''} 
@@ -79,10 +77,7 @@ function App() {
       <div className="tab-content">
         {pestana === 'inventario' && (
           <div className="layout-grid">
-            {/* Removemos el {esAdmin && ...} para que todos puedan ver el formulario */}
             <FormularioProducto alTerminar={refrescarInventario} />
-            
-            {/* La lista sigue recibiendo esAdmin para controlar el botón de eliminar */}
             <ListaInventario trigger={actualizador} esAdmin={esAdmin} />
           </div>
         )}
