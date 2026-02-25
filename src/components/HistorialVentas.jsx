@@ -12,6 +12,7 @@ const HistorialVentas = () => {
   const [vista, setVista] = useState('todo');
 
   const [editandoGasto, setEditandoGasto] = useState(null);
+  const [editandoVenta, setEditandoVenta] = useState(null);
 
   useEffect(() => {
     obtenerDatos();
@@ -33,6 +34,43 @@ const HistorialVentas = () => {
     setCargando(false);
   };
 
+  // --- FUNCIONES PARA VENTAS ---
+  const eliminarVenta = async (id) => {
+    if (!window.confirm("⚠️ ¿Estás seguro de eliminar esta venta?")) return;
+    
+    try {
+      // Borramos primero el detalle (por si no tienes cascada en Supabase)
+      await supabase.from('ventas_detalle').delete().eq('id_cabecera', id); // Ajusta 'id_cabecera' según tu columna
+      
+      const { error } = await supabase.from('ventas_cabecera').delete().eq('id', id);
+      if (error) throw error;
+      
+      alert("Venta eliminada");
+      obtenerDatos();
+    } catch (error) {
+      console.error(error);
+      alert("Error al eliminar venta");
+    }
+  };
+
+  const guardarEdicionVenta = async (e) => {
+    e.preventDefault();
+    const { error } = await supabase
+      .from('ventas_cabecera')
+      .update({
+        vendedor_email: editandoVenta.vendedor_email,
+        metodo_pago: editandoVenta.metodo_pago
+      })
+      .eq('id', editandoVenta.id);
+
+    if (error) alert("Error al actualizar");
+    else {
+      setEditandoVenta(null);
+      obtenerDatos();
+    }
+  };
+
+  // --- FUNCIONES PARA GASTOS ---
   const eliminarGasto = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar este gasto?")) return;
     const { error } = await supabase.from('gastos').delete().eq('id', id);
@@ -48,7 +86,7 @@ const HistorialVentas = () => {
         descripcion: editandoGasto.descripcion,
         monto: parseFloat(editandoGasto.monto),
         categoria: editandoGasto.categoria,
-        metodo_pago: editandoGasto.metodo_pago // Se agrega edición de método
+        metodo_pago: editandoGasto.metodo_pago
       })
       .eq('id', editandoGasto.id);
 
@@ -59,6 +97,7 @@ const HistorialVentas = () => {
     }
   };
 
+  // --- RENDERIZADO Y LÓGICA DE FILTROS ---
   const listaVendedores = ['Todos', ...new Set([...ventas.map(v => v.vendedor_email), ...gastos.map(g => g.vendedor_email)])].filter(Boolean);
   const ventasFiltradas = vendedorFiltro === 'Todos' ? ventas : ventas.filter(v => v.vendedor_email === vendedorFiltro);
   const gastosFiltrados = vendedorFiltro === 'Todos' ? gastos : gastos.filter(g => g.vendedor_email === vendedorFiltro);
@@ -67,15 +106,10 @@ const HistorialVentas = () => {
   const totalGastos = gastosFiltrados.reduce((acc, g) => acc + (Number(g.monto) || 0), 0);
   const balanceNeto = totalVentas - totalGastos;
 
-  // --- Función auxiliar para formatear fecha y hora (Mantenida) ---
   const formatearFechaHora = (fechaISO) => {
     return new Date(fechaISO).toLocaleString('es-AR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
+      day: '2-digit', month: '2-digit', year: 'numeric',
+      hour: '2-digit', minute: '2-digit', hour12: false
     });
   };
 
@@ -84,7 +118,7 @@ const HistorialVentas = () => {
       <h3>Ventas Realizadas</h3>
       <table className="tabla-inventario">
         <thead>
-          <tr><th>Fecha y Hora</th><th>Vendedor</th><th>Productos</th><th>Pago</th><th>Total</th></tr>
+          <tr><th>Fecha y Hora</th><th>Vendedor</th><th>Productos</th><th>Pago</th><th>Total</th><th>Acciones</th></tr>
         </thead>
         <tbody>
           {ventasFiltradas.map(venta => (
@@ -96,6 +130,12 @@ const HistorialVentas = () => {
               </td>
               <td data-label="Pago"><span className={`tag-pago ${venta.metodo_pago?.toLowerCase()}`}>{venta.metodo_pago}</span></td>
               <td data-label="Total" className="texto-total-venta">${venta.total_total.toLocaleString('es-AR')}</td>
+              <td data-label="Acciones">
+                <div className="acciones-gasto">
+                  <button onClick={() => setEditandoVenta(venta)} className="btn-edit">✏️</button>
+                  <button onClick={() => eliminarVenta(venta.id)} className="btn-delete">🗑️</button>
+                </div>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -116,7 +156,6 @@ const HistorialVentas = () => {
               <td data-label="Fecha/Hora">{formatearFechaHora(gasto.fecha)}</td>
               <td data-label="Descripción">{gasto.descripcion}</td>
               <td data-label="Categoría"><span className="tag-categoria">{gasto.categoria}</span></td>
-              {/* Nueva columna de Pago en Gastos */}
               <td data-label="Pago"><span className={`tag-pago ${gasto.metodo_pago?.toLowerCase() || 'efectivo'}`}>{gasto.metodo_pago || 'Efectivo'}</span></td>
               <td data-label="Monto" style={{ color: 'var(--color-peligro)', fontWeight: 'bold' }}>
                 -${gasto.monto.toLocaleString('es-AR')}
@@ -136,41 +175,21 @@ const HistorialVentas = () => {
 
   return (
     <div className="historial-container">
+      {/* MODAL GASTO */}
       {editandoGasto && (
         <div className="modal-overlay">
           <div className="modal-content">
             <h4>Editar Gasto</h4>
             <form onSubmit={guardarEdicionGasto}>
-              <input 
-                type="text" 
-                value={editandoGasto.descripcion} 
-                onChange={(e) => setEditandoGasto({...editandoGasto, descripcion: e.target.value})}
-                required
-              />
-              <input 
-                type="number" 
-                value={editandoGasto.monto} 
-                onChange={(e) => setEditandoGasto({...editandoGasto, monto: e.target.value})}
-                required
-              />
-              <select 
-                value={editandoGasto.categoria}
-                onChange={(e) => setEditandoGasto({...editandoGasto, categoria: e.target.value})}
-              >
-                <option value="Mercadería">Mercadería</option>
-                <option value="Alquiler">Alquiler</option>
-                <option value="Servicios">Servicios</option>
-                <option value="Varios">Varios</option>
+              <input type="text" value={editandoGasto.descripcion} onChange={(e) => setEditandoGasto({...editandoGasto, descripcion: e.target.value})} required />
+              <input type="number" value={editandoGasto.monto} onChange={(e) => setEditandoGasto({...editandoGasto, monto: e.target.value})} required />
+              <select value={editandoGasto.categoria} onChange={(e) => setEditandoGasto({...editandoGasto, categoria: e.target.value})}>
+                <option value="Mercadería">Mercadería</option><option value="Alquiler">Alquiler</option>
+                <option value="Servicios">Servicios</option><option value="Varios">Varios</option>
               </select>
-              {/* Edición del Método de Pago */}
-              <select 
-                value={editandoGasto.metodo_pago || 'Efectivo'}
-                onChange={(e) => setEditandoGasto({...editandoGasto, metodo_pago: e.target.value})}
-              >
-                <option value="Efectivo">💵 Efectivo</option>
-                <option value="Transferencia">🏦 Transferencia</option>
-                <option value="Débito">💳 Débito</option>
-                <option value="Crédito">💳 Crédito</option>
+              <select value={editandoGasto.metodo_pago || 'Efectivo'} onChange={(e) => setEditandoGasto({...editandoGasto, metodo_pago: e.target.value})}>
+                <option value="Efectivo">💵 Efectivo</option><option value="Transferencia">🏦 Transferencia</option>
+                <option value="Débito">💳 Débito</option><option value="Crédito">💳 Crédito</option>
               </select>
               <div className="modal-botones">
                 <button type="submit" className="btn-confirmar">Guardar</button>
@@ -181,7 +200,31 @@ const HistorialVentas = () => {
         </div>
       )}
 
-      {/* ... (Resto del JSX se mantiene igual) ... */}
+      {/* MODAL VENTA */}
+      {editandoVenta && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <h4>Editar Venta</h4>
+            <form onSubmit={guardarEdicionVenta}>
+              <label>Vendedor</label>
+              <select value={editandoVenta.vendedor_email} onChange={(e) => setEditandoVenta({...editandoVenta, vendedor_email: e.target.value})}>
+                {listaVendedores.filter(v => v !== 'Todos').map(v => <option key={v} value={v}>{v.split('@')[0]}</option>)}
+              </select>
+              <label>Método de Pago</label>
+              <select value={editandoVenta.metodo_pago} onChange={(e) => setEditandoVenta({...editandoVenta, metodo_pago: e.target.value})}>
+                <option value="Efectivo">💵 Efectivo</option><option value="Transferencia">🏦 Transferencia</option>
+                <option value="Débito">💳 Débito</option><option value="Crédito">💳 Crédito</option>
+              </select>
+              <div className="modal-botones">
+                <button type="submit" className="btn-confirmar">Actualizar</button>
+                <button type="button" onClick={() => setEditandoVenta(null)} className="btn-cancelar">Cancelar</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DASHBOARD Y FILTROS */}
       <div className="dashboard-balance">
         <div className={`card-balance ingresos clicable ${vista === 'ventas' ? 'activa' : ''}`} onClick={() => setVista('ventas')}>
           <small>Ventas (+)</small>
