@@ -25,7 +25,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h2>Mundo Bebé 👶</h2>
+        <h2>Mundo Bebé</h2>
         <p>Panel de Administración</p>
         
         <form className="login-form" onSubmit={handleLogin}>

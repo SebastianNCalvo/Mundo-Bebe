@@ -7,8 +7,10 @@ export default function SeccionVentas({ alTerminar, sesion }) {
   const [idSeleccionado, setIdSeleccionado] = useState('');
   const [cantidad, setCantidad] = useState(1);
   const [carrito, setCarrito] = useState([]);
-  // NUEVO: Estado para el método de pago
   const [metodoPago, setMetodoPago] = useState('Efectivo');
+
+  // NUEVO: Estado para filtrar la lista de productos
+  const [filtroProducto, setFiltroProducto] = useState('');
 
   const traerProductos = async () => {
     const { data } = await supabase
@@ -22,6 +24,11 @@ export default function SeccionVentas({ alTerminar, sesion }) {
   useEffect(() => {
     traerProductos();
   }, []);
+
+  // Lógica de filtrado dinámico
+  const productosFiltradosParaSelect = productos.filter(p =>
+    p.nombre.toLowerCase().includes(filtroProducto.toLowerCase())
+  );
 
   const agregarAlCarrito = (e) => {
     e.preventDefault();
@@ -53,8 +60,10 @@ export default function SeccionVentas({ alTerminar, sesion }) {
 
     setIdSeleccionado('');
     setCantidad(1);
+    setFiltroProducto(''); // Limpiar filtro al agregar
   };
 
+  // ... (mantenemos funciones eliminarDelCarrito, disminuirCantidad, aumentarCantidad igual)
   const eliminarDelCarrito = (id) => {
     setCarrito(carrito.filter(item => item.id !== id));
   };
@@ -89,15 +98,13 @@ export default function SeccionVentas({ alTerminar, sesion }) {
 
   const finalizarCompra = async () => {
     if (carrito.length === 0) return;
-
     try {
-      // PASO A: Insertar en ventas_cabecera incluyendo el METODO DE PAGO
       const { data: cabecera, error: errorCabecera } = await supabase
         .from('ventas_cabecera')
         .insert([{ 
           vendedor_email: sesion?.user?.email,
           total_total: totalVenta,
-          metodo_pago: metodoPago // <--- Usamos el estado dinámico
+          metodo_pago: metodoPago
         }])
         .select()
         .single();
@@ -134,7 +141,7 @@ export default function SeccionVentas({ alTerminar, sesion }) {
 
       alert("🎉 Venta realizada con éxito");
       setCarrito([]);
-      setMetodoPago('Efectivo'); // Resetear a efectivo para la próxima
+      setMetodoPago('Efectivo');
       traerProductos();
       if (alTerminar) alTerminar();
     } catch (error) {
@@ -148,15 +155,32 @@ export default function SeccionVentas({ alTerminar, sesion }) {
       <h3>Punto de Venta 🛒</h3>
       
       <form className="ventas-form" onSubmit={agregarAlCarrito}>
+        
+        {/* NUEVO: Campo de búsqueda para filtrar el select */}
+        <div className="input-group">
+          <label>Buscar Producto:</label>
+          <input 
+            type="text"
+            placeholder="Escriba nombre del producto..."
+            value={filtroProducto}
+            onChange={(e) => setFiltroProducto(e.target.value)}
+            className="input-filtro-ventas"
+          />
+        </div>
+
         <select 
           value={idSeleccionado} 
           onChange={(e) => setIdSeleccionado(e.target.value)} 
           required
         >
-          <option value="">Seleccionar Producto...</option>
-          {productos.map(p => (
+          <option value="">
+            {productosFiltradosParaSelect.length > 0 
+              ? "Seleccionar Producto..." 
+              : "No se encontraron coincidencias"}
+          </option>
+          {productosFiltradosParaSelect.map(p => (
             <option key={p.id} value={p.id}>
-              {p.nombre} - Talle: {p.talle} (Stock: {p.stock})
+              {p.nombre} - Talle: {p.talle} (${p.precio})
             </option>
           ))}
         </select>
@@ -175,6 +199,7 @@ export default function SeccionVentas({ alTerminar, sesion }) {
         <button type="submit" className="btn-agregar">Añadir al carrito</button>
       </form>
 
+      {/* ... (el resto del carrito y resumen se mantiene exactamente igual) */}
       {carrito.length > 0 && (
         <div className="carrito-resumen">
           <h4>Detalle de la Orden</h4>
@@ -212,7 +237,6 @@ export default function SeccionVentas({ alTerminar, sesion }) {
           <div className="carrito-footer">
             <p className="total-texto">Total: <span>${totalVenta}</span></p>
             
-            {/* NUEVO: Selector de Método de Pago */}
             <div className="pago-selector">
               <label>Método de Pago:</label>
               <select 

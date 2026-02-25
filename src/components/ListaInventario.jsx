@@ -9,6 +9,9 @@ export default function ListaInventario({ trigger, esAdmin }) {
   // Estados para la edición
   const [editandoId, setEditandoId] = useState(null);
   const [productoEditado, setProductoEditado] = useState({});
+  
+  // Nuevo estado para controlar qué fila debe brillar
+  const [idRecienActualizado, setIdRecienActualizado] = useState(null);
 
   useEffect(() => {
     obtenerProductos();
@@ -24,7 +27,11 @@ export default function ListaInventario({ trigger, esAdmin }) {
     else setProductos(data);
   };
 
-  // --- Lógica de Edición ---
+  // --- Lógica para el Valor Total del Inventario ---
+  const valorTotalInventario = productos.reduce((acc, prod) => {
+    return acc + (parseFloat(prod.precio || 0) * parseInt(prod.stock || 0));
+  }, 0);
+
   const iniciarEdicion = (prod) => {
     setEditandoId(prod.id);
     setProductoEditado({ ...prod });
@@ -50,6 +57,11 @@ export default function ListaInventario({ trigger, esAdmin }) {
       alert("Error al actualizar el producto");
     } else {
       setEditandoId(null);
+      
+      // --- Lógica de Feedback Visual ---
+      setIdRecienActualizado(id); // Marcamos el ID para que brille
+      setTimeout(() => setIdRecienActualizado(null), 2000); // Quitamos el brillo tras 2 segundos
+      
       obtenerProductos();
     }
   };
@@ -70,6 +82,12 @@ export default function ListaInventario({ trigger, esAdmin }) {
   return (
     <div className="inventario-container">
       <h3>Stock Actual de Ropa</h3>
+
+      {/* TARJETA DE CAPITAL TOTAL (Ahora con clase CSS limpia) */}
+      <div className="card-total-inventario">
+        <small>Valor Total de Mercadería</small>
+        <span>${valorTotalInventario.toLocaleString('es-AR')}</span>
+      </div>
 
       <div className="buscador-container">
         <span className="icono-lupa">🔍</span>
@@ -95,9 +113,11 @@ export default function ListaInventario({ trigger, esAdmin }) {
           </thead>
           <tbody>
             {productosFiltrados.map((prod) => (
-              <tr key={prod.id}>
+              <tr 
+                key={prod.id} 
+                className={idRecienActualizado === prod.id ? 'fila-actualizada' : ''}
+              >
                 {editandoId === prod.id ? (
-                  // --- VISTA EDICIÓN ---
                   <>
                     <td>
                       <input 
@@ -105,6 +125,7 @@ export default function ListaInventario({ trigger, esAdmin }) {
                         value={productoEditado.nombre} 
                         onChange={(e) => setProductoEditado({...productoEditado, nombre: e.target.value})}
                         className="input-edit-celda"
+                        autoFocus
                       />
                     </td>
                     <td>
@@ -139,7 +160,6 @@ export default function ListaInventario({ trigger, esAdmin }) {
                     </td>
                   </>
                 ) : (
-                  // --- VISTA NORMAL ---
                   <>
                     <td data-label="Producto"><strong>{prod.nombre}</strong></td>
                     <td data-label="Talle"><span className="badge-talle">{prod.talle}</span></td>

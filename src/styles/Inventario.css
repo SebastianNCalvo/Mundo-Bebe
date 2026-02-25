@@ -1,13 +1,39 @@
-/* --- Contenedor Principal --- */
 .inventario-container {
   width: 100%;
   background: white;
   border-radius: 20px;
-  padding: 15px; /* Reducido para móvil */
+  padding: 15px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
   box-sizing: border-box;
 }
 
+/* --- NUEVA TARJETA DE CAPITAL TOTAL --- */
+.card-total-inventario {
+  background: linear-gradient(135deg, #457b9d, #1d3557);
+  color: white;
+  padding: 20px;
+  border-radius: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 12px rgba(29, 53, 87, 0.2);
+  text-align: left;
+}
+
+.card-total-inventario small {
+  color: #a8dadc;
+  font-weight: 700;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.5px;
+}
+
+.card-total-inventario span {
+  display: block;
+  font-size: 1.8rem;
+  font-weight: 800;
+  margin-top: 5px;
+}
+
+/* --- Estilos Originales --- */
 .tabla-wrapper {
   overflow-x: auto;
   border-radius: 15px;
@@ -19,7 +45,15 @@
   border-spacing: 0;
 }
 
-/* --- Encabezados (Solo se ven en PC) --- */
+@keyframes brillo-exito {
+  0% { background-color: rgba(69, 123, 157, 0.2); }
+  100% { background-color: transparent; }
+}
+
+.fila-actualizada {
+  animation: brillo-exito 2s ease-out;
+}
+
 .tabla-inventario th {
   background-color: #f1fafa;
   color: #457b9d;
@@ -30,7 +64,10 @@
   border-bottom: 2px solid #a8dadc;
 }
 
-/* --- Celdas (Estilo PC) --- */
+.tabla-inventario tr {
+  transition: background-color 0.3s ease;
+}
+
 .tabla-inventario td {
   padding: 16px 15px;
   border-bottom: 1px solid #f1f1f1;
@@ -38,7 +75,19 @@
   font-size: 0.95rem;
 }
 
-/* --- Buscador Adaptable --- */
+.bajo-stock {
+  color: #e63946 !important;
+  font-weight: bold;
+}
+
+.badge-talle {
+  background: #f1f3f4;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-weight: 600;
+  color: #1d3557;
+}
+
 .buscador-container {
   display: flex;
   align-items: center;
@@ -47,7 +96,12 @@
   border-radius: 50px;
   margin-bottom: 20px;
   border: 2px solid #f1f3f4;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.buscador-container:focus-within {
+  border-color: #a8dadc;
+  box-shadow: 0 4px 12px rgba(168, 218, 220, 0.2);
 }
 
 .input-busqueda {
@@ -55,91 +109,73 @@
   background: transparent;
   width: 100%;
   outline: none;
-  font-size: 16px; /* Evita zoom en iOS */
+  font-size: 16px;
   color: #2b2d42;
   margin-left: 10px;
 }
 
 .input-edit-celda {
   width: 100%;
-  padding: 4px;
-  border: 1px solid var(--color-primario);
-  border-radius: 4px;
+  padding: 6px 10px;
+  border: 2px solid #a8dadc;
+  border-radius: 8px;
   font-size: 0.9rem;
+  color: #1d3557;
+  outline: none;
 }
-.input-edit-celda.small {
-  max-width: 60px;
-}
-.acciones-botones {
+
+.acciones-botones, .acciones-edit-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   justify-content: center;
 }
-.btn-editar-icono {
+
+.btn-editar-icono, .btn-save, .btn-cancel, .btn-eliminar {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
 }
-/* --- AJUSTES RESPONSIVE (Modo Tarjeta) --- */
+
+.btn-eliminar {
+  color: #e63946;
+}
+
 @media (max-width: 768px) {
-  .inventario-container {
-    background: transparent; /* Las tarjetas resaltan más sobre el fondo gris */
-    padding: 0;
-    box-shadow: none;
+  .inventario-container { background: transparent; padding: 0; box-shadow: none; }
+  
+  .card-total-inventario {
+    text-align: center;
+    padding: 15px;
   }
 
-  /* Ocultamos el encabezado por completo */
-  .tabla-inventario thead {
-    display: none;
+  .card-total-inventario span {
+    font-size: 1.5rem;
   }
 
-  /* Cada fila es una tarjeta blanca */
+  .tabla-inventario thead { display: none; }
   .tabla-inventario tr {
     display: block;
     background: #ffffff;
     border-radius: 18px;
     margin-bottom: 15px;
     padding: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.05);
     border: 1px solid #edf2f4;
   }
-
   .tabla-inventario td {
     display: flex;
-    justify-content: space-between; /* Etiqueta a la izq, Dato a la der */
+    justify-content: space-between;
     align-items: center;
-    padding: 10px 5px;
+    padding: 12px 5px;
     border-bottom: 1px dashed #eee;
-    text-align: right; /* El contenido se alinea a la derecha */
   }
-
-  .tabla-inventario td:last-child {
-    border-bottom: none; /* La última celda (acciones) no lleva línea */
-    padding-top: 15px;
-  }
-
-  /* Usamos el data-label para dar contexto */
   .tabla-inventario td::before {
     content: attr(data-label);
     font-weight: 700;
     text-transform: uppercase;
     font-size: 0.7rem;
     color: #a8dadc;
-    text-align: left;
-    margin-right: 15px;
-  }
-
-  /* Ajuste para que el nombre del producto destaque */
-  .tabla-inventario td[data-label="Producto"] {
-    font-size: 1.1rem;
-    color: #457b9d;
-  }
-}
-
-/* Ajustes para PC */
-@media (min-width: 769px) {
-  .inventario-container {
-    padding: 25px;
   }
 }

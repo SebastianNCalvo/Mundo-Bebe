@@ -13,6 +13,9 @@ const HistorialVentas = () => {
 
   const [editandoGasto, setEditandoGasto] = useState(null);
   const [editandoVenta, setEditandoVenta] = useState(null);
+  
+  // Estado para feedback visual
+  const [idRecienActualizado, setIdRecienActualizado] = useState(null);
 
   useEffect(() => {
     obtenerDatos();
@@ -34,18 +37,20 @@ const HistorialVentas = () => {
     setCargando(false);
   };
 
+  const aplicarFeedback = (id) => {
+    setIdRecienActualizado(id);
+    setTimeout(() => setIdRecienActualizado(null), 2000);
+  };
+
   // --- FUNCIONES PARA VENTAS ---
   const eliminarVenta = async (id) => {
-    if (!window.confirm("⚠️ ¿Estás seguro de eliminar esta venta?")) return;
+    if (!window.confirm("⚠️ ¿Estás seguro de eliminar esta venta? El stock volverá al inventario automáticamente.")) return;
     
     try {
-      // Borramos primero el detalle (por si no tienes cascada en Supabase)
-      await supabase.from('ventas_detalle').delete().eq('id_cabecera', id); // Ajusta 'id_cabecera' según tu columna
-      
+      // Nota: El Trigger de Supabase se encargará del stock automáticamente al borrar ventas_detalle
+      await supabase.from('ventas_detalle').delete().eq('id_cabecera', id); 
       const { error } = await supabase.from('ventas_cabecera').delete().eq('id', id);
       if (error) throw error;
-      
-      alert("Venta eliminada");
       obtenerDatos();
     } catch (error) {
       console.error(error);
@@ -65,7 +70,9 @@ const HistorialVentas = () => {
 
     if (error) alert("Error al actualizar");
     else {
+      const idEditado = editandoVenta.id;
       setEditandoVenta(null);
+      aplicarFeedback(idEditado);
       obtenerDatos();
     }
   };
@@ -92,12 +99,14 @@ const HistorialVentas = () => {
 
     if (error) alert("Error al actualizar");
     else {
+      const idEditado = editandoGasto.id;
       setEditandoGasto(null);
+      aplicarFeedback(idEditado);
       obtenerDatos();
     }
   };
 
-  // --- RENDERIZADO Y LÓGICA DE FILTROS ---
+  // --- RENDERIZADO ---
   const listaVendedores = ['Todos', ...new Set([...ventas.map(v => v.vendedor_email), ...gastos.map(g => g.vendedor_email)])].filter(Boolean);
   const ventasFiltradas = vendedorFiltro === 'Todos' ? ventas : ventas.filter(v => v.vendedor_email === vendedorFiltro);
   const gastosFiltrados = vendedorFiltro === 'Todos' ? gastos : gastos.filter(g => g.vendedor_email === vendedorFiltro);
@@ -122,7 +131,7 @@ const HistorialVentas = () => {
         </thead>
         <tbody>
           {ventasFiltradas.map(venta => (
-            <tr key={venta.id}>
+            <tr key={venta.id} className={idRecienActualizado === venta.id ? 'fila-actualizada' : ''}>
               <td data-label="Fecha/Hora">{formatearFechaHora(venta.fecha)}</td>
               <td data-label="Vendedor">{venta.vendedor_email?.split('@')[0]}</td>
               <td data-label="Productos" style={{ textAlign: 'left' }}>
@@ -132,8 +141,8 @@ const HistorialVentas = () => {
               <td data-label="Total" className="texto-total-venta">${venta.total_total.toLocaleString('es-AR')}</td>
               <td data-label="Acciones">
                 <div className="acciones-gasto">
-                  <button onClick={() => setEditandoVenta(venta)} className="btn-edit">✏️</button>
-                  <button onClick={() => eliminarVenta(venta.id)} className="btn-delete">🗑️</button>
+                  <button onClick={() => setEditandoVenta(venta)} className="btn-edit-icono">✏️</button>
+                  <button onClick={() => eliminarVenta(venta.id)} className="btn-eliminar">🗑️</button>
                 </div>
               </td>
             </tr>
@@ -152,7 +161,7 @@ const HistorialVentas = () => {
         </thead>
         <tbody>
           {gastosFiltrados.map(gasto => (
-            <tr key={gasto.id}>
+            <tr key={gasto.id} className={idRecienActualizado === gasto.id ? 'fila-actualizada' : ''}>
               <td data-label="Fecha/Hora">{formatearFechaHora(gasto.fecha)}</td>
               <td data-label="Descripción">{gasto.descripcion}</td>
               <td data-label="Categoría"><span className="tag-categoria">{gasto.categoria}</span></td>
@@ -162,8 +171,8 @@ const HistorialVentas = () => {
               </td>
               <td data-label="Acciones">
                 <div className="acciones-gasto">
-                  <button onClick={() => setEditandoGasto(gasto)} className="btn-edit">✏️</button>
-                  <button onClick={() => eliminarGasto(gasto.id)} className="btn-delete">🗑️</button>
+                  <button onClick={() => setEditandoGasto(gasto)} className="btn-edit-icono">✏️</button>
+                  <button onClick={() => eliminarGasto(gasto.id)} className="btn-eliminar">🗑️</button>
                 </div>
               </td>
             </tr>
@@ -177,23 +186,35 @@ const HistorialVentas = () => {
     <div className="historial-container">
       {/* MODAL GASTO */}
       {editandoGasto && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay animar-fade">
+          <div className="modal-content animar-slide">
             <h4>Editar Gasto</h4>
             <form onSubmit={guardarEdicionGasto}>
-              <input type="text" value={editandoGasto.descripcion} onChange={(e) => setEditandoGasto({...editandoGasto, descripcion: e.target.value})} required />
-              <input type="number" value={editandoGasto.monto} onChange={(e) => setEditandoGasto({...editandoGasto, monto: e.target.value})} required />
-              <select value={editandoGasto.categoria} onChange={(e) => setEditandoGasto({...editandoGasto, categoria: e.target.value})}>
-                <option value="Mercadería">Mercadería</option><option value="Alquiler">Alquiler</option>
-                <option value="Servicios">Servicios</option><option value="Varios">Varios</option>
-              </select>
-              <select value={editandoGasto.metodo_pago || 'Efectivo'} onChange={(e) => setEditandoGasto({...editandoGasto, metodo_pago: e.target.value})}>
-                <option value="Efectivo">💵 Efectivo</option><option value="Transferencia">🏦 Transferencia</option>
-                <option value="Débito">💳 Débito</option><option value="Crédito">💳 Crédito</option>
-              </select>
+              <div className="form-group">
+                <label>Descripción</label>
+                <input type="text" value={editandoGasto.descripcion} onChange={(e) => setEditandoGasto({...editandoGasto, descripcion: e.target.value})} required />
+              </div>
+              <div className="form-group">
+                <label>Monto</label>
+                <input type="number" value={editandoGasto.monto} onChange={(e) => setEditandoGasto({...editandoGasto, monto: e.target.value})} required />
+              </div>
+              <div className="form-group">
+                <label>Categoría</label>
+                <select value={editandoGasto.categoria} onChange={(e) => setEditandoGasto({...editandoGasto, categoria: e.target.value})}>
+                  <option value="Mercadería">Mercadería</option><option value="Alquiler">Alquiler</option>
+                  <option value="Servicios">Servicios</option><option value="Varios">Varios</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Método de Pago</label>
+                <select value={editandoGasto.metodo_pago || 'Efectivo'} onChange={(e) => setEditandoGasto({...editandoGasto, metodo_pago: e.target.value})}>
+                  <option value="Efectivo">💵 Efectivo</option><option value="Transferencia">🏦 Transferencia</option>
+                  <option value="Débito">💳 Débito</option><option value="Crédito">💳 Crédito</option>
+                </select>
+              </div>
               <div className="modal-botones">
-                <button type="submit" className="btn-confirmar">Guardar</button>
-                <button type="button" onClick={() => setEditandoGasto(null)} className="btn-cancelar">Cancelar</button>
+                <button type="submit" className="btn-confirmar">Guardar Cambios</button>
+                <button type="button" onClick={() => setEditandoGasto(null)} className="btn-cancelar">Cerrar</button>
               </div>
             </form>
           </div>
@@ -202,22 +223,26 @@ const HistorialVentas = () => {
 
       {/* MODAL VENTA */}
       {editandoVenta && (
-        <div className="modal-overlay">
-          <div className="modal-content">
+        <div className="modal-overlay animar-fade">
+          <div className="modal-content animar-slide">
             <h4>Editar Venta</h4>
             <form onSubmit={guardarEdicionVenta}>
-              <label>Vendedor</label>
-              <select value={editandoVenta.vendedor_email} onChange={(e) => setEditandoVenta({...editandoVenta, vendedor_email: e.target.value})}>
-                {listaVendedores.filter(v => v !== 'Todos').map(v => <option key={v} value={v}>{v.split('@')[0]}</option>)}
-              </select>
-              <label>Método de Pago</label>
-              <select value={editandoVenta.metodo_pago} onChange={(e) => setEditandoVenta({...editandoVenta, metodo_pago: e.target.value})}>
-                <option value="Efectivo">💵 Efectivo</option><option value="Transferencia">🏦 Transferencia</option>
-                <option value="Débito">💳 Débito</option><option value="Crédito">💳 Crédito</option>
-              </select>
+              <div className="form-group">
+                <label>Vendedor</label>
+                <select value={editandoVenta.vendedor_email} onChange={(e) => setEditandoVenta({...editandoVenta, vendedor_email: e.target.value})}>
+                  {listaVendedores.filter(v => v !== 'Todos').map(v => <option key={v} value={v}>{v.split('@')[0]}</option>)}
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Método de Pago</label>
+                <select value={editandoVenta.metodo_pago} onChange={(e) => setEditandoVenta({...editandoVenta, metodo_pago: e.target.value})}>
+                  <option value="Efectivo">💵 Efectivo</option><option value="Transferencia">🏦 Transferencia</option>
+                  <option value="Débito">💳 Débito</option><option value="Crédito">💳 Crédito</option>
+                </select>
+              </div>
               <div className="modal-botones">
                 <button type="submit" className="btn-confirmar">Actualizar</button>
-                <button type="button" onClick={() => setEditandoVenta(null)} className="btn-cancelar">Cancelar</button>
+                <button type="button" onClick={() => setEditandoVenta(null)} className="btn-cancelar">Cerrar</button>
               </div>
             </form>
           </div>
@@ -243,21 +268,23 @@ const HistorialVentas = () => {
       <div className="historial-filtros">
         <select value={vendedorFiltro} onChange={(e) => setVendedorFiltro(e.target.value)}>
           {listaVendedores.map(vend => (
-            <option key={vend} value={vend}>{vend === 'Todos' ? 'Todos los Vendedores' : vend.split('@')[0]}</option>
+            <option key={vend} value={vend}>{vend === 'Todos' ? '👤 Todos los Vendedores' : vend.split('@')[0]}</option>
           ))}
         </select>
         <select value={mes} onChange={(e) => setMes(parseInt(e.target.value))}>
-          <option value="1">Enero</option><option value="2">Febrero</option><option value="3">Marzo</option>
-          <option value="4">Abril</option><option value="5">Mayo</option><option value="6">Junio</option>
-          <option value="7">Julio</option><option value="8">Agosto</option><option value="9">Septiembre</option>
-          <option value="10">Octubre</option><option value="11">Noviembre</option><option value="12">Diciembre</option>
+          <option value="1">📅 Enero</option><option value="2">📅 Febrero</option><option value="3">📅 Marzo</option>
+          <option value="4">📅 Abril</option><option value="5">📅 Mayo</option><option value="6">📅 Junio</option>
+          <option value="7">📅 Julio</option><option value="8">📅 Agosto</option><option value="9">📅 Septiembre</option>
+          <option value="10">📅 Octubre</option><option value="11">📅 Noviembre</option><option value="12">📅 Diciembre</option>
         </select>
         <select value={anio} onChange={(e) => setAnio(parseInt(e.target.value))}>
-          <option value="2025">2025</option><option value="2026">2026</option>
+          <option value="2025">🗓️ 2025</option><option value="2026">🗓️ 2026</option>
         </select>
       </div>
 
-      {cargando ? <p style={{ textAlign: 'center' }}>Cargando...</p> : (
+      {cargando ? (
+        <div className="cargando-spinner">Cargando datos del período...</div>
+      ) : (
         <>
           {(vista === 'ventas' || vista === 'todo') && renderTablaVentas()}
           {(vista === 'gastos' || vista === 'todo') && renderTablaGastos()}

@@ -37,6 +37,23 @@
   -webkit-appearance: none;
 }
 
+/* --- NUEVO: Buscador de Productos --- */
+.input-filtro-ventas {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 2px solid #e1e8ed;
+  margin-bottom: 5px;
+  font-size: 0.9rem !important;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.input-filtro-ventas:focus {
+  border-color: var(--color-acento) !important;
+  box-shadow: 0 0 8px rgba(69, 123, 157, 0.1);
+}
+
 /* --- Botón Añadir al Carrito --- */
 .ventas-container button[type="submit"] {
   background: linear-gradient(135deg, var(--color-acento), #5b92b6) !important;
