@@ -6,6 +6,7 @@ export default function SeccionGastos({ alTerminar, sesion }) {
   const [descripcion, setDescripcion] = useState('');
   const [monto, setMonto] = useState('');
   const [categoria, setCategoria] = useState('Mercadería');
+  const [metodoPago, setMetodoPago] = useState('Efectivo'); // Nuevo estado
   const [enviando, setEnviando] = useState(false);
 
   const guardarGasto = async (e) => {
@@ -20,6 +21,7 @@ export default function SeccionGastos({ alTerminar, sesion }) {
           descripcion,
           monto: parseFloat(monto),
           categoria,
+          metodo_pago: metodoPago, // Enviamos el nuevo campo a la DB
           vendedor_email: sesion?.user?.email
         }]);
 
@@ -28,6 +30,7 @@ export default function SeccionGastos({ alTerminar, sesion }) {
       alert("💸 Gasto registrado correctamente");
       setDescripcion('');
       setMonto('');
+      setMetodoPago('Efectivo'); // Resetear a valor por defecto
       if (alTerminar) alTerminar();
     } catch (error) {
       console.error("Error al guardar gasto:", error);
@@ -71,6 +74,17 @@ export default function SeccionGastos({ alTerminar, sesion }) {
             <option value="Alquiler">🏢 Alquiler</option>
             <option value="Servicios">💡 Servicios (Luz, Agua, etc)</option>
             <option value="Varios">🛠️ Varios</option>
+          </select>
+        </div>
+
+        {/* NUEVO INPUT: MÉTODO DE PAGO */}
+        <div className="input-group">
+          <label>Método de Pago</label>
+          <select value={metodoPago} onChange={(e) => setMetodoPago(e.target.value)}>
+            <option value="Efectivo">💵 Efectivo</option>
+            <option value="Transferencia">🏦 Transferencia</option>
+            <option value="Débito">💳 Tarjeta Débito</option>
+            <option value="Crédito">💳 Tarjeta Crédito</option>
           </select>
         </div>
 

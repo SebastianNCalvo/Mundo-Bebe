@@ -11,8 +11,7 @@ const HistorialVentas = () => {
   const [cargando, setCargando] = useState(false);
   const [vista, setVista] = useState('todo');
 
-  // Estados para Edición
-  const [editandoGasto, setEditandoGasto] = useState(null); // Guardará el ID del gasto a editar
+  const [editandoGasto, setEditandoGasto] = useState(null);
 
   useEffect(() => {
     obtenerDatos();
@@ -34,13 +33,11 @@ const HistorialVentas = () => {
     setCargando(false);
   };
 
-  // --- Lógica de Acciones para Gastos ---
   const eliminarGasto = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar este gasto?")) return;
-    
     const { error } = await supabase.from('gastos').delete().eq('id', id);
     if (error) alert("Error al eliminar");
-    else obtenerDatos(); // Recargar datos
+    else obtenerDatos();
   };
 
   const guardarEdicionGasto = async (e) => {
@@ -50,7 +47,8 @@ const HistorialVentas = () => {
       .update({
         descripcion: editandoGasto.descripcion,
         monto: parseFloat(editandoGasto.monto),
-        categoria: editandoGasto.categoria
+        categoria: editandoGasto.categoria,
+        metodo_pago: editandoGasto.metodo_pago // Se agrega edición de método
       })
       .eq('id', editandoGasto.id);
 
@@ -61,7 +59,6 @@ const HistorialVentas = () => {
     }
   };
 
-  // --- Lógica de Cálculos ---
   const listaVendedores = ['Todos', ...new Set([...ventas.map(v => v.vendedor_email), ...gastos.map(g => g.vendedor_email)])].filter(Boolean);
   const ventasFiltradas = vendedorFiltro === 'Todos' ? ventas : ventas.filter(v => v.vendedor_email === vendedorFiltro);
   const gastosFiltrados = vendedorFiltro === 'Todos' ? gastos : gastos.filter(g => g.vendedor_email === vendedorFiltro);
@@ -70,24 +67,29 @@ const HistorialVentas = () => {
   const totalGastos = gastosFiltrados.reduce((acc, g) => acc + (Number(g.monto) || 0), 0);
   const balanceNeto = totalVentas - totalGastos;
 
-  const resumenPagos = ventasFiltradas.reduce((acc, v) => {
-    const metodo = v.metodo_pago || 'Efectivo';
-    acc[metodo] = (acc[metodo] || 0) + Number(v.total_total);
-    return acc;
-  }, {});
+  // --- Función auxiliar para formatear fecha y hora (Mantenida) ---
+  const formatearFechaHora = (fechaISO) => {
+    return new Date(fechaISO).toLocaleString('es-AR', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: false
+    });
+  };
 
-  // --- Renderizado de Tablas ---
   const renderTablaVentas = () => (
     <div className="tabla-historial-wrapper animar-entrada">
       <h3>Ventas Realizadas</h3>
       <table className="tabla-inventario">
         <thead>
-          <tr><th>Fecha</th><th>Vendedor</th><th>Productos</th><th>Pago</th><th>Total</th></tr>
+          <tr><th>Fecha y Hora</th><th>Vendedor</th><th>Productos</th><th>Pago</th><th>Total</th></tr>
         </thead>
         <tbody>
           {ventasFiltradas.map(venta => (
             <tr key={venta.id}>
-              <td data-label="Fecha">{new Date(venta.fecha).toLocaleDateString('es-AR')}</td>
+              <td data-label="Fecha/Hora">{formatearFechaHora(venta.fecha)}</td>
               <td data-label="Vendedor">{venta.vendedor_email?.split('@')[0]}</td>
               <td data-label="Productos" style={{ textAlign: 'left' }}>
                 {venta.ventas_detalle.map((d, i) => <div key={i}>• {d.productos?.nombre} x{d.cantidad}</div>)}
@@ -106,14 +108,16 @@ const HistorialVentas = () => {
       <h3>Gastos Registrados</h3>
       <table className="tabla-inventario">
         <thead>
-          <tr><th>Fecha</th><th>Descripción</th><th>Categoría</th><th>Monto</th><th>Acciones</th></tr>
+          <tr><th>Fecha y Hora</th><th>Descripción</th><th>Categoría</th><th>Pago</th><th>Monto</th><th>Acciones</th></tr>
         </thead>
         <tbody>
           {gastosFiltrados.map(gasto => (
             <tr key={gasto.id}>
-              <td data-label="Fecha">{new Date(gasto.fecha).toLocaleDateString('es-AR')}</td>
+              <td data-label="Fecha/Hora">{formatearFechaHora(gasto.fecha)}</td>
               <td data-label="Descripción">{gasto.descripcion}</td>
               <td data-label="Categoría"><span className="tag-categoria">{gasto.categoria}</span></td>
+              {/* Nueva columna de Pago en Gastos */}
+              <td data-label="Pago"><span className={`tag-pago ${gasto.metodo_pago?.toLowerCase() || 'efectivo'}`}>{gasto.metodo_pago || 'Efectivo'}</span></td>
               <td data-label="Monto" style={{ color: 'var(--color-peligro)', fontWeight: 'bold' }}>
                 -${gasto.monto.toLocaleString('es-AR')}
               </td>
@@ -132,7 +136,6 @@ const HistorialVentas = () => {
 
   return (
     <div className="historial-container">
-      {/* MODAL DE EDICIÓN (Simple) */}
       {editandoGasto && (
         <div className="modal-overlay">
           <div className="modal-content">
@@ -159,6 +162,16 @@ const HistorialVentas = () => {
                 <option value="Servicios">Servicios</option>
                 <option value="Varios">Varios</option>
               </select>
+              {/* Edición del Método de Pago */}
+              <select 
+                value={editandoGasto.metodo_pago || 'Efectivo'}
+                onChange={(e) => setEditandoGasto({...editandoGasto, metodo_pago: e.target.value})}
+              >
+                <option value="Efectivo">💵 Efectivo</option>
+                <option value="Transferencia">🏦 Transferencia</option>
+                <option value="Débito">💳 Débito</option>
+                <option value="Crédito">💳 Crédito</option>
+              </select>
               <div className="modal-botones">
                 <button type="submit" className="btn-confirmar">Guardar</button>
                 <button type="button" onClick={() => setEditandoGasto(null)} className="btn-cancelar">Cancelar</button>
@@ -168,7 +181,7 @@ const HistorialVentas = () => {
         </div>
       )}
 
-      {/* Resto del Dashboard... */}
+      {/* ... (Resto del JSX se mantiene igual) ... */}
       <div className="dashboard-balance">
         <div className={`card-balance ingresos clicable ${vista === 'ventas' ? 'activa' : ''}`} onClick={() => setVista('ventas')}>
           <small>Ventas (+)</small>

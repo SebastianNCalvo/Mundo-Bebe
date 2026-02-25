@@ -38,10 +38,19 @@
   border-radius: 12px;
   outline: none;
   font-size: 1rem;
+  color: var(--color-texto);           /* Fuerza el color de texto de tu proyecto */
+  background-color: #ffffff !important; /* Asegura fondo blanco */
+  appearance: none;                    /* Elimina estilos por defecto de iOS/Android */
+  -webkit-appearance: none;            /* Para navegadores Safari/Chrome móvil */
 }
 
 .gastos-form input:focus {
   border-color: var(--color-peligro);
+}
+
+.gastos-form input::placeholder {
+  color: #a8b2b7; /* Un gris suave que no sea negro total */
+  opacity: 1; 
 }
 
 .btn-guardar-gasto {

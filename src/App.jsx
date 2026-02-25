@@ -44,7 +44,7 @@ function App() {
     <div className="dashboard-main">
       <header className="header-admin">
         <div>
-          <h1>Mundo Bebé 👶</h1>
+          <h1>Mundo Bebé</h1>
           <p>Usuario: <strong>{sesion?.user.email}</strong> ({esAdmin ? "Admin" : "Vendedor"})</p>
         </div>
         <button className="btn-logout" onClick={cerrarSesion}>Salir</button>
