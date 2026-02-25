@@ -5,22 +5,25 @@
   padding: 15px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.03);
   box-sizing: border-box;
+  border: 1px solid #cfd8dc;
 }
 
-/* --- NUEVA TARJETA DE CAPITAL TOTAL --- */
+/* --- TARJETA DE CAPITAL TOTAL (Estética Bebé) --- */
 .card-total-inventario {
-  background: linear-gradient(135deg, #457b9d, #1d3557);
-  color: white;
+  /* Degradado de Verde Menta a Celeste Dulce */
+  background: linear-gradient(135deg, #b2dfdb, #81d4fa);
+  color: #263238; /* Texto oscuro para legibilidad sobre pastel */
   padding: 20px;
   border-radius: 20px;
   margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(29, 53, 87, 0.2);
+  box-shadow: 0 4px 12px rgba(178, 223, 219, 0.4);
   text-align: left;
+  border: 2px solid #37474f; /* Borde marcado */
 }
 
 .card-total-inventario small {
-  color: #a8dadc;
-  font-weight: 700;
+  color: #37474f;
+  font-weight: 800;
   text-transform: uppercase;
   font-size: 0.7rem;
   letter-spacing: 0.5px;
@@ -33,10 +36,11 @@
   margin-top: 5px;
 }
 
-/* --- Estilos Originales --- */
+/* --- Tabla de Inventario --- */
 .tabla-wrapper {
   overflow-x: auto;
   border-radius: 15px;
+  border: 2px solid #37474f; /* Borde general de la tabla */
 }
 
 .tabla-inventario {
@@ -46,7 +50,7 @@
 }
 
 @keyframes brillo-exito {
-  0% { background-color: rgba(69, 123, 157, 0.2); }
+  0% { background-color: rgba(178, 223, 219, 0.5); }
   100% { background-color: transparent; }
 }
 
@@ -55,39 +59,37 @@
 }
 
 .tabla-inventario th {
-  background-color: #f1fafa;
-  color: #457b9d;
-  font-weight: 700;
+  background-color: #f1f8e9; /* Fondo menta muy suave */
+  color: #37474f; /* Texto oscuro */
+  font-weight: 800;
   text-transform: uppercase;
   font-size: 0.8rem;
   padding: 15px;
-  border-bottom: 2px solid #a8dadc;
-}
-
-.tabla-inventario tr {
-  transition: background-color 0.3s ease;
+  border-bottom: 2px solid #37474f; /* Línea de cabecera marcada */
 }
 
 .tabla-inventario td {
   padding: 16px 15px;
-  border-bottom: 1px solid #f1f1f1;
-  color: #555;
+  border-bottom: 1px solid #cfd8dc;
+  color: #263238;
   font-size: 0.95rem;
 }
 
 .bajo-stock {
-  color: #e63946 !important;
+  color: #d81b60 !important; /* Rosa intenso para alertas */
   font-weight: bold;
 }
 
 .badge-talle {
-  background: #f1f3f4;
+  background: #e1f5fe; /* Celeste pastel */
   padding: 4px 8px;
   border-radius: 6px;
-  font-weight: 600;
-  color: #1d3557;
+  font-weight: 700;
+  color: #0288d1;
+  border: 1px solid #37474f; /* Badge definido */
 }
 
+/* --- Buscador --- */
 .buscador-container {
   display: flex;
   align-items: center;
@@ -95,13 +97,13 @@
   padding: 10px 15px;
   border-radius: 50px;
   margin-bottom: 20px;
-  border: 2px solid #f1f3f4;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  border: 2px solid #37474f; /* Borde oscuro marcado */
+  transition: all 0.3s ease;
 }
 
 .buscador-container:focus-within {
-  border-color: #a8dadc;
-  box-shadow: 0 4px 12px rgba(168, 218, 220, 0.2);
+  border-color: #f06292; /* Rosa al enfocar */
+  box-shadow: 0 4px 12px rgba(240, 98, 146, 0.2);
 }
 
 .input-busqueda {
@@ -110,72 +112,45 @@
   width: 100%;
   outline: none;
   font-size: 16px;
-  color: #2b2d42;
+  color: #263238;
   margin-left: 10px;
 }
 
 .input-edit-celda {
   width: 100%;
   padding: 6px 10px;
-  border: 2px solid #a8dadc;
+  border: 2px solid #37474f; /* Input de edición marcado */
   border-radius: 8px;
   font-size: 0.9rem;
-  color: #1d3557;
+  color: #263238;
   outline: none;
+  background: #fffdf7;
 }
 
-.acciones-botones, .acciones-edit-row {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-}
-
-.btn-editar-icono, .btn-save, .btn-cancel, .btn-eliminar {
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-}
-
+/* --- Botones --- */
 .btn-eliminar {
-  color: #e63946;
+  color: #c62828;
 }
 
+.btn-save {
+  color: #2e7d32;
+}
+
+/* --- Mobile --- */
 @media (max-width: 768px) {
-  .inventario-container { background: transparent; padding: 0; box-shadow: none; }
+  .inventario-container { background: transparent; padding: 0; box-shadow: none; border: none; }
   
-  .card-total-inventario {
-    text-align: center;
-    padding: 15px;
-  }
-
-  .card-total-inventario span {
-    font-size: 1.5rem;
-  }
-
-  .tabla-inventario thead { display: none; }
   .tabla-inventario tr {
     display: block;
     background: #ffffff;
     border-radius: 18px;
     margin-bottom: 15px;
     padding: 15px;
-    border: 1px solid #edf2f4;
+    border: 2px solid #37474f; /* Cards móviles con borde marcado */
   }
-  .tabla-inventario td {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 12px 5px;
-    border-bottom: 1px dashed #eee;
-  }
+
   .tabla-inventario td::before {
-    content: attr(data-label);
-    font-weight: 700;
-    text-transform: uppercase;
-    font-size: 0.7rem;
-    color: #a8dadc;
+    color: #4fc3f7; /* Títulos de celda en Celeste */
+    font-weight: 800;
   }
 }

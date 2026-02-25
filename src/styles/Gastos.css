@@ -2,15 +2,20 @@
   background: #ffffff;
   padding: 20px;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  /* Sombra suave con tinte coral */
+  box-shadow: 0 10px 30px rgba(239, 154, 154, 0.15);
   max-width: 500px;
   margin: 0 auto;
+  border: 1px solid #cfd8dc;
 }
 
 .gastos-container h3 {
-  color: var(--color-peligro);
+  /* Rosa Coral Intenso para el título de gastos */
+  color: #d81b60; 
   text-align: center;
   margin-bottom: 20px;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 800;
 }
 
 .gastos-form {
@@ -28,33 +33,39 @@
 .gastos-form label {
   font-size: 0.85rem;
   font-weight: 700;
-  color: var(--color-texto);
+  color: #37474f; /* Color oscuro para etiquetas */
   text-transform: uppercase;
+  margin-left: 5px;
 }
 
 .gastos-form input, .gastos-form select {
   padding: 12px;
-  border: 2px solid #edf2f4;
+  /* Borde oscuro y definido */
+  border: 2px solid #37474f;
   border-radius: 12px;
   outline: none;
   font-size: 1rem;
-  color: var(--color-texto);
+  color: #263238;
   background-color: #ffffff !important;
   appearance: none;
   -webkit-appearance: none;
+  transition: all 0.3s ease;
 }
 
 .gastos-form input:focus {
-  border-color: var(--color-peligro);
+  /* Resalte en coral al hacer foco */
+  border-color: #f06292;
+  box-shadow: 0 0 8px rgba(240, 98, 146, 0.2);
 }
 
 .gastos-form input::placeholder {
-  color: #a8b2b7;
+  color: #b0bec5;
   opacity: 1; 
 }
 
 .btn-guardar-gasto {
-  background: linear-gradient(135deg, var(--color-peligro), #d62828) !important;
+  /* Degradado de Rosa Coral a Rojo Suave */
+  background: linear-gradient(135deg, #f06292, #e57373) !important;
   color: white !important;
   padding: 15px;
   border: none;
@@ -62,11 +73,20 @@
   font-weight: 800;
   font-size: 1rem;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(230, 57, 70, 0.2);
+  box-shadow: 0 4px 12px rgba(240, 98, 146, 0.3);
   margin-top: 10px;
+  text-transform: uppercase;
+  transition: transform 0.2s;
+}
+
+.btn-guardar-gasto:hover:not(:disabled) {
+  transform: translateY(-2px);
+  filter: brightness(1.1);
 }
 
 .btn-guardar-gasto:disabled {
-  opacity: 0.6;
+  background: #cfd8dc !important;
+  opacity: 0.8;
   cursor: not-allowed;
+  box-shadow: none;
 }

@@ -14,37 +14,44 @@ html, body {
 }
 
 :root {
-  --color-primario: #a8dadc;
-  --color-secundario: #f1faee;
-  --color-acento: #457b9d;
-  --color-peligro: #e63946;
-  --color-exito: #81c784;
-  --color-texto: #2b2d42;
+  /* Paleta Pastel Reforzada */
+  --color-primario: #b3e5fc;    /* Celeste Bebé */
+  --color-secundario: #fff9c4;  /* Amarillo Vainilla */
+  --color-acento: #0288d1;      
+  --color-peligro: #f06292;     /* Rosa Pastel */
+  --color-exito: #a5d6a7;       /* Verde Menta */
+  --color-texto: #37474f;       
+  --color-borde: #263238;       /* Borde oscuro para contraste */
 }
 
 body {
-  background-color: #f8fbfb;
+  /* Cambiamos el fondo grisáceo por un Amarillo Vainilla muy tierno */
+  background-color: #fffde7; 
   margin: 0;
   -webkit-tap-highlight-color: transparent;
+  color: var(--color-texto);
+  font-family: 'Quicksand', sans-serif;
 }
 
 .dashboard-main {
   padding: 10px;
   max-width: 1200px;
   margin: 0 auto;
-  font-family: 'Quicksand', sans-serif;
 }
 
+/* --- Header: Ahora en Celeste Pastel --- */
 .header-admin {
   display: flex;
   flex-direction: column; 
   gap: 10px;
   text-align: center;
   padding: 20px;
-  background: white;
-  border-radius: 15px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-  margin-bottom: 15px;
+  /* Fondo Celeste Pastel en lugar de blanco */
+  background: #e1f5fe; 
+  border-radius: 20px;
+  box-shadow: 4px 4px 0px var(--color-borde); /* Sombra sólida estilo "sticker" */
+  margin-bottom: 25px;
+  border: 2px solid var(--color-borde);
 }
 
 .header-admin h1 {
@@ -52,27 +59,32 @@ body {
   color: var(--color-acento);
   font-size: 1.4rem;
   font-weight: 800;
+  text-shadow: 1px 1px 0px white;
 }
 
 .header-admin p {
   margin: 5px 0;
   font-size: 0.9rem;
-  color: #555;
+  color: #546e7a;
+  font-weight: 600;
 }
 
 .header-admin p strong {
-  color: var(--color-acento);
+  color: var(--color-peligro);
 }
 
+/* --- Navegación por Tabs: Contraste con el fondo --- */
 .tabs-nav {
   display: flex;
   justify-content: center;
   overflow-x: auto;
   gap: 8px;
-  margin-bottom: 20px;
-  background: #edf6f9;
+  margin-bottom: 25px;
+  /* Verde menta muy suave para la barra de navegación */
+  background: #e8f5e9; 
   padding: 8px;
   border-radius: 50px;
+  border: 2px solid var(--color-borde);
   scrollbar-width: none;
 }
 
@@ -80,19 +92,24 @@ body {
 
 .tabs-nav button {
   padding: 10px 18px;
-  border: none;
+  border: 2px solid transparent;
   background: transparent;
-  color: var(--color-acento);
+  color: #546e7a;
   border-radius: 25px;
   cursor: pointer;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
   font-size: 0.9rem;
+  transition: all 0.2s ease;
 }
 
 .tabs-nav button.active {
-  background-color: var(--color-primario);
-  color: white;
+  background-color: white;
+  color: var(--color-acento);
+  border-color: var(--color-borde);
+  /* Efecto pop-out */
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0px var(--color-borde);
 }
 
 .layout-grid {
@@ -101,38 +118,46 @@ body {
   gap: 20px;
 }
 
+/* --- Tarjeta de Resumen Mensual: Rosa Intenso --- */
 .card-total-mes {
-  background: linear-gradient(135deg, var(--color-exito), #66bb6a);
-  color: white;
+  background: #f8bbd0; /* Rosa pastel */
+  color: #37474f;
   padding: 20px;
   border-radius: 20px;
   margin-bottom: 20px;
+  border: 2px solid var(--color-borde);
+  box-shadow: 4px 4px 0px var(--color-borde);
 }
 
 .card-total-mes span {
+  display: block;
   font-size: 1.8rem;
   font-weight: 800;
+  color: #d81b60; /* Rosa fuerte para el número */
 }
 
+/* --- Botón Cerrar Sesión: Vainilla --- */
 .btn-logout {
-  background-color: #fff1f2;
+  background-color: #fff9c4;
   color: var(--color-peligro);
-  border: 1px solid #fecdd3;
+  border: 2px solid var(--color-borde);
   padding: 10px 20px;
   border-radius: 12px;
-  font-weight: 700;
-  font-size: 0.9rem;
+  font-weight: 800;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.2s;
   width: fit-content;
   margin: 0 auto;
+  box-shadow: 2px 2px 0px var(--color-borde);
 }
 
 .btn-logout:hover {
-  background-color: var(--color-peligro);
-  color: white;
+  background-color: #fce4ec;
+  transform: scale(1.05);
 }
 
+/* --- Adaptación PC --- */
 @media (min-width: 768px) {
   .dashboard-main { padding: 20px; }
   .header-admin {
@@ -142,11 +167,14 @@ body {
     padding: 15px 25px;
   }
   .header-admin h1 { font-size: 1.6rem; }
-  .tabs-nav { justify-content: center; }
+  .tabs-nav { 
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
   .btn-logout { margin: 0; }
   .layout-grid {
     grid-template-columns: 350px 1fr;
     gap: 30px;
   }
-  .card-total-mes span { font-size: 2.5rem; }
 }

@@ -3,7 +3,8 @@
   justify-content: center;
   align-items: center;
   min-height: 100vh;
-  background: linear-gradient(135deg, #f1faee 0%, #a8dadc 100%);
+  /* Fondo degradado suave: de Rosa Nube a Celeste Bebé */
+  background: linear-gradient(135deg, #fce4ec 0%, #e1f5fe 100%);
   padding: 20px;
 }
 
@@ -11,21 +12,24 @@
   background: white;
   padding: 40px 30px;
   border-radius: 30px;
-  box-shadow: 0 15px 35px rgba(69, 123, 157, 0.2);
+  /* Sombra mucho más suave y colorida */
+  box-shadow: 0 15px 35px rgba(240, 98, 146, 0.1);
   width: 100%;
   max-width: 400px;
   text-align: center;
 }
 
 .login-card h2 {
-  color: #457b9d;
+  /* Azul dulce pastel */
+  color: #4fc3f7;
   font-size: 2rem;
   margin-bottom: 10px;
   font-family: 'Quicksand', sans-serif;
 }
 
 .login-card p {
-  color: #777;
+  /* Gris suave cálido */
+  color: #9e9e9e;
   margin-bottom: 30px;
   font-size: 0.9rem;
 }
@@ -45,27 +49,31 @@
 
 .input-group label {
   font-weight: 600;
-  color: #1d3557;
+  /* Gris-azul tenue */
+  color: #78909c;
   font-size: 0.85rem;
   margin-left: 5px;
 }
 
 .login-card input {
   padding: 15px;
-  border: 2px solid #f1f3f4;
+  /* Bordes vainilla muy claros */
+  border: 2px solid #fff9c4;
   border-radius: 15px;
-  font-size: 16px; /* Evita zoom en iPhone */
+  font-size: 16px; 
   outline: none;
   transition: all 0.3s;
 }
 
 .login-card input:focus {
-  border-color: #a8dadc;
-  box-shadow: 0 0 10px rgba(168, 218, 220, 0.3);
+  /* Foco en Rosa pastel */
+  border-color: #f8bbd0;
+  box-shadow: 0 0 10px rgba(248, 187, 208, 0.3);
 }
 
 .btn-login {
-  background: linear-gradient(135deg, #457b9d, #1d3557);
+  /* Botón con degradado de Celeste a Verde Menta pastel */
+  background: linear-gradient(135deg, #81d4fa, #b2dfdb);
   color: white;
   padding: 16px;
   border: none;
@@ -79,11 +87,11 @@
 
 .btn-login:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(29, 53, 87, 0.3);
+  box-shadow: 0 5px 15px rgba(129, 212, 250, 0.3);
 }
 
 .login-footer {
   margin-top: 25px;
   font-size: 0.8rem;
-  color: #aaa;
+  color: #d1d1d1;
 }

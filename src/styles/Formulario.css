@@ -6,49 +6,73 @@
   max-width: 400px;
   margin: 0 auto;
   padding: 20px; 
-  box-sizing: border-box;
+  box-sizing: border-box; 
   border-radius: 20px;
   background-color: #ffffff;
-  box-shadow: 0 10px 25px rgba(168, 218, 220, 0.2);
+  /* Sombra sutil en tono celeste */
+  box-shadow: 0 10px 25px rgba(129, 212, 250, 0.15);
+  /* Borde exterior marcado como pediste */
+  border: 2px solid #37474f;
 }
 
 .form-container h3 {
   margin-top: 0;
-  color: #457b9d;
+  color: #0288d1; /* Celeste fuerte */
   font-size: 1.2rem;
   text-align: center;
   margin-bottom: 5px;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 800;
 }
 
+/* Etiquetas - Ahora más visibles */
+.form-container label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #37474f; /* Gris muy oscuro */
+  margin-bottom: -12px;
+  margin-left: 5px;
+  text-align: left;
+  text-transform: uppercase;
+}
+
+/* Inputs y Selects con bordes definidos */
 .form-container input, 
 .form-container select {
   padding: 12px 15px;
   border-radius: 12px;
-  border: 2px solid #f1f3f4;
-  background-color: #f8fbff;
-  font-size: 16px;
-  color: #333;
+  /* El borde oscuro que define el campo */
+  border: 2px solid #37474f;
+  background-color: #ffffff;
+  font-size: 16px; 
+  color: #263238;
   transition: all 0.3s ease;
   outline: none;
-  width: 100%;
+  width: 100%; 
   box-sizing: border-box;
 }
 
 .form-container input:focus, 
 .form-container select:focus {
-  border-color: #a8dadc;
-  background-color: #ffffff;
-  box-shadow: 0 0 8px rgba(168, 218, 220, 0.4);
+  border-color: #f06292; /* Rosa al clickear */
+  background-color: #fffdfd;
+  box-shadow: 0 0 8px rgba(240, 98, 146, 0.2);
 }
 
+.form-container input::placeholder {
+  color: #b0bec5;
+}
+
+/* Botón Guardar - Verde Menta Bebé */
 .form-container button {
-  padding: 16px;
-  background: linear-gradient(135deg, #81c784, #66bb6a);
+  padding: 16px; 
+  /* Degradado Verde Menta pastel a Esmeralda */
+  background: linear-gradient(135deg, #a5d6a7, #66bb6a) !important;
   color: white;
-  border: none;
+  border: 2px solid #37474f; /* Botón también con borde marcado */
   border-radius: 12px;
   cursor: pointer;
-  font-weight: bold;
+  font-weight: 800;
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -57,16 +81,24 @@
   width: 100%;
 }
 
-.form-container label {
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: #777;
-  margin-bottom: -12px;
-  margin-left: 5px;
-  text-align: left;
+.form-container button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(102, 187, 106, 0.3);
 }
 
+.form-container button:active {
+  transform: translateY(0);
+}
+
+/* Ajustes específicos para pantallas muy pequeñas */
 @media (max-width: 480px) {
-  .form-container { padding: 15px; gap: 15px; }
-  .form-container h3 { font-size: 1.1rem; }
+  .form-container {
+    padding: 15px;
+    gap: 15px;
+    border-width: 2px; /* Mantiene la firmeza del borde en móviles */
+  }
+  
+  .form-container h3 {
+    font-size: 1.1rem;
+  }
 }

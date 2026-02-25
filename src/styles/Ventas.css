@@ -3,11 +3,12 @@
   background: #ffffff;
   padding: 15px;
   border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(69, 123, 157, 0.1);
+  box-shadow: 0 10px 30px rgba(129, 212, 250, 0.1);
+  border: 1px solid #cfd8dc; /* Borde externo sutil */
 }
 
 .ventas-container h3 {
-  color: var(--color-acento);
+  color: #0288d1; /* Un celeste un poco más fuerte para lectura */
   margin-bottom: 15px;
   text-align: center;
   font-size: 1.2rem;
@@ -18,21 +19,21 @@
   display: flex;
   flex-direction: column;
   gap: 12px;
-  background: #f8fbff;
+  background: #fdfbff;
   padding: 15px;
   border-radius: 15px;
-  border: 1px dashed var(--color-primario);
+  border: 1.5px dashed #37474f; /* Borde oscuro para contraste */
 }
 
 .ventas-container select, 
 .ventas-container input {
   padding: 12px;
-  border: 2px solid #e1e8ed;
+  border: 2px solid #37474f; /* Borde oscuro definido */
   border-radius: 12px;
   font-size: 16px; 
   outline: none;
   background-color: #ffffff !important;
-  color: var(--color-texto) !important;
+  color: #263238 !important; /* Texto más oscuro */
   appearance: none;
   -webkit-appearance: none;
 }
@@ -42,7 +43,7 @@
   width: 100%;
   padding: 10px;
   border-radius: 8px;
-  border: 2px solid #e1e8ed;
+  border: 2px solid #37474f; /* Borde oscuro */
   margin-bottom: 5px;
   font-size: 0.9rem !important;
   outline: none;
@@ -50,13 +51,13 @@
 }
 
 .input-filtro-ventas:focus {
-  border-color: var(--color-acento) !important;
-  box-shadow: 0 0 8px rgba(69, 123, 157, 0.1);
+  border-color: #f06292 !important; /* Resalte rosa al escribir */
+  box-shadow: 0 0 8px rgba(240, 98, 146, 0.2);
 }
 
 /* --- Botón Añadir al Carrito --- */
 .ventas-container button[type="submit"] {
-  background: linear-gradient(135deg, var(--color-acento), #5b92b6) !important;
+  background: linear-gradient(135deg, #0288d1, #00acc1) !important;
   color: #ffffff !important;
   border: none;
   padding: 16px;
@@ -65,7 +66,7 @@
   font-weight: 700;
   font-size: 1rem;
   text-transform: uppercase;
-  box-shadow: 0 4px 12px rgba(69, 123, 157, 0.2);
+  box-shadow: 0 4px 12px rgba(2, 136, 209, 0.3);
 }
 
 /* --- Carrito (Estilo Recibo) --- */
@@ -79,28 +80,20 @@
 
 .tabla-carrito th {
   text-align: center;
-  color: #777;
+  color: #37474f; /* Encabezados oscuros */
   font-size: 0.7rem;
   text-transform: uppercase;
   padding: 10px 2px;
-  border-bottom: 2px solid #f1f3f4;
+  border-bottom: 2px solid #263238; /* Línea divisoria oscura */
 }
 
 .tabla-carrito td {
   padding: 12px 2px;
-  border-bottom: 1px solid #f9f9f9;
+  border-bottom: 1px solid #cfd8dc; /* Separación de filas clara para no saturar */
   vertical-align: middle;
   text-align: center;
-  color: var(--color-texto);
+  color: #263238;
   font-size: 0.85rem;
-}
-
-.tabla-carrito td:first-child {
-  text-align: left;
-  padding-left: 5px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis; 
 }
 
 /* --- Controles de Cantidad --- */
@@ -109,17 +102,18 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  background: #f1f3f4;
+  background: #eceff1;
   padding: 4px;
   border-radius: 50px;
   width: fit-content;
   margin: 0 auto;
+  border: 1px solid #37474f; /* Definición en los controles */
 }
 
 .btn-mini {
   background-color: white !important;
-  color: var(--color-acento) !important;
-  border: 1px solid #e1e8ed;
+  color: #37474f !important;
+  border: 1px solid #37474f;
   border-radius: 50%;
   width: 24px;
   height: 24px;
@@ -127,30 +121,33 @@
   justify-content: center;
   align-items: center;
   font-size: 1rem;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   padding: 0;
 }
 
 /* --- Footer y Totales --- */
 .carrito-footer {
-  background: #f8fbff;
+  background: #fdfbff;
   padding: 15px;
   border-radius: 15px;
   margin-top: 15px;
-  border-top: 4px double var(--color-primario);
+  border-top: 4px double #37474f; /* Doble línea oscura estilo recibo */
 }
 
 .total-texto {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #1d3557;
+  color: #263238;
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 15px;
 }
 
-/* --- NUEVO: Selector de Método de Pago --- */
+.total-texto span {
+  color: #d81b60; /* Un rosa más intenso para el total */
+}
+
+/* --- Selector de Método de Pago --- */
 .pago-selector {
   display: flex;
   flex-direction: column;
@@ -159,21 +156,22 @@
   padding: 10px;
   background: #ffffff;
   border-radius: 12px;
-  border: 1px solid #e1e8ed;
+  border: 2px solid #37474f; /* Borde oscuro */
 }
 
 .pago-selector label {
   font-size: 0.8rem;
   font-weight: 700;
-  color: var(--color-acento);
+  color: #37474f;
   text-transform: uppercase;
 }
 
 .select-pago {
   padding: 10px !important;
-  border: 2px solid var(--color-primario) !important;
+  border: 1px solid #cfd8dc !important;
   border-radius: 10px !important;
   font-weight: 600 !important;
+  color: #263238 !important;
   cursor: pointer;
 }
 
@@ -185,20 +183,20 @@
 }
 
 .btn-finalizar {
-  background: linear-gradient(135deg, var(--color-exito), #66bb6a) !important;
+  background: linear-gradient(135deg, #66bb6a, #43a047) !important;
   color: white !important;
   padding: 18px;
   border-radius: 15px;
   border: none;
   font-size: 1.1rem;
   font-weight: 800;
-  box-shadow: 0 6px 15px rgba(102, 187, 106, 0.3);
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
 }
 
 .btn-vaciar {
   background: transparent !important;
-  color: var(--color-peligro) !important;
-  border: 2px solid var(--color-peligro) !important;
+  color: #c62828 !important; /* Rojo más serio para cancelar */
+  border: 2px solid #c62828 !important;
   padding: 12px;
   border-radius: 15px;
   font-weight: 700;
@@ -208,10 +206,8 @@
 @media (min-width: 768px) {
   .ventas-container { padding: 30px; }
   .tabla-carrito td { font-size: 1rem; padding: 15px 10px; }
-  .tabla-carrito td:first-child { white-space: normal; } 
   .btn-mini { width: 30px; height: 30px; }
   
-  /* Ajuste horizontal para el selector en PC */
   .pago-selector {
     flex-direction: row;
     align-items: center;
