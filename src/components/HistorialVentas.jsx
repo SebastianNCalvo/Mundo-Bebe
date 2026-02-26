@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { generarFacturaPDF } from './GeneradorPDF'; // 1. Importamos el generador
 import '../styles/HistorialVentas.css';
 
 const HistorialVentas = () => {
@@ -10,11 +11,9 @@ const HistorialVentas = () => {
   const [vendedorFiltro, setVendedorFiltro] = useState('Todos');
   const [cargando, setCargando] = useState(false);
   const [vista, setVista] = useState('todo');
-
+  const [busquedaCodigo, setBusquedaCodigo] = useState('');
   const [editandoGasto, setEditandoGasto] = useState(null);
   const [editandoVenta, setEditandoVenta] = useState(null);
-  
-  // Estado para feedback visual
   const [idRecienActualizado, setIdRecienActualizado] = useState(null);
 
   useEffect(() => {
@@ -28,8 +27,19 @@ const HistorialVentas = () => {
     const proximoAnio = mes === 12 ? anio + 1 : anio;
     const fechaFin = `${proximoAnio}-${String(proximoMes).padStart(2, '0')}-01`;
 
-    const promesaVentas = supabase.from('ventas_cabecera').select(`id, fecha, vendedor_email, total_total, metodo_pago, ventas_detalle(cantidad, productos(nombre, talle))`).gte('fecha', fechaInicio).lt('fecha', fechaFin).order('fecha', { ascending: false });
-    const promesaGastos = supabase.from('gastos').select('*').gte('fecha', fechaInicio).lt('fecha', fechaFin).order('fecha', { ascending: false });
+    const promesaVentas = supabase
+      .from('ventas_cabecera')
+      .select(`id, fecha, vendedor_email, total_total, metodo_pago, codigo_venta, ventas_detalle(cantidad, precio_unitario, productos(nombre, talle))`)
+      .gte('fecha', fechaInicio)
+      .lt('fecha', fechaFin)
+      .order('fecha', { ascending: false });
+
+    const promesaGastos = supabase
+      .from('gastos')
+      .select('*')
+      .gte('fecha', fechaInicio)
+      .lt('fecha', fechaFin)
+      .order('fecha', { ascending: false });
 
     const [resVentas, resGastos] = await Promise.all([promesaVentas, promesaGastos]);
     setVentas(resVentas.data || []);
@@ -37,18 +47,34 @@ const HistorialVentas = () => {
     setCargando(false);
   };
 
+  // 2. Función para disparar la reimpresión
+  const reimprimirFactura = (venta) => {
+    const datosParaPDF = {
+      codigo: venta.codigo_venta || `ANTIGUA-${venta.id}`,
+      // Mapeamos los datos de Supabase al formato que espera el Generador
+      carrito: venta.ventas_detalle.map(d => ({
+        nombre: d.productos?.nombre || 'Producto eliminado',
+        talle: d.productos?.talle || '-',
+        cantidadEnCarrito: d.cantidad,
+        precio: d.precio_unitario
+      })),
+      total: venta.total_total,
+      metodoPago: venta.metodo_pago,
+      vendedor: venta.vendedor_email
+    };
+
+    generarFacturaPDF(datosParaPDF);
+  };
+
   const aplicarFeedback = (id) => {
     setIdRecienActualizado(id);
     setTimeout(() => setIdRecienActualizado(null), 2000);
   };
 
-  // --- FUNCIONES PARA VENTAS ---
   const eliminarVenta = async (id) => {
     if (!window.confirm("⚠️ ¿Estás seguro de eliminar esta venta? El stock volverá al inventario automáticamente.")) return;
-    
     try {
-      // Nota: El Trigger de Supabase se encargará del stock automáticamente al borrar ventas_detalle
-      await supabase.from('ventas_detalle').delete().eq('id_cabecera', id); 
+      await supabase.from('ventas_detalle').delete().eq('venta_id', id); 
       const { error } = await supabase.from('ventas_cabecera').delete().eq('id', id);
       if (error) throw error;
       obtenerDatos();
@@ -77,7 +103,6 @@ const HistorialVentas = () => {
     }
   };
 
-  // --- FUNCIONES PARA GASTOS ---
   const eliminarGasto = async (id) => {
     if (!window.confirm("¿Estás seguro de eliminar este gasto?")) return;
     const { error } = await supabase.from('gastos').delete().eq('id', id);
@@ -106,9 +131,14 @@ const HistorialVentas = () => {
     }
   };
 
-  // --- RENDERIZADO ---
   const listaVendedores = ['Todos', ...new Set([...ventas.map(v => v.vendedor_email), ...gastos.map(g => g.vendedor_email)])].filter(Boolean);
-  const ventasFiltradas = vendedorFiltro === 'Todos' ? ventas : ventas.filter(v => v.vendedor_email === vendedorFiltro);
+  
+  const ventasFiltradas = ventas.filter(v => {
+    const cumpleVendedor = vendedorFiltro === 'Todos' || v.vendedor_email === vendedorFiltro;
+    const cumpleCodigo = v.codigo_venta?.toLowerCase().includes(busquedaCodigo.toLowerCase());
+    return cumpleVendedor && cumpleCodigo;
+  });
+
   const gastosFiltrados = vendedorFiltro === 'Todos' ? gastos : gastos.filter(g => g.vendedor_email === vendedorFiltro);
 
   const totalVentas = ventasFiltradas.reduce((acc, v) => acc + (Number(v.total_total) || 0), 0);
@@ -127,11 +157,22 @@ const HistorialVentas = () => {
       <h3>Ventas Realizadas</h3>
       <table className="tabla-inventario">
         <thead>
-          <tr><th>Fecha y Hora</th><th>Vendedor</th><th>Productos</th><th>Pago</th><th>Total</th><th>Acciones</th></tr>
+          <tr>
+            <th>Cód. Venta</th>
+            <th>Fecha y Hora</th>
+            <th>Vendedor</th>
+            <th>Productos</th>
+            <th>Pago</th>
+            <th>Total</th>
+            <th>Acciones</th>
+          </tr>
         </thead>
         <tbody>
           {ventasFiltradas.map(venta => (
             <tr key={venta.id} className={idRecienActualizado === venta.id ? 'fila-actualizada' : ''}>
+              <td data-label="Código" style={{ fontWeight: 'bold', color: 'var(--color-acento)' }}>
+                {venta.codigo_venta || '---'}
+              </td>
               <td data-label="Fecha/Hora">{formatearFechaHora(venta.fecha)}</td>
               <td data-label="Vendedor">{venta.vendedor_email?.split('@')[0]}</td>
               <td data-label="Productos" style={{ textAlign: 'left' }}>
@@ -141,6 +182,14 @@ const HistorialVentas = () => {
               <td data-label="Total" className="texto-total-venta">${venta.total_total.toLocaleString('es-AR')}</td>
               <td data-label="Acciones">
                 <div className="acciones-gasto">
+                  {/* 3. Botón de Reimpresión */}
+                  <button 
+                    onClick={() => reimprimirFactura(venta)} 
+                    className="btn-edit-icono" 
+                    title="Reimprimir Factura"
+                  >
+                    📄
+                  </button>
                   <button onClick={() => setEditandoVenta(venta)} className="btn-edit-icono">✏️</button>
                   <button onClick={() => eliminarVenta(venta.id)} className="btn-eliminar">🗑️</button>
                 </div>
@@ -249,7 +298,6 @@ const HistorialVentas = () => {
         </div>
       )}
 
-      {/* DASHBOARD Y FILTROS */}
       <div className="dashboard-balance">
         <div className={`card-balance ingresos clicable ${vista === 'ventas' ? 'activa' : ''}`} onClick={() => setVista('ventas')}>
           <small>Ventas (+)</small>
@@ -266,9 +314,17 @@ const HistorialVentas = () => {
       </div>
 
       <div className="historial-filtros">
+        <input 
+          type="text" 
+          placeholder="🔍 Buscar por código MB-..." 
+          value={busquedaCodigo}
+          onChange={(e) => setBusquedaCodigo(e.target.value)}
+          className="input-busqueda-codigo"
+        />
+
         <select value={vendedorFiltro} onChange={(e) => setVendedorFiltro(e.target.value)}>
           {listaVendedores.map(vend => (
-            <option key={vend} value={vend}>{vend === 'Todos' ? '👤 Todos los Vendedores' : vend.split('@')[0]}</option>
+            <option key={vend} value={vend}>{vend === 'Todos' ? '👤 Todos' : vend.split('@')[0]}</option>
           ))}
         </select>
         <select value={mes} onChange={(e) => setMes(parseInt(e.target.value))}>

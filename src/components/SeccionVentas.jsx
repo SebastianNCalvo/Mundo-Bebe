@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
+import { generarFacturaPDF } from './GeneradorPDF';
 import '../styles/Ventas.css';
 
 export default function SeccionVentas({ alTerminar, sesion }) {
@@ -8,9 +9,15 @@ export default function SeccionVentas({ alTerminar, sesion }) {
   const [cantidad, setCantidad] = useState(1);
   const [carrito, setCarrito] = useState([]);
   const [metodoPago, setMetodoPago] = useState('Efectivo');
-
-  // NUEVO: Estado para filtrar la lista de productos
   const [filtroProducto, setFiltroProducto] = useState('');
+
+  // --- NUEVA FUNCIÓN: Generador de Código Único ---
+  const generarCodigoVenta = () => {
+    const fecha = new Date();
+    const diaMes = `${fecha.getDate()}${fecha.getMonth() + 1}`;
+    const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
+    return `MB-${diaMes}-${randomStr}`;
+  };
 
   const traerProductos = async () => {
     const { data } = await supabase
@@ -25,7 +32,6 @@ export default function SeccionVentas({ alTerminar, sesion }) {
     traerProductos();
   }, []);
 
-  // Lógica de filtrado dinámico
   const productosFiltradosParaSelect = productos.filter(p =>
     p.nombre.toLowerCase().includes(filtroProducto.toLowerCase())
   );
@@ -60,10 +66,9 @@ export default function SeccionVentas({ alTerminar, sesion }) {
 
     setIdSeleccionado('');
     setCantidad(1);
-    setFiltroProducto(''); // Limpiar filtro al agregar
+    setFiltroProducto('');
   };
 
-  // ... (mantenemos funciones eliminarDelCarrito, disminuirCantidad, aumentarCantidad igual)
   const eliminarDelCarrito = (id) => {
     setCarrito(carrito.filter(item => item.id !== id));
   };
@@ -97,66 +102,88 @@ export default function SeccionVentas({ alTerminar, sesion }) {
   const totalVenta = carrito.reduce((acc, item) => acc + (item.precio * item.cantidadEnCarrito), 0);
 
   const finalizarCompra = async () => {
-    if (carrito.length === 0) return;
-    try {
-      const { data: cabecera, error: errorCabecera } = await supabase
-        .from('ventas_cabecera')
-        .insert([{ 
-          vendedor_email: sesion?.user?.email,
-          total_total: totalVenta,
-          metodo_pago: metodoPago
-        }])
-        .select()
-        .single();
+      if (carrito.length === 0) return;
+      
+      const nuevoCodigo = generarCodigoVenta();
 
-      if (errorCabecera) throw errorCabecera;
-
-      const registrosDetalle = carrito.map(item => ({
-        venta_id: cabecera.id,
-        producto_id: item.id,
-        cantidad: item.cantidadEnCarrito,
-        precio_unitario: item.precio
-      }));
-
-      const { error: errorDetalle } = await supabase
-        .from('ventas_detalle')
-        .insert(registrosDetalle);
-
-      if (errorDetalle) throw errorDetalle;
-
-      const promesasStock = carrito.map(async (item) => {
-        const { data: prodActual } = await supabase
-          .from('productos')
-          .select('stock')
-          .eq('id', item.id)
+      try {
+        // 1. Insertar Cabecera
+        const { data: cabecera, error: errorCabecera } = await supabase
+          .from('ventas_cabecera')
+          .insert([{ 
+            vendedor_email: sesion?.user?.email,
+            total_total: totalVenta,
+            metodo_pago: metodoPago,
+            codigo_venta: nuevoCodigo 
+          }])
+          .select()
           .single();
 
-        return supabase
-          .from('productos')
-          .update({ stock: (prodActual?.stock || 0) - item.cantidadEnCarrito })
-          .eq('id', item.id);
-      });
+        if (errorCabecera) throw errorCabecera;
 
-      await Promise.all(promesasStock);
+        // 2. Preparar e Insertar Detalle
+        const registrosDetalle = carrito.map(item => ({
+          venta_id: cabecera.id,
+          producto_id: item.id,
+          cantidad: item.cantidadEnCarrito,
+          precio_unitario: item.precio
+        }));
 
-      alert("🎉 Venta realizada con éxito");
-      setCarrito([]);
-      setMetodoPago('Efectivo');
-      traerProductos();
-      if (alTerminar) alTerminar();
-    } catch (error) {
-      console.error("Error al finalizar:", error);
-      alert("Error al procesar la venta");
-    }
-  };
+        const { error: errorDetalle } = await supabase
+          .from('ventas_detalle')
+          .insert(registrosDetalle);
+
+        if (errorDetalle) throw errorDetalle;
+
+        // 3. Actualizar Stock
+        const promesasStock = carrito.map(async (item) => {
+          const { data: prodActual } = await supabase
+            .from('productos')
+            .select('stock')
+            .eq('id', item.id)
+            .single();
+
+          return supabase
+            .from('productos')
+            .update({ stock: (prodActual?.stock || 0) - item.cantidadEnCarrito })
+            .eq('id', item.id);
+        });
+
+        await Promise.all(promesasStock);
+
+        // --- 4. GENERACIÓN DEL PDF (Antes de limpiar el carrito) ---
+        // Creamos una copia de los datos actuales del carrito para el PDF
+        const datosParaPDF = {
+          codigo: nuevoCodigo,
+          carrito: [...carrito], // Usamos el spread para asegurar que tenemos la data
+          total: totalVenta,
+          metodoPago: metodoPago,
+          vendedor: sesion?.user?.email || 'Vendedor'
+        };
+
+        generarFacturaPDF(datosParaPDF);
+        // ----------------------------------------------------------
+
+        // 5. Finalización y limpieza de interfaz
+        alert(`🎉 Venta exitosa!\nCódigo de rastreo: ${nuevoCodigo}`);
+        
+        setCarrito([]); // Ahora sí limpiamos
+        setMetodoPago('Efectivo');
+        traerProductos();
+        
+        if (alTerminar) alTerminar();
+
+      } catch (error) {
+        console.error("Error al finalizar:", error);
+        alert("Error al procesar la venta");
+      }
+    };
 
   return (
     <div className="ventas-container">
       <h3>Punto de Venta 🛒</h3>
       
       <form className="ventas-form" onSubmit={agregarAlCarrito}>
-        
-        {/* NUEVO: Campo de búsqueda para filtrar el select */}
         <div className="input-group">
           <label>Buscar Producto:</label>
           <input 
@@ -199,7 +226,6 @@ export default function SeccionVentas({ alTerminar, sesion }) {
         <button type="submit" className="btn-agregar">Añadir al carrito</button>
       </form>
 
-      {/* ... (el resto del carrito y resumen se mantiene exactamente igual) */}
       {carrito.length > 0 && (
         <div className="carrito-resumen">
           <h4>Detalle de la Orden</h4>
