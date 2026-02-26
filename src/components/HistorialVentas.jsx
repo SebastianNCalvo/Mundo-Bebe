@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { generarFacturaPDF } from './GeneradorPDF'; // 1. Importamos el generador
+import { generarFacturaPDF } from './GeneradorPDF'; 
 import '../styles/HistorialVentas.css';
 
 const HistorialVentas = () => {
   const [ventas, setVentas] = useState([]);
   const [gastos, setGastos] = useState([]);
+  const [cambios, setCambios] = useState([]); 
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const [anio, setAnio] = useState(new Date().getFullYear());
   const [vendedorFiltro, setVendedorFiltro] = useState('Todos');
@@ -41,17 +42,26 @@ const HistorialVentas = () => {
       .lt('fecha', fechaFin)
       .order('fecha', { ascending: false });
 
-    const [resVentas, resGastos] = await Promise.all([promesaVentas, promesaGastos]);
+    const promesaCambios = supabase
+      .from('cambios_registros')
+      .select(`*, 
+        producto_devuelto:productos!producto_devuelto_id(nombre, talle), 
+        producto_nuevo:productos!producto_nuevo_id(nombre, talle),
+        venta_origen:ventas_cabecera(codigo_venta)`)
+      .gte('fecha', fechaInicio)
+      .lt('fecha', fechaFin)
+      .order('fecha', { ascending: false });
+
+    const [resVentas, resGastos, resCambios] = await Promise.all([promesaVentas, promesaGastos, promesaCambios]);
     setVentas(resVentas.data || []);
     setGastos(resGastos.data || []);
+    setCambios(resCambios.data || []); 
     setCargando(false);
   };
 
-  // 2. Función para disparar la reimpresión
   const reimprimirFactura = (venta) => {
     const datosParaPDF = {
       codigo: venta.codigo_venta || `ANTIGUA-${venta.id}`,
-      // Mapeamos los datos de Supabase al formato que espera el Generador
       carrito: venta.ventas_detalle.map(d => ({
         nombre: d.productos?.nombre || 'Producto eliminado',
         talle: d.productos?.talle || '-',
@@ -62,7 +72,6 @@ const HistorialVentas = () => {
       metodoPago: venta.metodo_pago,
       vendedor: venta.vendedor_email
     };
-
     generarFacturaPDF(datosParaPDF);
   };
 
@@ -131,7 +140,13 @@ const HistorialVentas = () => {
     }
   };
 
-  const listaVendedores = ['Todos', ...new Set([...ventas.map(v => v.vendedor_email), ...gastos.map(g => g.vendedor_email)])].filter(Boolean);
+  // --- LÓGICA DE FILTROS REFACTORIZADA ---
+  const listaVendedores = ['Todos', ...new Set([
+    ...ventas.map(v => v.vendedor_email), 
+    ...gastos.map(g => g.vendedor_email),
+    ...cambios.map(c => c.vendedor_email),
+    ...cambios.map(c => c.vendedor_cambio_email) // Nuevo campo incluido
+  ])].filter(Boolean);
   
   const ventasFiltradas = ventas.filter(v => {
     const cumpleVendedor = vendedorFiltro === 'Todos' || v.vendedor_email === vendedorFiltro;
@@ -141,9 +156,22 @@ const HistorialVentas = () => {
 
   const gastosFiltrados = vendedorFiltro === 'Todos' ? gastos : gastos.filter(g => g.vendedor_email === vendedorFiltro);
 
+  const cambiosFiltrados = cambios.filter(c => {
+    // El cambio aparece si el vendedor fue el original O el que hizo el cambio
+    const cumpleVendedor = vendedorFiltro === 'Todos' || 
+                           c.vendedor_email === vendedorFiltro || 
+                           c.vendedor_cambio_email === vendedorFiltro;
+    const cumpleCodigo = c.venta_origen?.codigo_venta?.toLowerCase().includes(busquedaCodigo.toLowerCase());
+    return cumpleVendedor && cumpleCodigo;
+  });
+
+  // --- CÁLCULOS DE BALANCE ---
   const totalVentas = ventasFiltradas.reduce((acc, v) => acc + (Number(v.total_total) || 0), 0);
   const totalGastos = gastosFiltrados.reduce((acc, g) => acc + (Number(g.monto) || 0), 0);
-  const balanceNeto = totalVentas - totalGastos;
+  const totalCobradoCambios = cambiosFiltrados.reduce((acc, c) => acc + (Number(c.monto_cobrado) || 0), 0);
+  const totalCortesia = cambiosFiltrados.reduce((acc, c) => acc + (Number(c.monto_cortesia) || 0), 0);
+  
+  const balanceNeto = totalVentas + totalCobradoCambios - totalGastos;
 
   const formatearFechaHora = (fechaISO) => {
     return new Date(fechaISO).toLocaleString('es-AR', {
@@ -172,6 +200,7 @@ const HistorialVentas = () => {
             <tr key={venta.id} className={idRecienActualizado === venta.id ? 'fila-actualizada' : ''}>
               <td data-label="Código" style={{ fontWeight: 'bold', color: 'var(--color-acento)' }}>
                 {venta.codigo_venta || '---'}
+                {cambios.some(c => c.venta_origen_id === venta.id) && <span style={{fontSize: '10px', display: 'block', color: '#e67e22'}}>🔄 CON CAMBIO</span>}
               </td>
               <td data-label="Fecha/Hora">{formatearFechaHora(venta.fecha)}</td>
               <td data-label="Vendedor">{venta.vendedor_email?.split('@')[0]}</td>
@@ -182,18 +211,48 @@ const HistorialVentas = () => {
               <td data-label="Total" className="texto-total-venta">${venta.total_total.toLocaleString('es-AR')}</td>
               <td data-label="Acciones">
                 <div className="acciones-gasto">
-                  {/* 3. Botón de Reimpresión */}
-                  <button 
-                    onClick={() => reimprimirFactura(venta)} 
-                    className="btn-edit-icono" 
-                    title="Reimprimir Factura"
-                  >
-                    📄
-                  </button>
+                  <button onClick={() => reimprimirFactura(venta)} className="btn-edit-icono" title="Reimprimir Factura">📄</button>
                   <button onClick={() => setEditandoVenta(venta)} className="btn-edit-icono">✏️</button>
                   <button onClick={() => eliminarVenta(venta.id)} className="btn-eliminar">🗑️</button>
                 </div>
               </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  const renderTablaCambios = () => (
+    <div className="tabla-historial-wrapper animar-entrada" style={{ marginTop: '30px' }}>
+      <h3 style={{color: '#e67e22'}}>Registro de Cambios (Devoluciones)</h3>
+      <table className="tabla-inventario">
+        <thead>
+          <tr style={{background: '#fff3e0'}}>
+            <th>Fecha</th>
+            <th>Cód. Origen</th>
+            <th>Vendedores (Orig | Gest)</th>
+            <th>Entra / Sale</th>
+            <th>Cortesía</th>
+            <th>Cobrado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {cambiosFiltrados.map(cambio => (
+            <tr key={cambio.id}>
+              <td>{formatearFechaHora(cambio.fecha)}</td>
+              <td style={{ fontWeight: 'bold' }}>{cambio.venta_origen?.codigo_venta}</td>
+              <td style={{ fontSize: '0.85em' }}>
+                <span title="Vendedor Original" style={{color: '#7f8c8d'}}>{cambio.vendedor_email?.split('@')[0]}</span>
+                {" | "}
+                <span title="Gestionó el Cambio" style={{fontWeight: 'bold', color: 'var(--color-acento)'}}>{cambio.vendedor_cambio_email?.split('@')[0] || '---'}</span>
+              </td>
+              <td style={{ textAlign: 'left', fontSize: '0.9em' }}>
+                <div style={{ color: 'var(--color-exito)' }}>📥 {cambio.producto_devuelto?.nombre}</div>
+                <div style={{ color: 'var(--color-peligro)' }}>📤 {cambio.producto_nuevo?.nombre}</div>
+              </td>
+              <td style={{ color: '#e67e22' }}>${cambio.monto_cortesia.toLocaleString('es-AR')}</td>
+              <td className="texto-total-venta">${cambio.monto_cobrado.toLocaleString('es-AR')}</td>
             </tr>
           ))}
         </tbody>
@@ -233,7 +292,7 @@ const HistorialVentas = () => {
 
   return (
     <div className="historial-container">
-      {/* MODAL GASTO */}
+      {/* MODALES (Mantenidos) */}
       {editandoGasto && (
         <div className="modal-overlay animar-fade">
           <div className="modal-content animar-slide">
@@ -270,7 +329,6 @@ const HistorialVentas = () => {
         </div>
       )}
 
-      {/* MODAL VENTA */}
       {editandoVenta && (
         <div className="modal-overlay animar-fade">
           <div className="modal-content animar-slide">
@@ -301,7 +359,7 @@ const HistorialVentas = () => {
       <div className="dashboard-balance">
         <div className={`card-balance ingresos clicable ${vista === 'ventas' ? 'activa' : ''}`} onClick={() => setVista('ventas')}>
           <small>Ventas (+)</small>
-          <span>${totalVentas.toLocaleString('es-AR')}</span>
+          <span>${(totalVentas + totalCobradoCambios).toLocaleString('es-AR')}</span>
         </div>
         <div className={`card-balance egresos clicable ${vista === 'gastos' ? 'activa' : ''}`} onClick={() => setVista('gastos')}>
           <small>Gastos (-)</small>
@@ -310,6 +368,10 @@ const HistorialVentas = () => {
         <div className={`card-balance resultado clicable ${vista === 'todo' ? 'activa' : ''} ${balanceNeto >= 0 ? 'positivo' : 'negativo'}`} onClick={() => setVista('todo')}>
           <small>Balance Neto</small>
           <span>${balanceNeto.toLocaleString('es-AR')}</span>
+        </div>
+        <div className={`card-balance clicable ${vista === 'cambios' ? 'activa' : ''}`} style={{borderLeft: '4px solid #e67e22'}} onClick={() => setVista('cambios')}>
+          <small>Cortesías (🎁)</small>
+          <span style={{color: '#e67e22'}}>${totalCortesia.toLocaleString('es-AR')}</span>
         </div>
       </div>
 
@@ -343,6 +405,7 @@ const HistorialVentas = () => {
       ) : (
         <>
           {(vista === 'ventas' || vista === 'todo') && renderTablaVentas()}
+          {(vista === 'cambios' || vista === 'todo') && renderTablaCambios()}
           {(vista === 'gastos' || vista === 'todo') && renderTablaGastos()}
         </>
       )}

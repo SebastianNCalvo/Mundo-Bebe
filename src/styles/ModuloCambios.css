@@ -1,0 +1,90 @@
+.modulo-cambios {
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+}
+
+.buscador-seccion {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 25px;
+}
+
+.detalles-cambio {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.card-cambio {
+  border: 1px solid #eee;
+  padding: 15px;
+  border-radius: 8px;
+  background: #fcfcfc;
+}
+
+.item-devolucion {
+  padding: 10px;
+  margin: 5px 0;
+  border: 2px solid transparent;
+  background: white;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 6px;
+  transition: 0.3s;
+}
+
+.item-devolucion.seleccionado {
+  border-color: var(--color-acento, #2196f3);
+  background: #e3f2fd;
+}
+
+.resultado-item {
+  padding: 8px;
+  border-bottom: 1px solid #eee;
+  cursor: pointer;
+}
+
+.resultado-item:hover {
+  background: #f0f0f0;
+}
+
+.resumen-final {
+  grid-column: span 2;
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 8px;
+  margin-top: 10px;
+  border-top: 3px solid var(--color-acento, #2196f3);
+}
+
+.total-caja {
+  font-size: 1.4rem;
+  display: flex;
+  justify-content: space-between;
+  margin: 15px 0;
+  padding-top: 10px;
+  border-top: 1px dashed #ccc;
+}
+
+.btn-confirmar-cambio {
+  width: 100%;
+  padding: 12px;
+  background: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.checkbox-cortesia {
+  display: block;
+  margin: 10px 0;
+  color: #d32f2f;
+  font-weight: bold;
+}

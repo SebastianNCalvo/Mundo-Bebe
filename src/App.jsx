@@ -4,6 +4,7 @@ import ListaInventario from './components/ListaInventario';
 import SeccionVentas from './components/SeccionVentas';
 import HistorialVentas from './components/HistorialVentas';
 import SeccionGastos from './components/SeccionGastos'; // 1. Importamos el nuevo componente
+import ModuloCambios from './components/ModuloCambios';
 import { useState, useEffect } from 'react';
 import { supabase } from './supabaseClient';
 import Login from './components/Login';
@@ -57,6 +58,13 @@ function App() {
         >
           Ventas
         </button>
+
+        <button 
+          className={pestana === 'cambios' ? 'active' : ''} 
+          onClick={() => setPestana('cambios')}
+        >
+          Cambios
+        </button>
         
         {/* 2. Botón de Gastos disponible para todos */}
         <button 
@@ -98,6 +106,13 @@ function App() {
           />
         )}
 
+        {pestana === 'cambios' && (
+          <ModuloCambios 
+            sesion={sesion} 
+            alTerminar={refrescarInventario} 
+          />
+        )}
+        
         {/* 3. Renderizado de la Sección de Gastos */}
         {pestana === 'gastos' && (
           <SeccionGastos 
