@@ -1,104 +1,130 @@
+/* --- CONTENEDOR DEL FORMULARIO --- */
 .form-container {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: 20px; /* Más espacio entre grupos para facilitar la lectura */
   width: 100%; 
-  max-width: 400px;
-  margin: 0 auto;
-  padding: 20px; 
+  max-width: 450px;
+  margin: 10px auto;
+  padding: 25px; 
   box-sizing: border-box; 
-  border-radius: 20px;
+  border-radius: 24px;
   background-color: #ffffff;
-  /* Sombra sutil en tono celeste */
-  box-shadow: 0 10px 25px rgba(129, 212, 250, 0.15);
-  /* Borde exterior marcado como pediste */
-  border: 2px solid #37474f;
+  /* Sombra sólida estilo sticker */
+  border: 2.5px solid var(--color-borde);
+  box-shadow: 4px 4px 0px var(--color-borde);
 }
 
 .form-container h3 {
   margin-top: 0;
-  color: #0288d1; /* Celeste fuerte */
-  font-size: 1.2rem;
+  color: var(--color-acento);
+  font-size: 1.4rem;
   text-align: center;
-  margin-bottom: 5px;
-  font-family: 'Quicksand', sans-serif;
+  margin-bottom: 10px;
   font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Etiquetas - Ahora más visibles */
+/* --- GRUPOS DE ENTRADA --- */
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
 .form-container label {
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: #37474f; /* Gris muy oscuro */
-  margin-bottom: -12px;
-  margin-left: 5px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--color-texto);
+  margin-left: 4px;
   text-align: left;
   text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-/* Inputs y Selects con bordes definidos */
+/* --- INPUTS Y SELECTS --- */
 .form-container input, 
 .form-container select {
-  padding: 12px 15px;
-  border-radius: 12px;
-  /* El borde oscuro que define el campo */
-  border: 2px solid #37474f;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 2.5px solid var(--color-borde);
   background-color: #ffffff;
-  font-size: 16px; 
+  font-size: 1rem; /* 16px para evitar zoom automático en iOS */
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
   color: #263238;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
   outline: none;
   width: 100%; 
   box-sizing: border-box;
+  appearance: none; /* Limpia estilos nativos */
+  -webkit-appearance: none;
+}
+
+/* Estilo para el select con flecha personalizada */
+.form-container select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23263238' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 15px center;
+  background-size: 14px;
+  padding-right: 40px;
 }
 
 .form-container input:focus, 
 .form-container select:focus {
-  border-color: #f06292; /* Rosa al clickear */
-  background-color: #fffdfd;
-  box-shadow: 0 0 8px rgba(240, 98, 146, 0.2);
+  border-color: #f06292;
+  background-color: #fff9fb;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 0px rgba(240, 98, 146, 0.2);
 }
 
-.form-container input::placeholder {
-  color: #b0bec5;
-}
-
-/* Botón Guardar - Verde Menta Bebé */
+/* --- BOTÓN GUARDAR (Verde Menta Pop) --- */
 .form-container button {
-  padding: 16px; 
-  /* Degradado Verde Menta pastel a Esmeralda */
+  padding: 18px; 
   background: linear-gradient(135deg, #a5d6a7, #66bb6a) !important;
   color: white;
-  border: 2px solid #37474f; /* Botón también con borde marcado */
-  border-radius: 12px;
+  border: 2.5px solid var(--color-borde);
+  border-radius: 16px;
   cursor: pointer;
-  font-weight: 800;
-  font-size: 1rem;
+  font-weight: 900;
+  font-size: 1.1rem;
   text-transform: uppercase;
   letter-spacing: 1px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  margin-top: 10px;
+  margin-top: 15px;
   width: 100%;
-}
-
-.form-container button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(102, 187, 106, 0.3);
+  box-shadow: 3px 3px 0px var(--color-borde);
+  transition: all 0.1s ease;
 }
 
 .form-container button:active {
-  transform: translateY(0);
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--color-borde);
 }
 
-/* Ajustes específicos para pantallas muy pequeñas */
+.form-container button:disabled {
+  background: #cfd8dc !important;
+  border-color: #90a4ae;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* --- ADAPTACIÓN MÓVIL --- */
 @media (max-width: 480px) {
   .form-container {
-    padding: 15px;
+    padding: 20px;
+    margin: 5px; /* Un poco de margen para no tocar los bordes del cel */
+    border-radius: 20px;
     gap: 15px;
-    border-width: 2px; /* Mantiene la firmeza del borde en móviles */
   }
   
   .form-container h3 {
-    font-size: 1.1rem;
+    font-size: 1.2rem;
+  }
+
+  .form-container input, 
+  .form-container select {
+    padding: 12px;
   }
 }

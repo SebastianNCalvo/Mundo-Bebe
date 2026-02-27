@@ -6,7 +6,7 @@ html, body {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow-x: hidden; 
 }
 
 #root {
@@ -14,83 +14,73 @@ html, body {
 }
 
 :root {
-  /* Paleta Pastel Reforzada */
-  --color-primario: #b3e5fc;    /* Celeste Bebé */
-  --color-secundario: #fff9c4;  /* Amarillo Vainilla */
-  --color-acento: #0288d1;      
-  --color-peligro: #f06292;     /* Rosa Pastel */
-  --color-exito: #a5d6a7;       /* Verde Menta */
-  --color-texto: #37474f;       
-  --color-borde: #263238;       /* Borde oscuro para contraste */
+  --color-primario: #b3e5fc;
+  --color-secundario: #fff9c4;
+  --color-acento: #0288d1;
+  --color-peligro: #f06292;
+  --color-exito: #a5d6a7;
+  --color-texto: #37474f;
+  --color-borde: #263238;
 }
 
 body {
-  /* Cambiamos el fondo grisáceo por un Amarillo Vainilla muy tierno */
   background-color: #fffde7; 
   margin: 0;
   -webkit-tap-highlight-color: transparent;
   color: var(--color-texto);
   font-family: 'Quicksand', sans-serif;
+  /* Eliminamos el padding-top fijo para que sticky maneje el espacio */
+  padding-top: 0; 
 }
 
 .dashboard-main {
   padding: 10px;
   max-width: 1200px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
 }
 
-/* --- Header: Ahora en Celeste Pastel --- */
+/* --- HEADER STICKY --- */
 .header-admin {
+  position: sticky;
+  top: 10px; /* Margen respecto al techo del navegador */
+  z-index: 1010;
   display: flex;
   flex-direction: column; 
   gap: 10px;
   text-align: center;
-  padding: 20px;
-  /* Fondo Celeste Pastel en lugar de blanco */
+  padding: 15px;
   background: #e1f5fe; 
   border-radius: 20px;
-  box-shadow: 4px 4px 0px var(--color-borde); /* Sombra sólida estilo "sticker" */
-  margin-bottom: 25px;
+  box-shadow: 4px 4px 0px var(--color-borde);
   border: 2px solid var(--color-borde);
+  margin-bottom: 15px;
 }
 
-.header-admin h1 {
-  margin: 0;
-  color: var(--color-acento);
-  font-size: 1.4rem;
-  font-weight: 800;
-  text-shadow: 1px 1px 0px white;
-}
-
-.header-admin p {
-  margin: 5px 0;
-  font-size: 0.9rem;
-  color: #546e7a;
-  font-weight: 600;
-}
-
-.header-admin p strong {
-  color: var(--color-peligro);
-}
-
-/* --- Navegación por Tabs: Contraste con el fondo --- */
+/* --- NAVBAR STICKY --- */
 .tabs-nav {
+  position: sticky;
+  top: 145px; /* Se apoya debajo del header en móvil */
+  z-index: 1005;
   display: flex;
-  justify-content: center;
+  justify-content: flex-start;
   overflow-x: auto;
+  white-space: nowrap;
   gap: 8px;
-  margin-bottom: 25px;
-  /* Verde menta muy suave para la barra de navegación */
   background: #e8f5e9; 
-  padding: 8px;
+  padding: 10px 15px;
   border-radius: 50px;
   border: 2px solid var(--color-borde);
+  margin-bottom: 25px;
   scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
 }
 
 .tabs-nav::-webkit-scrollbar { display: none; }
 
 .tabs-nav button {
+  flex: 0 0 auto;
   padding: 10px 18px;
   border: 2px solid transparent;
   background: transparent;
@@ -98,7 +88,6 @@ body {
   border-radius: 25px;
   cursor: pointer;
   font-weight: 700;
-  white-space: nowrap;
   font-size: 0.9rem;
   transition: all 0.2s ease;
 }
@@ -107,73 +96,48 @@ body {
   background-color: white;
   color: var(--color-acento);
   border-color: var(--color-borde);
-  /* Efecto pop-out */
+  box-shadow: 0 3px 0px var(--color-borde);
   transform: translateY(-2px);
-  box-shadow: 0 4px 0px var(--color-borde);
 }
 
-.layout-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 20px;
-}
-
-/* --- Tarjeta de Resumen Mensual: Rosa Intenso --- */
-.card-total-mes {
-  background: #f8bbd0; /* Rosa pastel */
-  color: #37474f;
-  padding: 20px;
-  border-radius: 20px;
-  margin-bottom: 20px;
-  border: 2px solid var(--color-borde);
-  box-shadow: 4px 4px 0px var(--color-borde);
-}
-
-.card-total-mes span {
-  display: block;
-  font-size: 1.8rem;
+.header-admin h1 {
+  margin: 0;
+  color: var(--color-acento);
+  font-size: 1.2rem;
   font-weight: 800;
-  color: #d81b60; /* Rosa fuerte para el número */
 }
 
-/* --- Botón Cerrar Sesión: Vainilla --- */
 .btn-logout {
   background-color: #fff9c4;
   color: var(--color-peligro);
   border: 2px solid var(--color-borde);
-  padding: 10px 20px;
-  border-radius: 12px;
+  padding: 8px 15px;
+  border-radius: 10px;
   font-weight: 800;
-  font-size: 0.85rem;
+  font-size: 0.75rem;
   cursor: pointer;
-  transition: all 0.2s;
-  width: fit-content;
-  margin: 0 auto;
   box-shadow: 2px 2px 0px var(--color-borde);
 }
 
-.btn-logout:hover {
-  background-color: #fce4ec;
-  transform: scale(1.05);
-}
-
-/* --- Adaptación PC --- */
+/* --- PC RESPONSIVE --- */
 @media (min-width: 768px) {
-  .dashboard-main { padding: 20px; }
   .header-admin {
     flex-direction: row; 
     justify-content: space-between;
-    text-align: left;
+    align-items: center;
+    top: 0;
+    border-radius: 0 0 20px 20px;
     padding: 15px 25px;
   }
-  .header-admin h1 { font-size: 1.6rem; }
-  .tabs-nav { 
+
+  .tabs-nav {
+    top: 85px; /* En PC el header es más bajo, ajustamos el top */
     max-width: fit-content;
-    margin-left: auto;
-    margin-right: auto;
+    align-self: center; /* Centra el nav sin romper el flex */
   }
-  .btn-logout { margin: 0; }
+
   .layout-grid {
+    display: grid;
     grid-template-columns: 350px 1fr;
     gap: 30px;
   }

@@ -1,90 +1,209 @@
+/* --- CONTENEDOR PRINCIPAL --- */
 .modulo-cambios {
-  max-width: 900px;
-  margin: 20px auto;
-  padding: 20px;
+  width: 100%;
+  max-width: 700px; /* Reducido para que en PC no se vea tan estirado al ser filas */
+  margin: 10px auto;
+  padding: 15px;
   background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  border: 2px solid var(--color-borde);
+  box-shadow: 4px 4px 0px var(--color-borde);
 }
 
+.titulo-modulo {
+  text-align: center;
+  color: var(--color-acento);
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+}
+
+/* --- BUSCADOR --- */
 .buscador-seccion {
   display: flex;
+  flex-direction: column; /* Filas una debajo de otra */
   gap: 10px;
-  margin-bottom: 25px;
+  margin-bottom: 20px;
 }
 
+.input-busqueda-venta {
+  padding: 14px;
+  border: 2px solid var(--color-borde);
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  outline: none;
+}
+
+.btn-buscar-venta {
+  padding: 14px;
+  background: var(--color-acento);
+  color: white;
+  border: 2px solid var(--color-borde);
+  border-radius: 12px;
+  font-weight: 800;
+  cursor: pointer;
+  box-shadow: 2px 2px 0px var(--color-borde);
+}
+
+/* --- CUERPO DEL MODULO (APILADO) --- */
 .detalles-cambio {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: flex;
+  flex-direction: column; /* Asegura filas una debajo de otra */
   gap: 20px;
 }
 
-.card-cambio {
-  border: 1px solid #eee;
-  padding: 15px;
-  border-radius: 8px;
-  background: #fcfcfc;
+.info-vendedor-original {
+  font-size: 0.85rem;
+  color: #546e7a;
+  text-align: center;
+  padding: 8px;
+  background: #f1f8e9;
+  border-radius: 10px;
+  border: 1px dashed var(--color-borde);
 }
 
+.card-cambio {
+  border: 2px solid var(--color-borde);
+  padding: 15px;
+  border-radius: 15px;
+  background: #ffffff;
+}
+
+.subtitulo-card {
+  font-size: 1rem;
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: var(--color-texto);
+  border-bottom: 2px solid #eee;
+  padding-bottom: 8px;
+}
+
+/* --- ITEMS DE SELECCION --- */
 .item-devolucion {
-  padding: 10px;
-  margin: 5px 0;
-  border: 2px solid transparent;
+  padding: 12px;
+  margin-bottom: 8px;
+  border: 2px solid #eee;
   background: white;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
-  border-radius: 6px;
-  transition: 0.3s;
+  align-items: center;
+  border-radius: 10px;
+  transition: 0.2s;
 }
 
 .item-devolucion.seleccionado {
-  border-color: var(--color-acento, #2196f3);
+  border-color: var(--color-acento);
   background: #e3f2fd;
+  transform: translateX(5px);
+}
+
+.item-nombre {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+/* --- BUSQUEDA DE PRODUCTO NUEVO --- */
+.input-nuevo-producto {
+  width: 100%;
+  padding: 12px;
+  border: 2px solid var(--color-borde);
+  border-radius: 10px;
+  margin-bottom: 5px;
+}
+
+.lista-resultados {
+  max-height: 150px;
+  overflow-y: auto;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 10px;
 }
 
 .resultado-item {
-  padding: 8px;
+  padding: 10px;
   border-bottom: 1px solid #eee;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.producto-seleccionado-badge {
+  padding: 10px;
+  background: var(--color-secundario);
+  border: 2px solid var(--color-borde);
+  border-radius: 10px;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* --- RESUMEN Y LIQUIDACION --- */
+.resumen-final {
+  background: #f8f9fa;
+  padding: 20px;
+  border-radius: 15px;
+  border: 2px solid var(--color-borde);
+  box-shadow: 4px 4px 0px var(--color-borde);
+}
+
+.fila-resumen {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-weight: 700;
+}
+
+.monto-diferencia.positivo { color: var(--color-peligro); }
+.monto-diferencia.negativo { color: var(--color-exito); }
+
+.checkbox-cortesia {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 15px 0;
+  color: var(--color-peligro);
+  font-weight: 800;
+  font-size: 0.9rem;
   cursor: pointer;
 }
 
-.resultado-item:hover {
-  background: #f0f0f0;
-}
-
-.resumen-final {
-  grid-column: span 2;
-  background: #f8f9fa;
-  padding: 20px;
-  border-radius: 8px;
-  margin-top: 10px;
-  border-top: 3px solid var(--color-acento, #2196f3);
-}
-
-.total-caja {
-  font-size: 1.4rem;
+.total-caja-cambio {
+  font-size: 1.3rem;
   display: flex;
   justify-content: space-between;
   margin: 15px 0;
-  padding-top: 10px;
-  border-top: 1px dashed #ccc;
+  padding-top: 15px;
+  border-top: 2px dashed var(--color-borde);
+}
+
+.monto-total-final {
+  color: var(--color-acento);
+  font-size: 1.6rem;
 }
 
 .btn-confirmar-cambio {
   width: 100%;
-  padding: 12px;
-  background: #4caf50;
+  padding: 16px;
+  background: var(--color-exito);
   color: white;
-  border: none;
-  border-radius: 6px;
-  font-weight: bold;
+  border: 2px solid var(--color-borde);
+  border-radius: 12px;
+  font-weight: 900;
+  font-size: 1.1rem;
   cursor: pointer;
+  box-shadow: 3px 3px 0px var(--color-borde);
 }
 
-.checkbox-cortesia {
-  display: block;
-  margin: 10px 0;
-  color: #d32f2f;
-  font-weight: bold;
+.btn-confirmar-cambio:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0px 0px 0px var(--color-borde);
+}
+
+/* --- MEDIA QUERIES (PC) --- */
+@media (min-width: 600px) {
+  .buscador-seccion {
+    flex-direction: row;
+  }
+  .input-busqueda-venta {
+    flex: 1;
+  }
 }

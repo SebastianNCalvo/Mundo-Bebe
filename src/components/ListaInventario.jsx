@@ -10,7 +10,7 @@ export default function ListaInventario({ trigger, esAdmin }) {
   const [editandoId, setEditandoId] = useState(null);
   const [productoEditado, setProductoEditado] = useState({});
   
-  // Nuevo estado para controlar qué fila debe brillar
+  // Feedback visual
   const [idRecienActualizado, setIdRecienActualizado] = useState(null);
 
   useEffect(() => {
@@ -23,11 +23,10 @@ export default function ListaInventario({ trigger, esAdmin }) {
       .select('*')
       .order('nombre', { ascending: true });
 
-    if (error) console.log("Error cargando:", error);
+    if (error) console.error("Error cargando:", error);
     else setProductos(data);
   };
 
-  // --- Lógica para el Valor Total del Inventario ---
   const valorTotalInventario = productos.reduce((acc, prod) => {
     return acc + (parseFloat(prod.precio || 0) * parseInt(prod.stock || 0));
   }, 0);
@@ -57,18 +56,14 @@ export default function ListaInventario({ trigger, esAdmin }) {
       alert("Error al actualizar el producto");
     } else {
       setEditandoId(null);
-      
-      // --- Lógica de Feedback Visual ---
-      setIdRecienActualizado(id); // Marcamos el ID para que brille
-      setTimeout(() => setIdRecienActualizado(null), 2000); // Quitamos el brillo tras 2 segundos
-      
+      setIdRecienActualizado(id);
+      setTimeout(() => setIdRecienActualizado(null), 2000);
       obtenerProductos();
     }
   };
 
   const eliminarProducto = async (id) => {
-    const confirmacion = window.confirm("¿Seguro que quieres eliminar este producto?");
-    if (confirmacion) {
+    if (window.confirm("¿Seguro que quieres eliminar este producto?")) {
       const { error } = await supabase.from('productos').delete().eq('id', id);
       if (error) alert("Error al eliminar");
       else obtenerProductos();
@@ -81,12 +76,11 @@ export default function ListaInventario({ trigger, esAdmin }) {
 
   return (
     <div className="inventario-container">
-      <h3>Stock Actual de Ropa</h3>
+      <h3 className="titulo-seccion">Stock Actual de Ropa</h3>
 
-      {/* TARJETA DE CAPITAL TOTAL (Ahora con clase CSS limpia) */}
       <div className="card-total-inventario">
-        <small>Valor Total de Mercadería</small>
-        <span>${valorTotalInventario.toLocaleString('es-AR')}</span>
+        <small className="label-capital">Valor Total de Mercadería</small>
+        <span className="monto-capital">${valorTotalInventario.toLocaleString('es-AR')}</span>
       </div>
 
       <div className="buscador-container">
@@ -115,11 +109,11 @@ export default function ListaInventario({ trigger, esAdmin }) {
             {productosFiltrados.map((prod) => (
               <tr 
                 key={prod.id} 
-                className={idRecienActualizado === prod.id ? 'fila-actualizada' : ''}
+                className={`fila-producto ${idRecienActualizado === prod.id ? 'fila-actualizada' : ''} ${editandoId === prod.id ? 'fila-editando' : ''}`}
               >
                 {editandoId === prod.id ? (
                   <>
-                    <td>
+                    <td data-label="Producto">
                       <input 
                         type="text" 
                         value={productoEditado.nombre} 
@@ -128,7 +122,7 @@ export default function ListaInventario({ trigger, esAdmin }) {
                         autoFocus
                       />
                     </td>
-                    <td>
+                    <td data-label="Talle">
                       <input 
                         type="text" 
                         value={productoEditado.talle} 
@@ -136,7 +130,7 @@ export default function ListaInventario({ trigger, esAdmin }) {
                         className="input-edit-celda small"
                       />
                     </td>
-                    <td>
+                    <td data-label="Precio">
                       <input 
                         type="number" 
                         value={productoEditado.precio} 
@@ -144,7 +138,7 @@ export default function ListaInventario({ trigger, esAdmin }) {
                         className="input-edit-celda"
                       />
                     </td>
-                    <td>
+                    <td data-label="Stock">
                       <input 
                         type="number" 
                         value={productoEditado.stock} 
@@ -154,18 +148,24 @@ export default function ListaInventario({ trigger, esAdmin }) {
                     </td>
                     <td data-label="Acciones">
                       <div className="acciones-edit-row">
-                        <button onClick={() => guardarCambios(prod.id)} className="btn-save">✅</button>
-                        <button onClick={cancelarEdicion} className="btn-cancel">❌</button>
+                        <button onClick={() => guardarCambios(prod.id)} className="btn-save-inline" title="Guardar">✅</button>
+                        <button onClick={cancelarEdicion} className="btn-cancel-inline" title="Cancelar">❌</button>
                       </div>
                     </td>
                   </>
                 ) : (
                   <>
-                    <td data-label="Producto"><strong>{prod.nombre}</strong></td>
-                    <td data-label="Talle"><span className="badge-talle">{prod.talle}</span></td>
-                    <td data-label="Precio">${prod.precio.toLocaleString('es-AR')}</td>
-                    <td data-label="Stock" className={prod.stock < 5 ? 'bajo-stock' : ''}>
-                      {prod.stock}
+                    <td data-label="Producto" className="celda-nombre">
+                      <strong>{prod.nombre}</strong>
+                    </td>
+                    <td data-label="Talle">
+                      <span className="badge-talle">{prod.talle}</span>
+                    </td>
+                    <td data-label="Precio" className="celda-precio">
+                      ${prod.precio.toLocaleString('es-AR')}
+                    </td>
+                    <td data-label="Stock" className={`celda-stock ${prod.stock < 5 ? 'bajo-stock' : ''}`}>
+                      {prod.stock} un.
                     </td>
                     {esAdmin && (
                       <td data-label="Acciones">
@@ -174,16 +174,12 @@ export default function ListaInventario({ trigger, esAdmin }) {
                             className="btn-editar-icono" 
                             onClick={() => iniciarEdicion(prod)}
                             title="Editar"
-                          >
-                            ✏️
-                          </button>
+                          >✏️</button>
                           <button 
-                            className="btn-eliminar" 
+                            className="btn-eliminar-icono" 
                             onClick={() => eliminarProducto(prod.id)}
                             title="Eliminar"
-                          >
-                            ×
-                          </button>
+                          >×</button>
                         </div>
                       </td>
                     )}
@@ -195,9 +191,9 @@ export default function ListaInventario({ trigger, esAdmin }) {
         </table>
         
         {productosFiltrados.length === 0 && (
-          <p style={{ textAlign: 'center', padding: '20px' }}>
+          <div className="mensaje-vacio">
             No se encontraron productos.
-          </p>
+          </div>
         )}
       </div>
     </div>

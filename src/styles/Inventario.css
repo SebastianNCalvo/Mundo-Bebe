@@ -1,46 +1,79 @@
+/* --- CONTENEDOR PRINCIPAL --- */
 .inventario-container {
   width: 100%;
   background: white;
-  border-radius: 20px;
-  padding: 15px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-  box-sizing: border-box;
-  border: 1px solid #cfd8dc;
-}
-
-/* --- TARJETA DE CAPITAL TOTAL (Estética Bebé) --- */
-.card-total-inventario {
-  /* Degradado de Verde Menta a Celeste Dulce */
-  background: linear-gradient(135deg, #b2dfdb, #81d4fa);
-  color: #263238; /* Texto oscuro para legibilidad sobre pastel */
+  border-radius: 24px;
   padding: 20px;
-  border-radius: 20px;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 12px rgba(178, 223, 219, 0.4);
-  text-align: left;
-  border: 2px solid #37474f; /* Borde marcado */
+  box-sizing: border-box;
+  border: 2.5px solid #37474f;
+  box-shadow: 4px 4px 0px #37474f;
 }
 
-.card-total-inventario small {
+.titulo-seccion {
+  text-align: center;
   color: #37474f;
   font-weight: 800;
-  text-transform: uppercase;
-  font-size: 0.7rem;
-  letter-spacing: 0.5px;
+  margin-bottom: 20px;
 }
 
-.card-total-inventario span {
+/* --- TARJETA DE CAPITAL TOTAL --- */
+.card-total-inventario {
+  background: linear-gradient(135deg, #b2dfdb, #81d4fa);
+  color: #263238;
+  padding: 20px;
+  border-radius: 20px;
+  margin-bottom: 25px;
+  border: 2.5px solid #37474f;
+  box-shadow: 4px 4px 0px #37474f;
+}
+
+.label-capital {
   display: block;
-  font-size: 1.8rem;
   font-weight: 800;
-  margin-top: 5px;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
 }
 
-/* --- Tabla de Inventario --- */
+.monto-capital {
+  font-size: 2rem;
+  font-weight: 900;
+}
+
+/* --- BUSCADOR --- */
+.buscador-container {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  padding: 12px 18px;
+  border-radius: 50px;
+  margin-bottom: 25px;
+  border: 2.5px solid #37474f;
+  transition: all 0.2s ease;
+}
+
+.buscador-container:focus-within {
+  border-color: #f06292;
+  box-shadow: 0 0 10px rgba(240, 98, 146, 0.2);
+}
+
+.input-busqueda {
+  border: none;
+  background: transparent;
+  width: 100%;
+  outline: none;
+  font-size: 1rem;
+  margin-left: 10px;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+}
+
+/* --- TABLA WRAPPER --- */
 .tabla-wrapper {
-  overflow-x: auto;
-  border-radius: 15px;
-  border: 2px solid #37474f; /* Borde general de la tabla */
+  width: 100%;
+  /* Evita que la tabla empuje el layout */
+  overflow: hidden; 
 }
 
 .tabla-inventario {
@@ -49,108 +82,137 @@
   border-spacing: 0;
 }
 
+/* --- RESPONSIVE: DE TABLA A CARDS (Mobile-First) --- */
+@media (max-width: 768px) {
+  .inventario-container {
+    background: transparent;
+    padding: 0;
+    border: none;
+    box-shadow: none;
+  }
+
+  .tabla-inventario thead {
+    display: none; /* Oculta cabeceras en móvil */
+  }
+
+  .tabla-inventario tr {
+    display: block;
+    background: white;
+    border: 2.5px solid #37474f;
+    border-radius: 20px;
+    margin-bottom: 15px;
+    padding: 15px;
+    box-shadow: 4px 4px 0px #37474f;
+  }
+
+  .tabla-inventario td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+    text-align: right;
+  }
+
+  .tabla-inventario td:last-child {
+    border-bottom: none;
+    justify-content: center;
+    padding-top: 15px;
+  }
+
+  /* Uso de los data-labels que pusimos en el JSX */
+  .tabla-inventario td::before {
+    content: attr(data-label);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    color: #4fc3f7;
+    text-align: left;
+    flex: 1;
+  }
+
+  .acciones-botones, .acciones-edit-row {
+    display: flex;
+    gap: 15px;
+  }
+}
+
+/* --- VISTA ESCRITORIO --- */
+@media (min-width: 769px) {
+  .tabla-inventario th {
+    background-color: #f1f8e9;
+    color: #37474f;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    padding: 18px;
+    border-bottom: 2.5px solid #37474f;
+    text-align: left;
+  }
+
+  .tabla-inventario td {
+    padding: 16px;
+    border-bottom: 1px solid #cfd8dc;
+    color: #263238;
+  }
+}
+
+/* --- ESTADOS Y BOTONES --- */
+.badge-talle {
+  background: #e1f5fe;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-weight: 800;
+  color: #0288d1;
+  border: 1.5px solid #37474f;
+}
+
+.bajo-stock {
+  color: #d81b60 !important;
+  font-weight: 900;
+  background: #fff1f5;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.input-edit-celda {
+  width: 100%;
+  padding: 8px;
+  border: 2px solid #37474f;
+  border-radius: 10px;
+  outline: none;
+  background: #fffdf7;
+  font-family: inherit;
+  font-weight: 600;
+}
+
+.btn-editar-icono, .btn-eliminar-icono, .btn-save-inline, .btn-cancel-inline {
+  background: white;
+  border: 2px solid #37474f;
+  border-radius: 8px;
+  padding: 5px 10px;
+  cursor: pointer;
+  font-size: 1.1rem;
+  transition: transform 0.1s;
+}
+
+.btn-editar-icono:active, .btn-eliminar-icono:active {
+  transform: scale(0.9);
+}
+
+.mensaje-vacio {
+  text-align: center;
+  padding: 30px;
+  font-weight: 700;
+  color: #90a4ae;
+}
+
+/* --- ANIMACIONES --- */
 @keyframes brillo-exito {
-  0% { background-color: rgba(178, 223, 219, 0.5); }
+  0% { background-color: #c8e6c9; }
   100% { background-color: transparent; }
 }
 
 .fila-actualizada {
   animation: brillo-exito 2s ease-out;
-}
-
-.tabla-inventario th {
-  background-color: #f1f8e9; /* Fondo menta muy suave */
-  color: #37474f; /* Texto oscuro */
-  font-weight: 800;
-  text-transform: uppercase;
-  font-size: 0.8rem;
-  padding: 15px;
-  border-bottom: 2px solid #37474f; /* Línea de cabecera marcada */
-}
-
-.tabla-inventario td {
-  padding: 16px 15px;
-  border-bottom: 1px solid #cfd8dc;
-  color: #263238;
-  font-size: 0.95rem;
-}
-
-.bajo-stock {
-  color: #d81b60 !important; /* Rosa intenso para alertas */
-  font-weight: bold;
-}
-
-.badge-talle {
-  background: #e1f5fe; /* Celeste pastel */
-  padding: 4px 8px;
-  border-radius: 6px;
-  font-weight: 700;
-  color: #0288d1;
-  border: 1px solid #37474f; /* Badge definido */
-}
-
-/* --- Buscador --- */
-.buscador-container {
-  display: flex;
-  align-items: center;
-  background: #ffffff;
-  padding: 10px 15px;
-  border-radius: 50px;
-  margin-bottom: 20px;
-  border: 2px solid #37474f; /* Borde oscuro marcado */
-  transition: all 0.3s ease;
-}
-
-.buscador-container:focus-within {
-  border-color: #f06292; /* Rosa al enfocar */
-  box-shadow: 0 4px 12px rgba(240, 98, 146, 0.2);
-}
-
-.input-busqueda {
-  border: none;
-  background: transparent;
-  width: 100%;
-  outline: none;
-  font-size: 16px;
-  color: #263238;
-  margin-left: 10px;
-}
-
-.input-edit-celda {
-  width: 100%;
-  padding: 6px 10px;
-  border: 2px solid #37474f; /* Input de edición marcado */
-  border-radius: 8px;
-  font-size: 0.9rem;
-  color: #263238;
-  outline: none;
-  background: #fffdf7;
-}
-
-/* --- Botones --- */
-.btn-eliminar {
-  color: #c62828;
-}
-
-.btn-save {
-  color: #2e7d32;
-}
-
-/* --- Mobile --- */
-@media (max-width: 768px) {
-  .inventario-container { background: transparent; padding: 0; box-shadow: none; border: none; }
-  
-  .tabla-inventario tr {
-    display: block;
-    background: #ffffff;
-    border-radius: 18px;
-    margin-bottom: 15px;
-    padding: 15px;
-    border: 2px solid #37474f; /* Cards móviles con borde marcado */
-  }
-
-  .tabla-inventario td::before {
-    color: #4fc3f7; /* Títulos de celda en Celeste */
-    font-weight: 800;
-  }
 }

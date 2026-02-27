@@ -1,173 +1,219 @@
-/* --- 1. Dashboard de Balance Interactivo --- */
+/* --- 1. CONTENEDOR Y BALANCE --- */
+.historial-container-nuevo {
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .dashboard-balance {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 12px;
+  margin-bottom: 25px;
 }
 
-.card-balance {
+.card-balance-n {
   background: white;
-  padding: 20px;
+  padding: 15px;
   border-radius: 20px;
   text-align: center;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+  border: 2.5px solid #37474f;
+  box-shadow: 4px 4px 0px #37474f;
+  cursor: pointer;
+  transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  transition: all 0.3s ease;
-  border: 2px solid #37474f; /* Bordes marcados por defecto */
-  cursor: pointer;
+  gap: 5px;
 }
 
-.card-balance:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(129, 212, 250, 0.2);
+.card-balance-n:active { transform: scale(0.95); }
+
+.card-balance-n.activa {
+  background: #fffdf7;
+  border-color: #f06292;
+  box-shadow: 4px 4px 0px #f06292;
 }
 
-.card-balance.activa {
-  background: #fffdf7; /* Fondo vainilla suave cuando está activa */
-  transform: scale(1.02);
-  box-shadow: 0 0 15px rgba(240, 98, 146, 0.2);
-  border-width: 3px; /* Resalta más al estar activa */
-}
-
-.card-balance small {
-  font-size: 0.75rem;
+.card-balance-n small {
+  font-size: 0.7rem;
   font-weight: 800;
   text-transform: uppercase;
-  margin-bottom: 5px;
-  color: #37474f; /* Texto oscuro para etiquetas */
+  color: #37474f;
 }
 
-.card-balance span {
-  font-size: 1.4rem;
-  font-weight: 800;
+.card-balance-n span {
+  font-size: 1.2rem;
+  font-weight: 900;
 }
 
-/* Colores de estados en pastel pero legibles */
-.ingresos span { color: #0288d1; } /* Celeste fuerte */
-.egresos span { color: #d81b60; }  /* Rosa fuerte */
+/* Colores de Balance */
+.ingresos span { color: #0288d1; }
+.egresos span { color: #d81b60; }
+.resultado.positivo { background: #e1f5fe; }
+.resultado.negativo { background: #fce4ec; }
+.cortesia span { color: #e67e22; }
 
-.resultado.positivo { background: #e1f5fe; } /* Celeste pastel */
-.resultado.negativo { background: #fce4ec; } /* Rosa pastel */
-
-.resultado.positivo.activa { border-color: #0288d1; }
-.resultado.negativo.activa { border-color: #d81b60; }
-
-/* --- 2. Filtros --- */
-.historial-filtros {
+/* --- 2. FILTROS --- */
+.historial-filtros-n {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 25px;
   background: #fdfbff;
   padding: 15px;
-  border-radius: 20px;
-  border: 2px solid #37474f; /* Contenedor de filtros con borde */
+  border-radius: 22px;
+  border: 2.5px solid #37474f;
 }
 
-.historial-filtros select {
-  padding: 10px 15px;
+.input-filtro-historial {
+  padding: 12px;
   border-radius: 12px;
   border: 2px solid #37474f;
-  background-color: white !important;
-  color: #263238 !important;
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-family: inherit;
+  font-weight: 600;
   outline: none;
-  cursor: pointer;
-  flex: 1;
-  max-width: 200px;
-  text-align: center;
-  appearance: none;
 }
 
-/* --- 3. Tablas --- */
+.selects-filtros-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.selects-filtros-row select {
+  padding: 10px;
+  border-radius: 12px;
+  border: 2px solid #37474f;
+  font-weight: 700;
+  font-size: 0.85rem;
+  background: white;
+  outline: none;
+}
+
+/* --- 3. TABLAS Y CARDS --- */
 .tabla-historial-wrapper {
   background: white;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 4px 15px rgba(0,0,0,0.03);
-  margin-bottom: 30px;
-  border: 2px solid #37474f; /* Wrapper con borde marcado */
+  border-radius: 22px;
+  padding: 15px;
+  margin-bottom: 25px;
+  border: 2.5px solid #37474f;
+  box-shadow: 4px 4px 0px #37474f;
+  overflow: hidden;
 }
 
-.tabla-historial-wrapper h3 {
-  color: #0288d1;
+.titulo-tabla {
   font-size: 1.1rem;
+  font-weight: 900;
   margin-bottom: 15px;
-  border-left: 6px solid #f06292; /* Detalle rosa a la izquierda */
   padding-left: 10px;
-  text-align: left;
-  font-weight: 800;
+  border-left: 6px solid #f06292;
+  color: #37474f;
 }
 
-.tabla-inventario {
+.tabla-historial {
   width: 100%;
   border-collapse: collapse;
 }
 
-.tabla-inventario th, 
-.tabla-inventario td {
-  padding: 15px;
-  border-bottom: 1px solid #cfd8dc;
-  font-size: 0.9rem;
-  text-align: center !important;
-  vertical-align: middle;
-  color: #263238;
+/* --- RESPONSIVE CELULARES --- */
+@media (max-width: 768px) {
+  .tabla-historial thead { display: none; }
+
+  .tabla-historial tr {
+    display: block;
+    padding: 12px;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 10px;
+  }
+
+  .tabla-historial td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    font-size: 0.9rem;
+    text-align: right;
+  }
+
+  .tabla-historial td::before {
+    content: attr(data-label);
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    color: #0288d1;
+    text-align: left;
+  }
+
+  /* Ajuste para la lista de productos en la card */
+  .celda-productos-lista {
+    flex-direction: column;
+    align-items: flex-end !important;
+  }
+
+  .acciones-botones-historial {
+    justify-content: center;
+    padding-top: 10px;
+    gap: 20px;
+  }
 }
 
-.tabla-inventario th {
-  color: #37474f;
-  text-transform: uppercase;
-  font-size: 0.7rem;
+/* --- VISTA PC --- */
+@media (min-width: 769px) {
+  .tabla-historial th {
+    background: #f1fafa;
+    padding: 15px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-bottom: 2px solid #37474f;
+  }
+  .tabla-historial td {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+    text-align: center;
+  }
+  .historial-filtros-n { flex-direction: row; }
+  .input-filtro-historial { flex: 2; }
+  .selects-filtros-row { flex: 3; }
+}
+
+/* --- ESTILOS DE CELDAS ESPECÍFICOS --- */
+.badge-cambio-aviso {
+  display: block;
+  font-size: 10px;
+  color: #e67e22;
   font-weight: 800;
-  background-color: #f1fafa;
 }
 
-/* --- Modal --- */
-.modal-content {
-  background: white;
-  padding: 25px;
-  border-radius: 25px;
-  width: 90%;
-  max-width: 400px;
-  border: 3px solid #37474f; /* Modal muy definido */
-}
-
-/* --- Tags --- */
 .tag-pago {
-  padding: 6px 10px;
+  padding: 5px 8px;
   border-radius: 8px;
   font-size: 0.7rem;
   font-weight: 800;
-  text-transform: uppercase;
-  border: 1px solid #37474f; /* Tags con borde para estilo "sticker" */
+  border: 1.5px solid #37474f;
 }
 
 .tag-pago.efectivo { background: #c8e6c9; color: #2e7d32; }
 .tag-pago.transferencia { background: #bbdefb; color: #1565c0; }
-.tag-pago.débito, .tag-pago.crédito { background: #f3e5f5; color: #7b1fa2; }
 
-.tag-categoria {
-  background: #fff9c4; /* Amarillo vainilla */
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  color: #37474f;
-  font-weight: 700;
-  border: 1px solid #37474f;
+.monto-negativo { color: #d81b60; font-weight: 800; }
+.celda-flujo { font-size: 0.85rem; font-weight: 600; }
+.sale { color: #d81b60; }
+.entra { color: #2e7d32; }
+
+.btn-historial-accion, .btn-historial-eliminar {
+  background: white;
+  border: 2px solid #37474f;
+  padding: 5px 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
 }
 
-@media (max-width: 768px) {
-  .tabla-inventario tr {
-    border: 2px solid #37474f; /* Cards en móvil con borde marcado */
-    margin-bottom: 20px;
-  }
-  .tabla-inventario td::before {
-    color: #0288d1;
-    font-weight: 800;
-  }
+.btn-historial-eliminar { color: #d81b60; }
+
+.cargando-historial {
+  text-align: center;
+  padding: 50px;
+  font-weight: 800;
+  color: #0288d1;
 }
