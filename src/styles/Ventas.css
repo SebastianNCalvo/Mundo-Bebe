@@ -124,6 +124,17 @@
   padding: 0;
 }
 
+.btn-borrar-item{
+  background-color: #c62828;
+  border-radius: 30%;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 20px;
+}
+
 /* --- Footer y Totales --- */
 .carrito-footer {
   background: #fdfbff;

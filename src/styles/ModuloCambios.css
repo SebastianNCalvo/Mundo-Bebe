@@ -1,7 +1,7 @@
 /* --- CONTENEDOR PRINCIPAL --- */
 .modulo-cambios {
   width: 100%;
-  max-width: 700px; /* Reducido para que en PC no se vea tan estirado al ser filas */
+  max-width: 700px;
   margin: 10px auto;
   padding: 15px;
   background: white;
@@ -15,16 +15,22 @@
   color: var(--color-acento);
   font-size: 1.3rem;
   margin-bottom: 20px;
+  font-weight: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
 /* --- BUSCADOR --- */
 .buscador-seccion {
   display: flex;
-  flex-direction: column; /* Filas una debajo de otra */
+  flex-direction: column;
   gap: 10px;
   margin-bottom: 20px;
 }
 
+/* FIX: Input con fondo blanco y letra clara */
 .input-busqueda-venta {
   padding: 14px;
   border: 2px solid var(--color-borde);
@@ -32,6 +38,9 @@
   font-size: 1rem;
   font-family: inherit;
   outline: none;
+  background-color: white !important; /* Forza fondo blanco */
+  color: var(--color-texto) !important; /* Forza color de texto oscuro */
+  font-weight: 600;
 }
 
 .btn-buscar-venta {
@@ -43,12 +52,18 @@
   font-weight: 800;
   cursor: pointer;
   box-shadow: 2px 2px 0px var(--color-borde);
+  transition: transform 0.1s;
 }
 
-/* --- CUERPO DEL MODULO (APILADO) --- */
+.btn-buscar-venta:active {
+  transform: translate(1px, 1px);
+  box-shadow: 1px 1px 0px var(--color-borde);
+}
+
+/* --- CUERPO DEL MODULO --- */
 .detalles-cambio {
   display: flex;
-  flex-direction: column; /* Asegura filas una debajo de otra */
+  flex-direction: column;
   gap: 20px;
 }
 
@@ -56,21 +71,24 @@
   font-size: 0.85rem;
   color: #546e7a;
   text-align: center;
-  padding: 8px;
+  padding: 10px;
   background: #f1f8e9;
-  border-radius: 10px;
-  border: 1px dashed var(--color-borde);
+  border-radius: 12px;
+  border: 2px dashed var(--color-borde);
+  font-weight: 600;
 }
 
 .card-cambio {
   border: 2px solid var(--color-borde);
   padding: 15px;
-  border-radius: 15px;
+  border-radius: 20px;
   background: #ffffff;
+  box-shadow: 3px 3px 0px #eee;
 }
 
 .subtitulo-card {
   font-size: 1rem;
+  font-weight: 800;
   margin-top: 0;
   margin-bottom: 15px;
   color: var(--color-texto);
@@ -88,59 +106,73 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-radius: 10px;
-  transition: 0.2s;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  color: var(--color-texto);
 }
 
 .item-devolucion.seleccionado {
   border-color: var(--color-acento);
   background: #e3f2fd;
   transform: translateX(5px);
+  box-shadow: -4px 0px 0px var(--color-acento);
 }
 
 .item-nombre {
-  font-weight: 600;
+  font-weight: 700;
   font-size: 0.95rem;
 }
 
 /* --- BUSQUEDA DE PRODUCTO NUEVO --- */
+/* FIX: Aseguramos fondo blanco en el buscador de productos */
 .input-nuevo-producto {
   width: 100%;
   padding: 12px;
   border: 2px solid var(--color-borde);
   border-radius: 10px;
   margin-bottom: 5px;
+  background-color: white !important;
+  color: var(--color-texto) !important;
+  font-weight: 600;
 }
 
 .lista-resultados {
-  max-height: 150px;
+  max-height: 180px;
   overflow-y: auto;
-  border: 1px solid #eee;
-  border-radius: 8px;
+  border: 2px solid #eee;
+  border-radius: 10px;
   margin-bottom: 10px;
+  background: white;
 }
 
 .resultado-item {
-  padding: 10px;
+  padding: 12px;
   border-bottom: 1px solid #eee;
   cursor: pointer;
   font-size: 0.9rem;
+  color: var(--color-texto);
+}
+
+.resultado-item:hover {
+  background-color: var(--color-secundario);
 }
 
 .producto-seleccionado-badge {
-  padding: 10px;
+  padding: 12px;
   background: var(--color-secundario);
   border: 2px solid var(--color-borde);
-  border-radius: 10px;
+  border-radius: 12px;
   font-size: 0.9rem;
   margin-top: 5px;
+  font-weight: 700;
+  color: var(--color-texto);
 }
 
 /* --- RESUMEN Y LIQUIDACION --- */
 .resumen-final {
   background: #f8f9fa;
   padding: 20px;
-  border-radius: 15px;
+  border-radius: 20px;
   border: 2px solid var(--color-borde);
   box-shadow: 4px 4px 0px var(--color-borde);
 }
@@ -149,7 +181,8 @@
   display: flex;
   justify-content: space-between;
   margin-bottom: 15px;
-  font-weight: 700;
+  font-weight: 800;
+  color: var(--color-texto);
 }
 
 .monto-diferencia.positivo { color: var(--color-peligro); }
@@ -161,8 +194,8 @@
   gap: 10px;
   margin: 15px 0;
   color: var(--color-peligro);
-  font-weight: 800;
-  font-size: 0.9rem;
+  font-weight: 900;
+  font-size: 0.95rem;
   cursor: pointer;
 }
 
@@ -172,30 +205,32 @@
   justify-content: space-between;
   margin: 15px 0;
   padding-top: 15px;
-  border-top: 2px dashed var(--color-borde);
+  border-top: 2.5px dashed var(--color-borde);
 }
 
 .monto-total-final {
   color: var(--color-acento);
   font-size: 1.6rem;
+  font-weight: 900;
 }
 
 .btn-confirmar-cambio {
   width: 100%;
-  padding: 16px;
+  padding: 18px;
   background: var(--color-exito);
   color: white;
   border: 2px solid var(--color-borde);
-  border-radius: 12px;
+  border-radius: 15px;
   font-weight: 900;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
   cursor: pointer;
-  box-shadow: 3px 3px 0px var(--color-borde);
+  box-shadow: 4px 4px 0px var(--color-borde);
+  transition: all 0.1s;
 }
 
 .btn-confirmar-cambio:active {
   transform: translate(2px, 2px);
-  box-shadow: 0px 0px 0px var(--color-borde);
+  box-shadow: 1px 1px 0px var(--color-borde);
 }
 
 /* --- MEDIA QUERIES (PC) --- */

@@ -72,7 +72,6 @@
 /* --- TABLA WRAPPER --- */
 .tabla-wrapper {
   width: 100%;
-  /* Evita que la tabla empuje el layout */
   overflow: hidden; 
 }
 
@@ -92,7 +91,7 @@
   }
 
   .tabla-inventario thead {
-    display: none; /* Oculta cabeceras en móvil */
+    display: none; 
   }
 
   .tabla-inventario tr {
@@ -120,7 +119,6 @@
     padding-top: 15px;
   }
 
-  /* Uso de los data-labels que pusimos en el JSX */
   .tabla-inventario td::before {
     content: attr(data-label);
     font-weight: 800;
@@ -186,18 +184,43 @@
   font-weight: 600;
 }
 
+/* BOTONES ACTUALIZADOS PARA VISIBILIDAD */
 .btn-editar-icono, .btn-eliminar-icono, .btn-save-inline, .btn-cancel-inline {
-  background: white;
   border: 2px solid #37474f;
-  border-radius: 8px;
-  padding: 5px 10px;
+  border-radius: 10px;
+  padding: 8px 12px;
   cursor: pointer;
-  font-size: 1.1rem;
-  transition: transform 0.1s;
+  font-size: 1.2rem;
+  transition: all 0.1s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 2px 2px 0px #37474f;
+}
+
+.btn-editar-icono {
+  background-color: #e1f5fe !important; /* Celeste */
+  color: #0288d1 !important;
+}
+
+.btn-eliminar-icono {
+  background-color: #fce4ec !important; /* Rosa */
+  color: #d81b60 !important;
+}
+
+.btn-save-inline {
+  background-color: #a5d6a7 !important; /* Verde éxito */
+  color: #2e7d32 !important;
+}
+
+.btn-cancel-inline {
+  background-color: #eee !important;
+  color: #37474f !important;
 }
 
 .btn-editar-icono:active, .btn-eliminar-icono:active {
-  transform: scale(0.9);
+  transform: translate(1px, 1px);
+  box-shadow: 0px 0px 0px #37474f;
 }
 
 .mensaje-vacio {

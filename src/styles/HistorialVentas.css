@@ -45,7 +45,6 @@
   font-weight: 900;
 }
 
-/* Colores de Balance */
 .ingresos span { color: #0288d1; }
 .egresos span { color: #d81b60; }
 .resultado.positivo { background: #e1f5fe; }
@@ -67,10 +66,24 @@
 .input-filtro-historial {
   padding: 12px;
   border-radius: 12px;
-  border: 2px solid #37474f;
+  border: 2.5px solid #37474f;
   font-family: inherit;
-  font-weight: 600;
+  font-weight: 700;
   outline: none;
+  background: white;
+  color: #37474f;
+}
+
+.selects-filtros-row select {
+  padding: 10px;
+  border-radius: 12px;
+  border: 2.5px solid #37474f;
+  font-weight: 800;
+  font-size: 0.85rem;
+  background: white;
+  color: #37474f;
+  outline: none;
+  appearance: none;
 }
 
 .selects-filtros-row {
@@ -79,25 +92,10 @@
   gap: 8px;
 }
 
-.selects-filtros-row select {
-  padding: 10px;
-  border-radius: 12px;
-  border: 2px solid #37474f;
-  font-weight: 700;
-  font-size: 0.85rem;
-  background: white;
-  outline: none;
-}
-
 /* --- 3. TABLAS Y CARDS --- */
 .tabla-historial-wrapper {
-  background: white;
-  border-radius: 22px;
-  padding: 15px;
+  background: transparent;
   margin-bottom: 25px;
-  border: 2.5px solid #37474f;
-  box-shadow: 4px 4px 0px #37474f;
-  overflow: hidden;
 }
 
 .titulo-tabla {
@@ -111,28 +109,78 @@
 
 .tabla-historial {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: collapse; 
+}
+
+/* --- 4. LISTA DE PRODUCTOS (GENERAL) --- */
+.item-producto-historial {
+  display: inline-block;
+  padding: 4px 8px;
+  margin: 2px 0; 
+  background: #f1f8e9;
+  border-radius: 8px;
+  border: 1px solid #cfd8dc;
+  font-size: 0.85rem;
+  line-height: 1.2;
+}
+
+.prod-nombre {
+  font-weight: 800;
+  color: #37474f;
+}
+
+.prod-meta {
+  color: #546e7a;
+  font-weight: 600;
+  font-size: 0.8rem;
 }
 
 /* --- RESPONSIVE CELULARES --- */
 @media (max-width: 768px) {
+  .tabla-historial {
+    border-collapse: separate;
+    border-spacing: 0 12px;
+  }
+
   .tabla-historial thead { display: none; }
 
   .tabla-historial tr {
     display: block;
-    padding: 12px;
-    border-bottom: 2px solid #eee;
-    margin-bottom: 10px;
+    background: white;
+    padding: 15px;
+    border: 2.5px solid #37474f;
+    border-radius: 20px;
+    box-shadow: 4px 4px 0px #37474f;
+    margin-bottom: 15px;
   }
 
   .tabla-historial td {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 8px 0;
+    padding: 10px 0;
     font-size: 0.9rem;
-    text-align: right;
+    border-bottom: 1px dashed #ddd;
   }
+
+  .tabla-historial td.celda-productos-lista,
+  .tabla-historial td.celda-flujo {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end; 
+    padding-top: 12px;
+  }
+
+  /* REPARACIÓN: Forzamos la etiqueta azul a la izquierda */
+  .tabla-historial td.celda-productos-lista::before,
+  .tabla-historial td.celda-flujo::before {
+    align-self: flex-start; /* Esto la empuja a la izquierda aunque los productos vayan a la derecha */
+    margin-bottom: 5px;
+  }
+
+  .item-producto-historial { text-align: right; }
+
+  .tabla-historial td:last-child { border-bottom: none; }
 
   .tabla-historial td::before {
     content: attr(data-label);
@@ -142,78 +190,85 @@
     color: #0288d1;
     text-align: left;
   }
-
-  /* Ajuste para la lista de productos en la card */
-  .celda-productos-lista {
-    flex-direction: column;
-    align-items: flex-end !important;
-  }
-
-  .acciones-botones-historial {
-    justify-content: center;
-    padding-top: 10px;
-    gap: 20px;
-  }
 }
 
 /* --- VISTA PC --- */
 @media (min-width: 769px) {
+  .tabla-historial-wrapper {
+    background: white;
+    border: 2.5px solid #37474f;
+    box-shadow: 4px 4px 0px #37474f;
+    padding: 20px;
+    border-radius: 22px;
+    overflow: hidden;
+  }
+  
+  .tabla-historial {
+    border-collapse: collapse; 
+  }
+
   .tabla-historial th {
     background: #f1fafa;
     padding: 15px;
     font-size: 0.75rem;
     font-weight: 800;
     text-transform: uppercase;
-    border-bottom: 2px solid #37474f;
+    border-bottom: 3px solid #37474f;
+    color: #37474f;
   }
+
   .tabla-historial td {
-    padding: 15px;
-    border-bottom: 1px solid #eee;
+    padding: 20px 10px; 
+    border-bottom: 2px solid #37474f !important; 
     text-align: center;
+    vertical-align: middle;
+    background: white;
   }
+
+  .celda-productos-lista,
+  .celda-flujo {
+    display: table-cell; 
+    min-width: unset;
+  }
+
+  .tabla-historial tr:last-child td {
+    border-bottom: none !important;
+  }
+
   .historial-filtros-n { flex-direction: row; }
   .input-filtro-historial { flex: 2; }
   .selects-filtros-row { flex: 3; }
 }
 
-/* --- ESTILOS DE CELDAS ESPECÍFICOS --- */
-.badge-cambio-aviso {
-  display: block;
-  font-size: 10px;
-  color: #e67e22;
-  font-weight: 800;
-}
-
+/* --- ESTILOS DE ELEMENTOS --- */
 .tag-pago {
   padding: 5px 8px;
   border-radius: 8px;
   font-size: 0.7rem;
   font-weight: 800;
   border: 1.5px solid #37474f;
+  background: white;
 }
 
-.tag-pago.efectivo { background: #c8e6c9; color: #2e7d32; }
-.tag-pago.transferencia { background: #bbdefb; color: #1565c0; }
-
-.monto-negativo { color: #d81b60; font-weight: 800; }
-.celda-flujo { font-size: 0.85rem; font-weight: 600; }
-.sale { color: #d81b60; }
-.entra { color: #2e7d32; }
+.acciones-botones-historial {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
 
 .btn-historial-accion, .btn-historial-eliminar {
   background: white;
-  border: 2px solid #37474f;
-  padding: 5px 10px;
-  border-radius: 8px;
+  border: 2.5px solid #37474f;
+  padding: 8px 12px;
+  border-radius: 12px;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  box-shadow: 2px 2px 0px #37474f;
 }
 
-.btn-historial-eliminar { color: #d81b60; }
-
-.cargando-historial {
-  text-align: center;
-  padding: 50px;
-  font-weight: 800;
-  color: #0288d1;
+.btn-historial-eliminar:active { 
+  background: #fce4ec; 
+  transform: translate(1px, 1px); 
+  box-shadow: 0px 0px 0px #37474f; 
 }

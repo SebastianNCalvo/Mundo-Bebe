@@ -192,13 +192,19 @@ const HistorialVentas = () => {
           {ventasFiltradas.map(venta => (
             <tr key={venta.id} className={idRecienActualizado === venta.id ? 'fila-actualizada' : ''}>
               <td data-label="Código" className="celda-codigo">
-                {venta.codigo_venta || '---'}
+                <span className="codigo-texto">{venta.codigo_venta || '---'}</span>
                 {cambios.some(c => c.venta_origen_id === venta.id) && <span className="badge-cambio-aviso">🔄 CAMBIO</span>}
               </td>
               <td data-label="Fecha/Hora">{formatearFechaHora(venta.fecha)}</td>
               <td data-label="Vendedor">{venta.vendedor_email?.split('@')[0]}</td>
+              {/* CAMBIO AQUÍ: Eliminamos el punto y estructuramos en filas de div */}
               <td data-label="Productos" className="celda-productos-lista">
-                {venta.ventas_detalle.map((d, i) => <div key={i}>• {d.productos?.nombre} (T:{d.productos?.talle}) x{d.cantidad}</div>)}
+                {venta.ventas_detalle.map((d, i) => (
+                  <div key={i} className="item-producto-historial">
+                    <span className="prod-nombre">{d.productos?.nombre}</span>
+                    <span className="prod-meta"> (T:{d.productos?.talle}) x{d.cantidad}</span>
+                  </div>
+                ))}
               </td>
               <td data-label="Pago"><span className={`tag-pago ${venta.metodo_pago?.toLowerCase()}`}>{venta.metodo_pago}</span></td>
               <td data-label="Total" className="texto-total-venta">${venta.total_total.toLocaleString('es-AR')}</td>
@@ -242,8 +248,16 @@ const HistorialVentas = () => {
                 </div>
               </td>
               <td data-label="Entra/Sale" className="celda-flujo">
-                <div className="entra">📥 {cambio.producto_devuelto?.nombre}</div>
-                <div className="sale">📤 {cambio.producto_nuevo?.nombre}</div>
+                <div className="item-flujo entra">
+                  <span className="icono-flujo">📥</span> 
+                  <span className="prod-nombre">{cambio.producto_devuelto?.nombre}</span>
+                  <span className="prod-meta"> (T:{cambio.producto_devuelto?.talle})</span>
+                </div>
+                <div className="item-flujo sale">
+                  <span className="icono-flujo">📤</span> 
+                  <span className="prod-nombre">{cambio.producto_nuevo?.nombre}</span>
+                  <span className="prod-meta"> (T:{cambio.producto_nuevo?.talle})</span>
+                </div>
               </td>
               <td data-label="Cortesía" className="monto-cortesia">${cambio.monto_cortesia.toLocaleString('es-AR')}</td>
               <td data-label="Cobrado" className="texto-total-venta">${cambio.monto_cobrado.toLocaleString('es-AR')}</td>
@@ -291,7 +305,7 @@ const HistorialVentas = () => {
 
   return (
     <div className="historial-container-nuevo">
-      {/* MODALES - Los mantenemos igual pero asegúrate de que el CSS de modales sea global */}
+      {/* MODALES */}
       {editandoGasto && (
         <div className="modal-overlay animar-fade">
           <div className="modal-content animar-slide">
