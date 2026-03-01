@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { supabase } from '../supabaseClient';
+import NotaDeCredito from './NotaDeCredito';
 import '../styles/ModuloCambios.css';
 
 const ModuloCambios = ({ sesion, alTerminar }) => {
@@ -13,26 +14,50 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
   const [resultadosBusqueda, setResultadosBusqueda] = useState([]);
   const [cortesia, setCortesia] = useState(false);
   const [pestanaActiva, setPestanaActiva] = useState('devolucion');
+  const [mostrarNC, setMostrarNC] = useState(false);
 
   const buscarVenta = async () => {
+    setVentaOriginal(null);
+    setProductosADevolver([]);
+    setProductosNuevos([]);
+
     const { data, error } = await supabase
       .from('ventas_cabecera')
-      .select(`id, codigo_venta, total_total, metodo_pago, vendedor_email, ventas_detalle(cantidad, precio_unitario, producto_id, productos(nombre, talle))`)
-      .eq('codigo_venta', codigoBusqueda.toUpperCase())
+      .select(`
+        id, 
+        codigo_venta, 
+        total_total, 
+        metodo_pago, 
+        vendedor_email, 
+        ventas_detalle (
+          cantidad, 
+          precio_unitario, 
+          producto_id, 
+          productos (
+            nombre, 
+            talle
+          )
+        )
+      `)
+      .eq('codigo_venta', codigoBusqueda.toUpperCase().trim())
       .single();
 
     if (error || !data) {
-      alert("No se encontró ninguna venta con ese código.");
+      console.error("Error de búsqueda:", error);
+      alert("No se encontró la venta. Verificá el código.");
       return;
     }
+
     setVentaOriginal(data);
-    setProductosADevolver([]);
-    setProductosNuevos([]);
+    setMostrarNC(false);
   };
 
   const buscarProductoNuevo = async (termino) => {
     setBusquedaNuevo(termino);
-    if (termino.length < 2) return;
+    if (termino.length < 2) {
+      setResultadosBusqueda([]);
+      return;
+    }
     const { data } = await supabase
       .from('productos')
       .select('*')
@@ -42,10 +67,8 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
     setResultadosBusqueda(data || []);
   };
 
-  // LÓGICA DE CANTIDADES PARA DEVOLUCIÓN
   const ajustarCantidadDevolucion = (item, delta) => {
     const existe = productosADevolver.find(p => p.producto_id === item.producto_id);
-    
     if (existe) {
       const nuevaCant = existe.cantidad_a_devolver + delta;
       if (nuevaCant <= 0) {
@@ -66,7 +89,6 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
     }
   };
 
-  // NUEVA LÓGICA DE CANTIDADES PARA PRODUCTOS NUEVOS
   const ajustarCantidadNuevo = (producto, delta) => {
     const existe = productosNuevos.find(p => p.id === producto.id);
     if (existe) {
@@ -83,7 +105,6 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
     }
   };
 
-  // Cálculos totales corregidos
   const totalDevuelto = productosADevolver.reduce((acc, p) => acc + (p.precio_unitario * p.cantidad_a_devolver), 0);
   const totalNuevo = productosNuevos.reduce((acc, p) => acc + (p.precio * p.cantidad), 0);
   const diferencia = totalNuevo - totalDevuelto;
@@ -91,12 +112,12 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
 
   const procesarCambio = async () => {
     if (productosADevolver.length === 0 || productosNuevos.length === 0) {
-      alert("Debes seleccionar productos en ambas columnas.");
+      alert("Debes seleccionar productos para devolver y productos nuevos.");
       return;
     }
 
     try {
-      // 1. Devoluciones: Sumar stock
+      // 1. Registrar Devoluciones y actualizar stock
       for (const p of productosADevolver) {
         await supabase.from('devoluciones').insert([{
           venta_origen_id: ventaOriginal.id,
@@ -107,31 +128,50 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
         await supabase.rpc('increment_stock', { row_id: p.producto_id, x: p.cantidad_a_devolver });
       }
 
-      // 2. Nuevos: Restar stock según cantidad seleccionada
+      // 2. Restar stock de productos nuevos
       for (const p of productosNuevos) {
         await supabase.rpc('increment_stock', { row_id: p.id, x: -p.cantidad });
       }
 
-      // 3. Registro histórico
+      // 3. Registro histórico del cambio (REFACTORIZADO PARA GUARDAR IDS DE PRODUCTOS)
       await supabase.from('cambios_registros').insert([{
         venta_origen_id: ventaOriginal.id,
-        producto_devuelto_id: productosADevolver[0].producto_id, 
-        producto_nuevo_id: productosNuevos[0].id,
+        producto_devuelto_id: productosADevolver[0]?.producto_id, // Tomamos el primer producto para el historial simplificado
+        producto_nuevo_id: productosNuevos[0]?.id,               // Tomamos el primer producto para el historial simplificado
         diferencia_total: diferencia,
         monto_cobrado: aPagar,
-        monto_cortesia: cortesia ? diferencia : 0,
+        monto_cortesia: cortesia ? (diferencia > 0 ? diferencia : 0) : 0,
         vendedor_email: ventaOriginal.vendedor_email, 
         vendedor_cambio_email: sesion?.user?.email   
       }]);
 
-      alert("✅ Cambio procesado correctamente.");
-      if (alTerminar) alTerminar();
-      setVentaOriginal(null);
+      if (diferencia < 0) {
+        setMostrarNC(true);
+      } else {
+        alert("✅ Cambio procesado correctamente.");
+        if (alTerminar) alTerminar();
+        setVentaOriginal(null);
+      }
     } catch (err) {
       console.error(err);
-      alert("Error crítico al procesar.");
+      alert("Ocurrió un error al procesar la operación.");
     }
   };
+
+  if (mostrarNC) {
+    return (
+      <NotaDeCredito 
+        ventaOriginal={ventaOriginal} 
+        montoAFavor={diferencia} 
+        sesion={sesion} 
+        alTerminar={() => {
+          if (alTerminar) alTerminar();
+          setVentaOriginal(null);
+          setMostrarNC(false);
+        }} 
+      />
+    );
+  }
 
   return (
     <div className="modulo-cambios">
@@ -144,6 +184,7 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
           placeholder="Código de Venta (MB-XXXX)" 
           value={codigoBusqueda} 
           onChange={(e) => setCodigoBusqueda(e.target.value)} 
+          onKeyDown={(e) => e.key === 'Enter' && buscarVenta()}
         />
         <button className="btn-buscar-venta" onClick={buscarVenta}>🔍 Buscar</button>
       </div>
@@ -155,19 +196,19 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
               className={`tab-btn ${pestanaActiva === 'devolucion' ? 'active' : ''}`}
               onClick={() => setPestanaActiva('devolucion')}
             >
-              1. Devuelven ({productosADevolver.reduce((acc, p) => acc + p.cantidad_a_devolver, 0)})
+              1. Devuelven ({productosADevolver.length})
             </button>
             <button 
               className={`tab-btn ${pestanaActiva === 'nuevo' ? 'active' : ''}`}
               onClick={() => setPestanaActiva('nuevo')}
             >
-              2. Se llevan ({productosNuevos.reduce((acc, p) => acc + p.cantidad, 0)})
+              2. Se llevan ({productosNuevos.length})
             </button>
           </div>
 
           {pestanaActiva === 'devolucion' && (
             <div className="card-cambio">
-              <h3 className="subtitulo-card">Productos de la venta:</h3>
+              <h3 className="subtitulo-card">Productos comprados:</h3>
               <div className="lista-items-cambio">
                 {ventaOriginal.ventas_detalle.map((item, i) => {
                   const seleccion = productosADevolver.find(p => p.producto_id === item.producto_id);
@@ -192,11 +233,11 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
 
           {pestanaActiva === 'nuevo' && (
             <div className="card-cambio">
-              <h3 className="subtitulo-card">Buscá los productos nuevos:</h3>
+              <h3 className="subtitulo-card">Buscar productos nuevos:</h3>
               <input 
                 type="text" 
                 className="input-nuevo-producto"
-                placeholder="Escribí nombre..." 
+                placeholder="Nombre del producto..." 
                 value={busquedaNuevo}
                 onChange={(e) => buscarProductoNuevo(e.target.value)}
               />
@@ -213,7 +254,7 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
                   <div key={i} className="item-devolucion-multiple seleccionado">
                     <div className="info-item-cambio">
                       <span className="item-nombre">{p.nombre}</span>
-                      <small className="item-stock-max">Precio unit: ${p.precio.toLocaleString('es-AR')}</small>
+                      <small className="item-stock-max">Precio: ${p.precio.toLocaleString('es-AR')}</small>
                     </div>
                     <div className="controles-cantidad">
                       <button className="btn-qty" onClick={() => ajustarCantidadNuevo(p, -1)}>-</button>
@@ -229,15 +270,15 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
           <div className="resumen-final">
             <div className="totales-flotantes">
               <div className="fila-resumen">
-                <span>Crédito por entrega:</span>
+                <span>Total Devolución:</span>
                 <strong>${totalDevuelto.toLocaleString('es-AR')}</strong>
               </div>
               <div className="fila-resumen">
-                <span>Total nuevos:</span>
+                <span>Total Nuevo:</span>
                 <strong>${totalNuevo.toLocaleString('es-AR')}</strong>
               </div>
               <div className={`fila-resumen diferencia ${diferencia >= 0 ? 'positivo' : 'negativo'}`}>
-                <span>{diferencia >= 0 ? 'Diferencia a pagar:' : 'Saldo a favor:'}</span>
+                <span>{diferencia >= 0 ? 'Diferencia a cobrar:' : 'Saldo a favor cliente:'}</span>
                 <strong>${Math.abs(diferencia).toLocaleString('es-AR')}</strong>
               </div>
             </div>
@@ -245,17 +286,17 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
             {diferencia > 0 && (
               <label className="checkbox-cortesia">
                 <input type="checkbox" checked={cortesia} onChange={() => setCortesia(!cortesia)} />
-                <span className="texto-cortesia">🎁 Bonificar diferencia</span>
+                <span className="texto-cortesia">Bonificar diferencia (Cortesía)</span>
               </label>
             )}
 
             <div className="total-caja-cambio">
-              <span>Total a cobrar:</span>
+              <span>Monto final en caja:</span>
               <strong className="monto-total-final">${aPagar.toLocaleString('es-AR')}</strong>
             </div>
 
             <button className="btn-confirmar-cambio" onClick={procesarCambio}>
-              Confirmar Operación
+              Confirmar e Imprimir
             </button>
           </div>
         </div>

@@ -1,0 +1,195 @@
+/* --- CONTENEDOR DE TRANSICIÓN --- */
+.seccion-nota-credito {
+  padding: 10px;
+  animation: fadeIn 0.3s ease-in-out;
+  color: var(--color-texto);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* --- CARD DE ALERTA DE SALDO --- */
+.alerta-saldo {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  background: var(--color-seleccion); /* Adaptable al modo */
+  padding: 20px;
+  border-radius: 20px;
+  border: 2.5px solid var(--color-borde);
+  margin-bottom: 25px;
+  box-shadow: 4px 4px 0px var(--color-borde);
+}
+
+.emoji-saldo {
+  font-size: 2.5rem;
+  background: var(--color-superficie);
+  width: 60px;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 15px;
+  border: 2px solid var(--color-borde);
+}
+
+.alerta-info h4 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 900;
+  color: var(--color-texto);
+}
+
+.alerta-info p {
+  margin: 5px 0 0;
+  font-size: 0.95rem;
+  color: var(--color-texto-muted);
+}
+
+/* --- ESTILOS PARA INPUTS Y CARDS DE DATOS --- */
+.card-cambio-input {
+  background: var(--color-superficie);
+  border: 2.5px solid var(--color-borde);
+  border-radius: 15px;
+  padding: 15px;
+  margin-bottom: 20px;
+  box-shadow: 3px 3px 0px var(--color-borde);
+}
+
+.input-nc {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 2px solid var(--color-borde);
+  background: var(--color-fondo); /* Se adapta al fondo oscuro/claro */
+  color: var(--color-texto);
+  font-weight: 600;
+  transition: border-color 0.2s;
+}
+
+.input-nc:focus {
+  outline: none;
+  border-color: var(--color-acento);
+}
+
+.input-nc::placeholder {
+  color: var(--color-texto-muted);
+  opacity: 0.6;
+}
+
+/* --- BOTONES DE OPCIÓN --- */
+.opciones-nc {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.btn-opcion-saldo {
+  padding: 20px;
+  border-radius: 18px;
+  border: 3px solid var(--color-borde);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  box-shadow: 4px 4px 0px var(--color-borde);
+}
+
+.btn-opcion-saldo:active {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0px var(--color-borde);
+}
+
+.btn-opcion-saldo:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Variante Nota de Crédito */
+.btn-opcion-saldo.primario {
+  background: var(--color-acento);
+  color: white; /* Siempre blanco para contraste con acento */
+}
+
+/* Variante Efectivo */
+.btn-opcion-saldo.secundario {
+  background: var(--color-superficie);
+  color: var(--color-texto);
+}
+
+.btn-opcion-saldo.secundario:hover {
+  background: var(--color-fondo-oscuro);
+}
+
+.titulo-btn {
+  font-size: 1.1rem;
+  font-weight: 900;
+  display: block;
+}
+
+.subtitulo-btn {
+  font-size: 0.8rem;
+  font-weight: 500;
+  opacity: 0.8;
+}
+
+/* --- VISTA TICKET FINAL (SIMULACIÓN PAPEL) --- */
+.ticket-virtual {
+  background: var(--color-superficie);
+  border: 3px dashed var(--color-borde);
+  padding: 30px 20px;
+  border-radius: 4px;
+  text-align: center;
+  position: relative;
+  margin-top: 10px;
+  color: var(--color-texto);
+}
+
+.header-nc h3 {
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  font-weight: 950;
+  margin-bottom: 5px;
+}
+
+.codigo-nc-display {
+  background: var(--color-fondo-oscuro);
+  color: var(--color-texto);
+  padding: 8px 15px;
+  border-radius: 8px;
+  font-family: 'Courier New', Courier, monospace;
+  font-weight: 900;
+  font-size: 1.4rem;
+  border: 2px solid var(--color-borde);
+  display: inline-block;
+  margin: 15px 0;
+}
+
+.monto-grande {
+  font-size: 3rem;
+  font-weight: 950;
+  color: var(--color-exito);
+  margin: 10px 0;
+  display: block;
+}
+
+.footer-nc {
+  margin-top: 20px;
+  padding-top: 15px;
+  border-top: 1px dashed var(--color-borde);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-texto-muted);
+}
+
+/* --- RESPONSIVE --- */
+@media (min-width: 500px) {
+  .opciones-nc {
+    grid-template-columns: 1fr 1fr;
+  }
+}

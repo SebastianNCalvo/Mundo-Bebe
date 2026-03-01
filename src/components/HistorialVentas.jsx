@@ -7,6 +7,7 @@ const HistorialVentas = () => {
   const [ventas, setVentas] = useState([]);
   const [gastos, setGastos] = useState([]);
   const [cambios, setCambios] = useState([]); 
+  const [notasCredito, setNotasCredito] = useState([]); 
   const [mes, setMes] = useState(new Date().getMonth() + 1);
   const [anio, setAnio] = useState(new Date().getFullYear());
   const [vendedorFiltro, setVendedorFiltro] = useState('Todos');
@@ -23,10 +24,13 @@ const HistorialVentas = () => {
 
   const obtenerDatos = async () => {
     setCargando(true);
-    const fechaInicio = `${anio}-${String(mes).padStart(2, '0')}-01`;
-    const proximoMes = mes === 12 ? 1 : mes + 1;
-    const proximoAnio = mes === 12 ? anio + 1 : anio;
-    const fechaFin = `${proximoAnio}-${String(proximoMes).padStart(2, '0')}-01`;
+    
+    // SOLUCIÓN AL FILTRADO: Usamos formato ISO puro para evitar problemas de zona horaria
+    // Fecha Inicio: Primer día del mes a las 00:00:00
+    const fechaInicio = new Date(anio, mes - 1, 1).toISOString();
+    
+    // Fecha Fin: Primer día del mes siguiente a las 00:00:00
+    const fechaFin = new Date(anio, mes, 1).toISOString();
 
     const promesaVentas = supabase
       .from('ventas_cabecera')
@@ -52,11 +56,30 @@ const HistorialVentas = () => {
       .lt('fecha', fechaFin)
       .order('fecha', { ascending: false });
 
-    const [resVentas, resGastos, resCambios] = await Promise.all([promesaVentas, promesaGastos, promesaCambios]);
-    setVentas(resVentas.data || []);
-    setGastos(resGastos.data || []);
-    setCambios(resCambios.data || []); 
-    setCargando(false);
+    const promesaNC = supabase
+      .from('notas_credito')
+      .select('*')
+      .gte('created_at', fechaInicio)
+      .lt('created_at', fechaFin)
+      .order('created_at', { ascending: false });
+
+    try {
+      const [resVentas, resGastos, resCambios, resNC] = await Promise.all([
+          promesaVentas, promesaGastos, promesaCambios, promesaNC
+      ]);
+      
+      // LOG DE CONTROL: Si esto llega vacío en consola, el problema es la base de datos
+      console.log("Ventas recuperadas:", resVentas.data?.length);
+
+      setVentas(resVentas.data || []);
+      setGastos(resGastos.data || []);
+      setCambios(resCambios.data || []); 
+      setNotasCredito(resNC.data || []);
+    } catch (error) {
+      console.error("Error cargando historial:", error);
+    } finally {
+      setCargando(false);
+    }
   };
 
   const reimprimirFactura = (venta) => {
@@ -150,6 +173,12 @@ const HistorialVentas = () => {
     return cumpleVendedor && cumpleCodigo;
   });
 
+  const ncFiltradas = notasCredito.filter(nc => {
+    const cumpleVendedor = vendedorFiltro === 'Todos' || nc.vendedor_emisor === vendedorFiltro;
+    const cumpleCodigo = nc.codigo_nc?.toLowerCase().includes(busquedaCodigo.toLowerCase());
+    return cumpleVendedor && cumpleCodigo;
+  });
+
   const gastosFiltrados = vendedorFiltro === 'Todos' ? gastos : gastos.filter(g => g.vendedor_email === vendedorFiltro);
 
   const cambiosFiltrados = cambios.filter(c => {
@@ -162,9 +191,11 @@ const HistorialVentas = () => {
 
   const totalVentas = ventasFiltradas.reduce((acc, v) => acc + (Number(v.total_total) || 0), 0);
   const totalGastos = gastosFiltrados.reduce((acc, g) => acc + (Number(g.monto) || 0), 0);
+  const totalNC = ncFiltradas.reduce((acc, nc) => acc + (Number(nc.monto) || 0), 0);
   const totalCobradoCambios = cambiosFiltrados.reduce((acc, c) => acc + (Number(c.monto_cobrado) || 0), 0);
   const totalCortesia = cambiosFiltrados.reduce((acc, c) => acc + (Number(c.monto_cortesia) || 0), 0);
-  const balanceNeto = totalVentas + totalCobradoCambios - totalGastos;
+  
+  const balanceNeto = totalVentas + totalCobradoCambios - totalGastos - totalNC;
 
   const formatearFechaHora = (fechaISO) => {
     return new Date(fechaISO).toLocaleString('es-AR', {
@@ -189,34 +220,37 @@ const HistorialVentas = () => {
           </tr>
         </thead>
         <tbody>
-          {ventasFiltradas.map(venta => (
-            <tr key={venta.id} className={idRecienActualizado === venta.id ? 'fila-actualizada' : ''}>
-              <td data-label="Código" className="celda-codigo">
-                <span className="codigo-texto">{venta.codigo_venta || '---'}</span>
-                {cambios.some(c => c.venta_origen_id === venta.id) && <span className="badge-cambio-aviso">🔄 CAMBIO</span>}
-              </td>
-              <td data-label="Fecha/Hora">{formatearFechaHora(venta.fecha)}</td>
-              <td data-label="Vendedor">{venta.vendedor_email?.split('@')[0]}</td>
-              {/* CAMBIO AQUÍ: Eliminamos el punto y estructuramos en filas de div */}
-              <td data-label="Productos" className="celda-productos-lista">
-                {venta.ventas_detalle.map((d, i) => (
-                  <div key={i} className="item-producto-historial">
-                    <span className="prod-nombre">{d.productos?.nombre}</span>
-                    <span className="prod-meta"> (T:{d.productos?.talle}) x{d.cantidad}</span>
+          {ventasFiltradas.length > 0 ? (
+            ventasFiltradas.map(venta => (
+              <tr key={venta.id} className={idRecienActualizado === venta.id ? 'fila-actualizada' : ''}>
+                <td data-label="Código" className="celda-codigo">
+                  <span className="codigo-texto">{venta.codigo_venta || '---'}</span>
+                  {cambios.some(c => c.venta_origen_id === venta.id) && <span className="badge-cambio-aviso">🔄 CAMBIO</span>}
+                </td>
+                <td data-label="Fecha/Hora">{formatearFechaHora(venta.fecha)}</td>
+                <td data-label="Vendedor">{venta.vendedor_email?.split('@')[0]}</td>
+                <td data-label="Productos" className="celda-productos-lista">
+                  {venta.ventas_detalle?.map((d, i) => (
+                    <div key={i} className="item-producto-historial">
+                      <span className="prod-nombre">{d.productos?.nombre}</span>
+                      <span className="prod-meta"> (T:{d.productos?.talle}) x{d.cantidad}</span>
+                    </div>
+                  ))}
+                </td>
+                <td data-label="Pago"><span className={`tag-pago ${venta.metodo_pago?.toLowerCase()}`}>{venta.metodo_pago}</span></td>
+                <td data-label="Total" className="texto-total-venta">${venta.total_total.toLocaleString('es-AR')}</td>
+                <td data-label="Acciones">
+                  <div className="acciones-botones-historial">
+                    <button onClick={() => reimprimirFactura(venta)} className="btn-historial-accion" title="PDF">📄</button>
+                    <button onClick={() => setEditandoVenta(venta)} className="btn-historial-accion">✏️</button>
+                    <button onClick={() => eliminarVenta(venta.id)} className="btn-historial-eliminar">🗑️</button>
                   </div>
-                ))}
-              </td>
-              <td data-label="Pago"><span className={`tag-pago ${venta.metodo_pago?.toLowerCase()}`}>{venta.metodo_pago}</span></td>
-              <td data-label="Total" className="texto-total-venta">${venta.total_total.toLocaleString('es-AR')}</td>
-              <td data-label="Acciones">
-                <div className="acciones-botones-historial">
-                  <button onClick={() => reimprimirFactura(venta)} className="btn-historial-accion" title="PDF">📄</button>
-                  <button onClick={() => setEditandoVenta(venta)} className="btn-historial-accion">✏️</button>
-                  <button onClick={() => eliminarVenta(venta.id)} className="btn-historial-eliminar">🗑️</button>
-                </div>
-              </td>
-            </tr>
-          ))}
+                </td>
+              </tr>
+            ))
+          ) : (
+            <tr><td colSpan="7" style={{textAlign: 'center', padding: '20px'}}>No se encontraron ventas para este periodo.</td></tr>
+          )}
         </tbody>
       </table>
     </div>
@@ -303,9 +337,37 @@ const HistorialVentas = () => {
     </div>
   );
 
+  const renderTablaNC = () => (
+    <div className="tabla-historial-wrapper animar-entrada seccion-nc">
+      <h3 className="titulo-tabla color-nc">Notas de Crédito</h3>
+      <table className="tabla-historial">
+        <thead>
+          <tr>
+            <th>Cód. NC</th>
+            <th>Fecha</th>
+            <th>Cliente/Origen</th>
+            <th>Monto</th>
+            <th>Estado</th>
+          </tr>
+        </thead>
+        <tbody>
+          {ncFiltradas.map(nc => (
+            <tr key={nc.id}>
+              <td className="celda-codigo">{nc.codigo_nc}</td>
+              <td>{formatearFechaHora(nc.created_at)}</td>
+              <td>{nc.identificador_cliente || 'General'}</td>
+              <td className="monto-negativo">-${nc.monto.toLocaleString('es-AR')}</td>
+              <td><span className={`badge-estado ${nc.estado}`}>{nc.estado.toUpperCase()}</span></td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
   return (
     <div className="historial-container-nuevo">
-      {/* MODALES */}
+      {/* MODALES IGUALES AL ORIGINAL */}
       {editandoGasto && (
         <div className="modal-overlay animar-fade">
           <div className="modal-content animar-slide">
@@ -375,8 +437,8 @@ const HistorialVentas = () => {
           <span>${(totalVentas + totalCobradoCambios).toLocaleString('es-AR')}</span>
         </div>
         <div className={`card-balance-n egresos ${vista === 'gastos' ? 'activa' : ''}`} onClick={() => setVista('gastos')}>
-          <small>Gastos (-)</small>
-          <span>${totalGastos.toLocaleString('es-AR')}</span>
+          <small>Gastos/NC (-)</small>
+          <span>${(totalGastos + totalNC).toLocaleString('es-AR')}</span>
         </div>
         <div className={`card-balance-n resultado ${vista === 'todo' ? 'activa' : ''} ${balanceNeto >= 0 ? 'positivo' : 'negativo'}`} onClick={() => setVista('todo')}>
           <small>Balance Neto</small>
@@ -421,6 +483,7 @@ const HistorialVentas = () => {
           {(vista === 'ventas' || vista === 'todo') && renderTablaVentas()}
           {(vista === 'cambios' || vista === 'todo') && renderTablaCambios()}
           {(vista === 'gastos' || vista === 'todo') && renderTablaGastos()}
+          {(vista === 'todo') && renderTablaNC()} 
         </div>
       )}
     </div>
