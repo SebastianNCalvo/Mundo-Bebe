@@ -4,11 +4,11 @@
   padding: 15px;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(129, 212, 250, 0.1);
-  border: 1px solid #cfd8dc; /* Borde externo sutil */
+  border: 1px solid #cfd8dc; 
 }
 
 .ventas-container h3 {
-  color: #0288d1; /* Un celeste un poco más fuerte para lectura */
+  color: #0288d1; 
   margin-bottom: 15px;
   text-align: center;
   font-size: 1.2rem;
@@ -22,28 +22,28 @@
   background: #fdfbff;
   padding: 15px;
   border-radius: 15px;
-  border: 1.5px dashed #37474f; /* Borde oscuro para contraste */
+  border: 1.5px dashed #37474f; 
 }
 
 .ventas-container select, 
 .ventas-container input {
   padding: 12px;
-  border: 2px solid #37474f; /* Borde oscuro definido */
+  border: 2px solid #37474f; 
   border-radius: 12px;
   font-size: 16px; 
   outline: none;
   background-color: #ffffff !important;
-  color: #263238 !important; /* Texto más oscuro */
+  color: #263238 !important; 
   appearance: none;
   -webkit-appearance: none;
 }
 
-/* --- NUEVO: Buscador de Productos --- */
+/* --- Buscador de Productos --- */
 .input-filtro-ventas {
   width: 100%;
   padding: 10px;
   border-radius: 8px;
-  border: 2px solid #37474f; /* Borde oscuro */
+  border: 2px solid #37474f; 
   margin-bottom: 5px;
   font-size: 0.9rem !important;
   outline: none;
@@ -51,7 +51,7 @@
 }
 
 .input-filtro-ventas:focus {
-  border-color: #f06292 !important; /* Resalte rosa al escribir */
+  border-color: #f06292 !important; 
   box-shadow: 0 0 8px rgba(240, 98, 146, 0.2);
 }
 
@@ -80,16 +80,16 @@
 
 .tabla-carrito th {
   text-align: center;
-  color: #37474f; /* Encabezados oscuros */
+  color: #37474f; 
   font-size: 0.7rem;
   text-transform: uppercase;
   padding: 10px 2px;
-  border-bottom: 2px solid #263238; /* Línea divisoria oscura */
+  border-bottom: 2px solid #263238; 
 }
 
 .tabla-carrito td {
   padding: 12px 2px;
-  border-bottom: 1px solid #cfd8dc; /* Separación de filas clara para no saturar */
+  border-bottom: 1px solid #cfd8dc; 
   vertical-align: middle;
   text-align: center;
   color: #263238;
@@ -107,7 +107,7 @@
   border-radius: 50px;
   width: fit-content;
   margin: 0 auto;
-  border: 1px solid #37474f; /* Definición en los controles */
+  border: 1px solid #37474f; 
 }
 
 .btn-mini {
@@ -124,15 +124,68 @@
   padding: 0;
 }
 
-.btn-borrar-item{
+.btn-borrar-item {
   background-color: #c62828;
   border-radius: 30%;
   width: 30px;
   height: 30px;
+  color: white;
   display: flex;
   justify-content: center;
   align-items: center;
   margin: 20px;
+  border: none;
+  cursor: pointer;
+}
+
+/* --- NUEVO: Sección Canje de Nota de Crédito --- */
+.seccion-canje-nc {
+  background: #f1f8e9; /* Un verde muy suave para diferenciar el área de "beneficio" */
+  padding: 15px;
+  border-radius: 12px;
+  margin: 15px 0;
+  border: 2px solid #37474f;
+}
+
+.seccion-canje-nc label {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #2e7d32;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+
+.nc-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.nc-input-group input {
+  flex: 1;
+  padding: 10px !important;
+  font-size: 0.9rem !important;
+  border: 2px solid #37474f !important;
+}
+
+.btn-aplicar-nc {
+  background: #37474f !important;
+  color: white !important;
+  border: none;
+  padding: 0 15px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.btn-quitar-nc {
+  background: #c62828 !important;
+  color: white !important;
+  border: none;
+  padding: 0 15px;
+  border-radius: 10px;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 /* --- Footer y Totales --- */
@@ -141,7 +194,24 @@
   padding: 15px;
   border-radius: 15px;
   margin-top: 15px;
-  border-top: 4px double #37474f; /* Doble línea oscura estilo recibo */
+  border-top: 4px double #37474f; 
+}
+
+.totales-desglose {
+  margin-bottom: 15px;
+}
+
+.totales-desglose p {
+  display: flex;
+  justify-content: space-between;
+  margin: 5px 0;
+  font-weight: 600;
+  color: #37474f;
+}
+
+.descuento-nc {
+  color: #2e7d32 !important;
+  font-style: italic;
 }
 
 .total-texto {
@@ -151,11 +221,13 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 15px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid #cfd8dc;
 }
 
 .total-texto span {
-  color: #d81b60; /* Un rosa más intenso para el total */
+  color: #d81b60; 
 }
 
 /* --- Selector de Método de Pago --- */
@@ -167,7 +239,7 @@
   padding: 10px;
   background: #ffffff;
   border-radius: 12px;
-  border: 2px solid #37474f; /* Borde oscuro */
+  border: 2px solid #37474f; 
 }
 
 .pago-selector label {
@@ -202,15 +274,17 @@
   font-size: 1.1rem;
   font-weight: 800;
   box-shadow: 0 6px 15px rgba(76, 175, 80, 0.3);
+  cursor: pointer;
 }
 
 .btn-vaciar {
   background: transparent !important;
-  color: #c62828 !important; /* Rojo más serio para cancelar */
+  color: #c62828 !important; 
   border: 2px solid #c62828 !important;
   padding: 12px;
   border-radius: 15px;
   font-weight: 700;
+  cursor: pointer;
 }
 
 /* --- Media Queries PC --- */
