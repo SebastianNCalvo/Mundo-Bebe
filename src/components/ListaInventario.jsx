@@ -78,10 +78,13 @@ export default function ListaInventario({ trigger, esAdmin }) {
     <div className="inventario-container">
       <h3 className="titulo-seccion">Stock Actual de Ropa</h3>
 
-      <div className="card-total-inventario">
-        <small className="label-capital">Valor Total de Mercadería</small>
-        <span className="monto-capital">${valorTotalInventario.toLocaleString('es-AR')}</span>
-      </div>
+      {/* CAMBIO AQUÍ: Solo el admin ve el Valor Total */}
+      {esAdmin && (
+        <div className="card-total-inventario animar-entrada">
+          <small className="label-capital">Valor Total de Mercadería</small>
+          <span className="monto-capital">${valorTotalInventario.toLocaleString('es-AR')}</span>
+        </div>
+      )}
 
       <div className="buscador-container">
         <span className="icono-lupa">🔍</span>

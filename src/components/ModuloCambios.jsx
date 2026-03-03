@@ -13,8 +13,12 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
   const [busquedaNuevo, setBusquedaNuevo] = useState('');
   const [resultadosBusqueda, setResultadosBusqueda] = useState([]);
   const [cortesia, setCortesia] = useState(false);
+  const [metodoPagoDif, setMetodoPagoDif] = useState('Efectivo'); 
   const [pestanaActiva, setPestanaActiva] = useState('devolucion');
   const [mostrarNC, setMostrarNC] = useState(false);
+
+  // Formateador de moneda reutilizable
+  const formatAR = (monto) => Math.abs(monto).toLocaleString('es-AR', { style: 'currency', currency: 'ARS' });
 
   const buscarVenta = async () => {
     setVentaOriginal(null);
@@ -60,7 +64,7 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
     }
     const { data } = await supabase
       .from('productos')
-      .select('*')
+      .select('id, nombre, talle, precio, stock')
       .ilike('nombre', `%${termino}%`)
       .gt('stock', 0)
       .limit(5);
@@ -133,14 +137,15 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
         await supabase.rpc('increment_stock', { row_id: p.id, x: -p.cantidad });
       }
 
-      // 3. Registro histórico del cambio (REFACTORIZADO PARA GUARDAR IDS DE PRODUCTOS)
+      // 3. Registro histórico del cambio
       await supabase.from('cambios_registros').insert([{
         venta_origen_id: ventaOriginal.id,
-        producto_devuelto_id: productosADevolver[0]?.producto_id, // Tomamos el primer producto para el historial simplificado
-        producto_nuevo_id: productosNuevos[0]?.id,               // Tomamos el primer producto para el historial simplificado
+        producto_devuelto_id: productosADevolver[0]?.producto_id,
+        producto_nuevo_id: productosNuevos[0]?.id,
         diferencia_total: diferencia,
         monto_cobrado: aPagar,
         monto_cortesia: cortesia ? (diferencia > 0 ? diferencia : 0) : 0,
+        metodo_pago_diferencia: aPagar > 0 ? metodoPagoDif : null,
         vendedor_email: ventaOriginal.vendedor_email, 
         vendedor_cambio_email: sesion?.user?.email   
       }]);
@@ -162,7 +167,11 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
     return (
       <NotaDeCredito 
         ventaOriginal={ventaOriginal} 
-        montoAFavor={diferencia} 
+        montoAFavor={Math.abs(diferencia)} 
+        productosInvolucrados={{
+          devueltos: productosADevolver,
+          nuevos: productosNuevos
+        }}
         sesion={sesion} 
         alTerminar={() => {
           if (alTerminar) alTerminar();
@@ -216,7 +225,7 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
                   return (
                     <div key={i} className={`item-devolucion-multiple ${cantSeleccionada > 0 ? 'seleccionado' : ''}`}>
                       <div className="info-item-cambio">
-                        <span className="item-nombre">{item.productos.nombre} ({item.productos.talle})</span>
+                        <span className="item-nombre">{item.productos.nombre} <mark className="talle-label">T: {item.productos.talle}</mark></span>
                         <small className="item-stock-max">Compró: {item.cantidad}</small>
                       </div>
                       <div className="controles-cantidad">
@@ -244,7 +253,11 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
               <div className="lista-resultados">
                 {resultadosBusqueda.map(p => (
                   <div key={p.id} className="resultado-item" onClick={() => {ajustarCantidadNuevo(p, 1); setResultadosBusqueda([]); setBusquedaNuevo('');}}>
-                    ➕ {p.nombre} - ${p.precio.toLocaleString('es-AR')}
+                    <span className="icon-plus">➕</span> 
+                    <div className="info-resultado">
+                        <strong>{p.nombre}</strong>
+                        <span>Talle: {p.talle} — {formatAR(p.precio)}</span>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -253,8 +266,8 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
                 {productosNuevos.map((p, i) => (
                   <div key={i} className="item-devolucion-multiple seleccionado">
                     <div className="info-item-cambio">
-                      <span className="item-nombre">{p.nombre}</span>
-                      <small className="item-stock-max">Precio: ${p.precio.toLocaleString('es-AR')}</small>
+                      <span className="item-nombre">{p.nombre} <mark className="talle-label">T: {p.talle}</mark></span>
+                      <small className="item-stock-max">Precio: {formatAR(p.precio)}</small>
                     </div>
                     <div className="controles-cantidad">
                       <button className="btn-qty" onClick={() => ajustarCantidadNuevo(p, -1)}>-</button>
@@ -271,28 +284,46 @@ const ModuloCambios = ({ sesion, alTerminar }) => {
             <div className="totales-flotantes">
               <div className="fila-resumen">
                 <span>Total Devolución:</span>
-                <strong>${totalDevuelto.toLocaleString('es-AR')}</strong>
+                <strong>{formatAR(totalDevuelto)}</strong>
               </div>
               <div className="fila-resumen">
                 <span>Total Nuevo:</span>
-                <strong>${totalNuevo.toLocaleString('es-AR')}</strong>
+                <strong>{formatAR(totalNuevo)}</strong>
               </div>
               <div className={`fila-resumen diferencia ${diferencia >= 0 ? 'positivo' : 'negativo'}`}>
                 <span>{diferencia >= 0 ? 'Diferencia a cobrar:' : 'Saldo a favor cliente:'}</span>
-                <strong>${Math.abs(diferencia).toLocaleString('es-AR')}</strong>
+                <strong>{formatAR(diferencia)}</strong>
               </div>
             </div>
             
             {diferencia > 0 && (
-              <label className="checkbox-cortesia">
-                <input type="checkbox" checked={cortesia} onChange={() => setCortesia(!cortesia)} />
-                <span className="texto-cortesia">Bonificar diferencia (Cortesía)</span>
-              </label>
+              <div className="opciones-cobro-diferencia">
+                <label className="checkbox-cortesia">
+                  <input type="checkbox" checked={cortesia} onChange={() => setCortesia(!cortesia)} />
+                  <span className="texto-cortesia">Bonificar diferencia (Cortesía)</span>
+                </label>
+
+                {!cortesia && (
+                  <div className="selector-metodo-pago animar-entrada">
+                    <label>Paga diferencia con:</label>
+                    <select 
+                      value={metodoPagoDif} 
+                      onChange={(e) => setMetodoPagoDif(e.target.value)}
+                      className="select-pago-cambio"
+                    >
+                      <option value="Efectivo">💵 Efectivo</option>
+                      <option value="Transferencia">📱 Transferencia</option>
+                      <option value="Débito">💳 Débito</option>
+                      <option value="Crédito">💳 Crédito</option>
+                    </select>
+                  </div>
+                )}
+              </div>
             )}
 
             <div className="total-caja-cambio">
               <span>Monto final en caja:</span>
-              <strong className="monto-total-final">${aPagar.toLocaleString('es-AR')}</strong>
+              <strong className="monto-total-final">{formatAR(aPagar)}</strong>
             </div>
 
             <button className="btn-confirmar-cambio" onClick={procesarCambio}>

@@ -74,6 +74,12 @@
   color: #37474f;
 }
 
+.selects-filtros-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
 .selects-filtros-row select {
   padding: 10px;
   border-radius: 12px;
@@ -84,12 +90,6 @@
   color: #37474f;
   outline: none;
   appearance: none;
-}
-
-.selects-filtros-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 8px;
 }
 
 /* --- 3. TABLAS Y CARDS --- */
@@ -112,7 +112,7 @@
   border-collapse: collapse; 
 }
 
-/* --- 4. LISTA DE PRODUCTOS (GENERAL) --- */
+/* --- 4. LISTA DE PRODUCTOS --- */
 .item-producto-historial {
   display: inline-block;
   padding: 4px 8px;
@@ -121,27 +121,44 @@
   border-radius: 8px;
   border: 1px solid #cfd8dc;
   font-size: 0.85rem;
-  line-height: 1.2;
 }
 
-.prod-nombre {
+.prod-nombre { font-weight: 800; color: #37474f; }
+.prod-meta { color: #546e7a; font-weight: 600; font-size: 0.8rem; }
+
+/* Estilos para el Flujo de Cambios (Entra/Sale) */
+.item-flujo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 4px 0;
+  font-size: 0.85rem;
+}
+.item-flujo.entra { color: #2e7d32; }
+.item-flujo.sale { color: #c62828; }
+
+/* --- 5. BADGES DE PAGO (NUEVO Y RETOCADO) --- */
+.tag-pago {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 0.75rem;
   font-weight: 800;
-  color: #37474f;
+  border: 2px solid #37474f;
+  text-transform: uppercase;
+  white-space: nowrap;
 }
 
-.prod-meta {
-  color: #546e7a;
-  font-weight: 600;
-  font-size: 0.8rem;
-}
+/* Variantes de color para los pagos */
+.tag-pago.efectivo { background: #e8f5e9; color: #2e7d32; }
+.tag-pago.transferencia { background: #e3f2fd; color: #1565c0; }
+.tag-pago.débito, .tag-pago.crédito { background: #f3e5f5; color: #7b1fa2; }
+.tag-pago.cortesia { background: #eee; color: #757575; border-style: dashed; }
 
 /* --- RESPONSIVE CELULARES --- */
 @media (max-width: 768px) {
-  .tabla-historial {
-    border-collapse: separate;
-    border-spacing: 0 12px;
-  }
-
   .tabla-historial thead { display: none; }
 
   .tabla-historial tr {
@@ -163,33 +180,28 @@
     border-bottom: 1px dashed #ddd;
   }
 
-  .tabla-historial td.celda-productos-lista,
-  .tabla-historial td.celda-flujo {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end; 
-    padding-top: 12px;
-  }
-
-  /* REPARACIÓN: Forzamos la etiqueta azul a la izquierda */
-  .tabla-historial td.celda-productos-lista::before,
-  .tabla-historial td.celda-flujo::before {
-    align-self: flex-start; /* Esto la empuja a la izquierda aunque los productos vayan a la derecha */
-    margin-bottom: 5px;
-  }
-
-  .item-producto-historial { text-align: right; }
-
-  .tabla-historial td:last-child { border-bottom: none; }
-
   .tabla-historial td::before {
     content: attr(data-label);
     font-weight: 800;
     text-transform: uppercase;
     font-size: 0.7rem;
     color: #0288d1;
-    text-align: left;
   }
+
+  .tabla-historial td.celda-productos-lista,
+  .tabla-historial td.celda-flujo {
+    flex-direction: column;
+    align-items: flex-end;
+    padding-top: 12px;
+  }
+
+  .tabla-historial td.celda-productos-lista::before,
+  .tabla-historial td.celda-flujo::before {
+    align-self: flex-start;
+    margin-bottom: 8px;
+  }
+
+  .acciones-botones-historial { margin-top: 10px; }
 }
 
 /* --- VISTA PC --- */
@@ -200,13 +212,8 @@
     box-shadow: 4px 4px 0px #37474f;
     padding: 20px;
     border-radius: 22px;
-    overflow: hidden;
   }
   
-  .tabla-historial {
-    border-collapse: collapse; 
-  }
-
   .tabla-historial th {
     background: #f1fafa;
     padding: 15px;
@@ -214,25 +221,13 @@
     font-weight: 800;
     text-transform: uppercase;
     border-bottom: 3px solid #37474f;
-    color: #37474f;
   }
 
   .tabla-historial td {
-    padding: 20px 10px; 
-    border-bottom: 2px solid #37474f !important; 
+    padding: 15px 10px; 
+    border-bottom: 2px solid #eee;
     text-align: center;
-    vertical-align: middle;
     background: white;
-  }
-
-  .celda-productos-lista,
-  .celda-flujo {
-    display: table-cell; 
-    min-width: unset;
-  }
-
-  .tabla-historial tr:last-child td {
-    border-bottom: none !important;
   }
 
   .historial-filtros-n { flex-direction: row; }
@@ -240,16 +235,7 @@
   .selects-filtros-row { flex: 3; }
 }
 
-/* --- ESTILOS DE ELEMENTOS --- */
-.tag-pago {
-  padding: 5px 8px;
-  border-radius: 8px;
-  font-size: 0.7rem;
-  font-weight: 800;
-  border: 1.5px solid #37474f;
-  background: white;
-}
-
+/* --- ACCIONES --- */
 .acciones-botones-historial {
   display: flex;
   gap: 8px;
@@ -267,8 +253,16 @@
   box-shadow: 2px 2px 0px #37474f;
 }
 
-.btn-historial-eliminar:active { 
-  background: #fce4ec; 
-  transform: translate(1px, 1px); 
-  box-shadow: 0px 0px 0px #37474f; 
+.btn-historial-accion:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0px #37474f; }
+.btn-historial-eliminar:hover { background: #ffebee; }
+.btn-historial-eliminar:active { transform: translate(1px, 1px); box-shadow: 0px 0px 0px; }
+
+/* Animación de entrada */
+.animar-entrada {
+  animation: slideUp 0.4s ease-out;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
 }

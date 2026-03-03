@@ -17,19 +17,24 @@ const HistorialVentas = () => {
   const [editandoGasto, setEditandoGasto] = useState(null);
   const [editandoVenta, setEditandoVenta] = useState(null);
   const [idRecienActualizado, setIdRecienActualizado] = useState(null);
+  const [esAdmin, setEsAdmin] = useState(false);
 
   useEffect(() => {
+    obtenerUsuario();
     obtenerDatos();
   }, [mes, anio]);
+
+  const obtenerUsuario = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user && user.user_metadata?.role === 'admin') {
+      setEsAdmin(true);
+    }
+  };
 
   const obtenerDatos = async () => {
     setCargando(true);
     
-    // SOLUCIÓN AL FILTRADO: Usamos formato ISO puro para evitar problemas de zona horaria
-    // Fecha Inicio: Primer día del mes a las 00:00:00
     const fechaInicio = new Date(anio, mes - 1, 1).toISOString();
-    
-    // Fecha Fin: Primer día del mes siguiente a las 00:00:00
     const fechaFin = new Date(anio, mes, 1).toISOString();
 
     const promesaVentas = supabase
@@ -68,9 +73,6 @@ const HistorialVentas = () => {
           promesaVentas, promesaGastos, promesaCambios, promesaNC
       ]);
       
-      // LOG DE CONTROL: Si esto llega vacío en consola, el problema es la base de datos
-      console.log("Ventas recuperadas:", resVentas.data?.length);
-
       setVentas(resVentas.data || []);
       setGastos(resGastos.data || []);
       setCambios(resCambios.data || []); 
@@ -204,6 +206,21 @@ const HistorialVentas = () => {
     });
   };
 
+  const renderBadgePagoCambio = (cambio) => {
+    if (cambio.monto_cobrado <= 0) return <span className="tag-pago cortesia">Bonificada</span>;
+    
+    const metodo = cambio.metodo_pago_diferencia || 'Efectivo';
+    let icono = '💵';
+    if (metodo.includes('Transferencia')) icono = '🏦';
+    if (metodo.includes('Débito') || metodo.includes('Crédito')) icono = '💳';
+
+    return (
+      <span className={`tag-pago ${metodo.toLowerCase()}`}>
+        {icono} {metodo}
+      </span>
+    );
+  };
+
   const renderTablaVentas = () => (
     <div className="tabla-historial-wrapper animar-entrada">
       <h3 className="titulo-tabla">Ventas Realizadas</h3>
@@ -267,6 +284,7 @@ const HistorialVentas = () => {
             <th>Vendedores</th>
             <th>Entra / Sale</th>
             <th>Cortesía</th>
+            <th>Pago</th>
             <th>Cobrado</th>
           </tr>
         </thead>
@@ -294,6 +312,7 @@ const HistorialVentas = () => {
                 </div>
               </td>
               <td data-label="Cortesía" className="monto-cortesia">${cambio.monto_cortesia.toLocaleString('es-AR')}</td>
+              <td data-label="Pago">{renderBadgePagoCambio(cambio)}</td>
               <td data-label="Cobrado" className="texto-total-venta">${cambio.monto_cobrado.toLocaleString('es-AR')}</td>
             </tr>
           ))}
@@ -367,7 +386,7 @@ const HistorialVentas = () => {
 
   return (
     <div className="historial-container-nuevo">
-      {/* MODALES IGUALES AL ORIGINAL */}
+      {/* MODALES */}
       {editandoGasto && (
         <div className="modal-overlay animar-fade">
           <div className="modal-content animar-slide">
@@ -431,24 +450,27 @@ const HistorialVentas = () => {
         </div>
       )}
 
-      <div className="dashboard-balance">
-        <div className={`card-balance-n ingresos ${vista === 'ventas' ? 'activa' : ''}`} onClick={() => setVista('ventas')}>
-          <small>Ventas (+)</small>
-          <span>${(totalVentas + totalCobradoCambios).toLocaleString('es-AR')}</span>
+      {/* Solo el Admin ve las tarjetas de balance */}
+      {esAdmin && (
+        <div className="dashboard-balance">
+          <div className={`card-balance-n ingresos ${vista === 'ventas' ? 'activa' : ''}`} onClick={() => setVista('ventas')}>
+            <small>Ventas (+)</small>
+            <span>${(totalVentas + totalCobradoCambios).toLocaleString('es-AR')}</span>
+          </div>
+          <div className={`card-balance-n egresos ${vista === 'gastos' ? 'activa' : ''}`} onClick={() => setVista('gastos')}>
+            <small>Gastos/NC (-)</small>
+            <span>${(totalGastos + totalNC).toLocaleString('es-AR')}</span>
+          </div>
+          <div className={`card-balance-n resultado ${vista === 'todo' ? 'activa' : ''} ${balanceNeto >= 0 ? 'positivo' : 'negativo'}`} onClick={() => setVista('todo')}>
+            <small>Balance Neto</small>
+            <span>${balanceNeto.toLocaleString('es-AR')}</span>
+          </div>
+          <div className={`card-balance-n cortesia ${vista === 'cambios' ? 'activa' : ''}`} onClick={() => setVista('cambios')}>
+            <small>Cortesías (🎁)</small>
+            <span>${totalCortesia.toLocaleString('es-AR')}</span>
+          </div>
         </div>
-        <div className={`card-balance-n egresos ${vista === 'gastos' ? 'activa' : ''}`} onClick={() => setVista('gastos')}>
-          <small>Gastos/NC (-)</small>
-          <span>${(totalGastos + totalNC).toLocaleString('es-AR')}</span>
-        </div>
-        <div className={`card-balance-n resultado ${vista === 'todo' ? 'activa' : ''} ${balanceNeto >= 0 ? 'positivo' : 'negativo'}`} onClick={() => setVista('todo')}>
-          <small>Balance Neto</small>
-          <span>${balanceNeto.toLocaleString('es-AR')}</span>
-        </div>
-        <div className={`card-balance-n cortesia ${vista === 'cambios' ? 'activa' : ''}`} onClick={() => setVista('cambios')}>
-          <small>Cortesías (🎁)</small>
-          <span>${totalCortesia.toLocaleString('es-AR')}</span>
-        </div>
-      </div>
+      )}
 
       <div className="historial-filtros-n">
         <input 
