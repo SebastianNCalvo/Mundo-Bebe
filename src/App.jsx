@@ -118,13 +118,11 @@ function App() {
           <SeccionGastos 
             sesion={sesion} 
             alTerminar={() => {
-              // Si quieres que pase algo al cargar un gasto, como volver a ventas:
-              // setPestana('ventas'); 
             }}
           />
         )}
         
-        {pestana === 'historial' && esAdmin && <HistorialVentas />}
+        {pestana === 'historial' && esAdmin && <HistorialVentas esAdmin={esAdmin}/>}
       </div>
     </div>
   );

@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../supabaseClient';
-import { generarFacturaPDF } from './GeneradorPDF'; 
+import { generarFacturaPDF } from './GeneradorPDF';
 import '../styles/HistorialVentas.css';
 
-const HistorialVentas = () => {
+function HistorialVentas ({esAdmin}) {
   const [ventas, setVentas] = useState([]);
   const [gastos, setGastos] = useState([]);
   const [cambios, setCambios] = useState([]); 
@@ -17,19 +17,19 @@ const HistorialVentas = () => {
   const [editandoGasto, setEditandoGasto] = useState(null);
   const [editandoVenta, setEditandoVenta] = useState(null);
   const [idRecienActualizado, setIdRecienActualizado] = useState(null);
-  const [esAdmin, setEsAdmin] = useState(false);
+  // const [esAdmin, setEsAdmin] = useState(false);
 
   useEffect(() => {
-    obtenerUsuario();
+    // obtenerUsuario();
     obtenerDatos();
   }, [mes, anio]);
 
-  const obtenerUsuario = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user && user.user_metadata?.role === 'admin') {
-      setEsAdmin(true);
-    }
-  };
+  // const obtenerUsuario = async () => {
+  //   const { data: { user } } = await supabase.auth.getUser();
+  //   if (user && user.user_metadata?.role === 'admin') {
+  //     setEsAdmin(true);
+  //   }
+  // };
 
   const obtenerDatos = async () => {
     setCargando(true);
